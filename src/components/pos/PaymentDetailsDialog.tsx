@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 
 interface PaymentDetailsDialogProps {
   open: boolean;
@@ -89,7 +89,7 @@ const PaymentDetailsDialog: React.FC<PaymentDetailsDialogProps> = ({
           <div className="space-y-2">
             <Label htmlFor="payment-method">Payment Method</Label>
             <Select value={paymentMethod} onValueChange={(value: any) => setPaymentMethod(value)}>
-              <SelectTrigger>
+              <SelectTrigger id="payment-method">
                 <SelectValue placeholder="Select payment method" />
               </SelectTrigger>
               <SelectContent>

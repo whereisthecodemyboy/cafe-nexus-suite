@@ -42,14 +42,14 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
   total,
   onProcessPayment,
 }) => {
-  const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [paymentMethod, setPaymentMethod] = useState<string>('cash');
   const [cashGiven, setCashGiven] = useState(total.toFixed(2));
   const [emailReceipt, setEmailReceipt] = useState(false);
   const [customerEmail, setCustomerEmail] = useState('');
   const [showPaymentDetails, setShowPaymentDetails] = useState(false);
   const { toast } = useToast();
   
-  // Calculate change - this was missing
+  // Calculate change
   const cashGivenValue = parseFloat(cashGiven);
   const changeAmount = !isNaN(cashGivenValue) ? cashGivenValue - total : 0;
 
