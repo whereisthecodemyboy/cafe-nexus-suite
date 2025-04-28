@@ -31,9 +31,9 @@ const TableSelector: React.FC<TableSelectorProps> = ({
   const [open, setOpen] = React.useState(false);
   
   // Filter only available tables
-  const availableTables = tables.filter(table => 
+  const availableTables = tables?.filter(table => 
     table.status === 'available' || (selectedTable?.id === table.id)
-  );
+  ) || [];
 
   // Group tables by section
   const tablesBySection = availableTables.reduce((acc: Record<string, Table[]>, table) => {
@@ -44,6 +44,9 @@ const TableSelector: React.FC<TableSelectorProps> = ({
     return acc;
   }, {});
 
+  // Ensure we have sections to display
+  const sections = Object.keys(tablesBySection);
+  
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -61,28 +64,30 @@ const TableSelector: React.FC<TableSelectorProps> = ({
         <Command>
           <CommandInput placeholder="Search table..." />
           <CommandEmpty>No table found.</CommandEmpty>
-          {Object.entries(tablesBySection).map(([section, sectionTables]) => (
-            <CommandGroup key={section} heading={section}>
-              {sectionTables.map((table) => (
-                <CommandItem
-                  key={table.id}
-                  value={table.id}
-                  onSelect={() => {
-                    onSelectTable(table);
-                    setOpen(false);
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      selectedTable?.id === table.id ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {table.name} ({table.capacity} seats)
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          ))}
+          {sections.length > 0 ? (
+            sections.map((section) => (
+              <CommandGroup key={section} heading={section}>
+                {tablesBySection[section].map((table) => (
+                  <CommandItem
+                    key={table.id}
+                    value={table.id}
+                    onSelect={() => {
+                      onSelectTable(table);
+                      setOpen(false);
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        selectedTable?.id === table.id ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {table.name} ({table.capacity} seats)
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            ))
+          ) : null}
           <CommandGroup heading="Options">
             <CommandItem
               onSelect={() => {
