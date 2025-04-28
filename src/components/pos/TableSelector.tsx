@@ -8,6 +8,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from '@/components/ui/command';
 import {
   Popover,
@@ -35,11 +36,13 @@ const TableSelector: React.FC<TableSelectorProps> = ({
   
   // Filter only available tables
   const availableTables = safeTablesArray.filter(table => 
-    table.status === 'available' || (selectedTable?.id === table.id)
+    table && (table.status === 'available' || (selectedTable?.id === table.id))
   );
 
   // Group tables by section with defensive programming
   const tablesBySection = availableTables.reduce((acc: Record<string, Table[]>, table) => {
+    if (!table) return acc;
+    
     // Make sure section exists, default to 'Other' if not
     const section = table.section || 'Other';
     if (!acc[section]) {
@@ -50,7 +53,7 @@ const TableSelector: React.FC<TableSelectorProps> = ({
   }, {});
 
   // Ensure we have sections to display
-  const sections = Object.keys(tablesBySection);
+  const sections = Object.keys(tablesBySection || {});
   
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -68,54 +71,56 @@ const TableSelector: React.FC<TableSelectorProps> = ({
       <PopoverContent className="w-full p-0">
         <Command>
           <CommandInput placeholder="Search table..." />
-          <CommandEmpty>No table found.</CommandEmpty>
-          
-          {/* Render sections only if we have any */}
-          {sections.length > 0 && (
-            <>
-              {sections.map((section) => (
-                <CommandGroup key={section} heading={section}>
-                  {tablesBySection[section].map((table) => (
-                    <CommandItem
-                      key={table.id}
-                      value={table.id.toString()} // Ensure value is string
-                      onSelect={() => {
-                        onSelectTable(table);
-                        setOpen(false);
-                      }}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          selectedTable?.id === table.id ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      {table.name} ({table.capacity} seats)
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              ))}
-            </>
-          )}
+          <CommandList>
+            <CommandEmpty>No table found.</CommandEmpty>
+            
+            {/* Render sections only if we have any */}
+            {sections && sections.length > 0 && (
+              <>
+                {sections.map((section) => (
+                  <CommandGroup key={section} heading={section}>
+                    {(tablesBySection[section] || []).map((table) => (
+                      <CommandItem
+                        key={table.id}
+                        value={String(table.id)} // Ensure value is string
+                        onSelect={() => {
+                          onSelectTable(table);
+                          setOpen(false);
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            selectedTable?.id === table.id ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        {table.name} ({table.capacity} seats)
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                ))}
+              </>
+            )}
 
-          {/* Always show the Takeaway option */}
-          <CommandGroup heading="Options">
-            <CommandItem
-              value="takeaway" // Ensure value is a string
-              onSelect={() => {
-                onSelectTable(null);
-                setOpen(false);
-              }}
-            >
-              <Check
-                className={cn(
-                  "mr-2 h-4 w-4",
-                  selectedTable === null ? "opacity-100" : "opacity-0"
-                )}
-              />
-              Takeaway
-            </CommandItem>
-          </CommandGroup>
+            {/* Always show the Takeaway option */}
+            <CommandGroup heading="Options">
+              <CommandItem
+                value="takeaway"
+                onSelect={() => {
+                  onSelectTable(null);
+                  setOpen(false);
+                }}
+              >
+                <Check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    selectedTable === null ? "opacity-100" : "opacity-0"
+                  )}
+                />
+                Takeaway
+              </CommandItem>
+            </CommandGroup>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>
