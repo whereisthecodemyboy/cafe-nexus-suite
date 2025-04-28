@@ -14,6 +14,7 @@ import Menu from "@/pages/Menu";
 import Kitchen from "@/pages/Kitchen";
 import Employees from "@/pages/Employees";
 import Reservations from "@/pages/Reservations";
+import CashFlow from "@/pages/CashFlow";
 import Login from "@/pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -36,6 +37,7 @@ const AppRoutes = () => {
       <Route path="/kitchen" element={<ProtectedRoute><AppLayout><Kitchen /></AppLayout></ProtectedRoute>} />
       <Route path="/employees" element={<ProtectedRoute><AppLayout><Employees /></AppLayout></ProtectedRoute>} />
       <Route path="/reservations" element={<ProtectedRoute><AppLayout><Reservations /></AppLayout></ProtectedRoute>} />
+      <Route path="/cashflow" element={<ProtectedRoute><AppLayout><CashFlow /></AppLayout></ProtectedRoute>} />
       <Route path="/analytics" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
