@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { 
   User, 
@@ -7,7 +6,8 @@ import {
   Table, 
   InventoryItem, 
   Customer, 
-  Reservation 
+  Reservation, 
+  PaymentDetails 
 } from '@/data/models';
 import { 
   users, 
@@ -64,6 +64,11 @@ interface AppContextType {
   salesData: any[];
   hourlyTraffic: any[];
   popularItems: any[];
+
+  // Payment related
+  paymentDetails: PaymentDetails[];
+  addPaymentDetails: (details: PaymentDetails) => void;
+  updatePaymentDetails: (details: PaymentDetails) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -92,6 +97,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [appSalesData] = useState(salesData);
   const [appHourlyTraffic] = useState(hourlyTraffic);
   const [appPopularItems] = useState(popularItems);
+  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails[]>([]);
 
   // Authentication functions
   const login = async (email: string, password: string): Promise<boolean> => {
@@ -171,6 +177,16 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setAppReservations(appReservations.filter(r => r.id !== id));
   };
 
+  const addPaymentDetails = (details: PaymentDetails) => {
+    setPaymentDetails([...paymentDetails, details]);
+  };
+
+  const updatePaymentDetails = (details: PaymentDetails) => {
+    setPaymentDetails(paymentDetails.map(p => 
+      p.id === details.id ? details : p
+    ));
+  };
+
   const value = {
     // User
     currentUser,
@@ -213,6 +229,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     salesData: appSalesData,
     hourlyTraffic: appHourlyTraffic,
     popularItems: appPopularItems,
+
+    // Payment Details
+    paymentDetails,
+    addPaymentDetails,
+    updatePaymentDetails,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

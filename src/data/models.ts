@@ -1,4 +1,3 @@
-
 // Types for our data models
 
 export type User = {
@@ -168,4 +167,22 @@ export type Shift = {
   hoursWorked?: number;
   breakMinutes?: number;
   notes?: string;
+};
+
+export type PaymentStatus = 'paid' | 'due' | 'partially_paid';
+
+export type PaymentDetails = {
+  id: string;
+  orderId: string;
+  tableId?: string;
+  customerName?: string;
+  amount: number;
+  amountPaid: number;
+  remainingAmount: number;
+  paymentMethod: 'cash' | 'card' | 'mobile' | 'online';
+  paymentStatus: PaymentStatus;
+  dueDate?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
 };
