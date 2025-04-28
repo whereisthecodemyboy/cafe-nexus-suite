@@ -1,4 +1,3 @@
-
 import { Customer, InventoryItem, Order, Product, Reservation, Shift, Table, User } from "./models";
 
 // Sample users
@@ -488,7 +487,7 @@ export const orders: Order[] = [
     id: "o1",
     orderNumber: "ORD-2023-0001",
     type: "dine-in",
-    status: "serving",
+    status: "served",
     tableId: "t2",
     employeeId: "u6",
     items: [

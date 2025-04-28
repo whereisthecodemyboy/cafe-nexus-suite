@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -76,7 +75,7 @@ const InventoryAlerts: React.FC<InventoryAlertsProps> = ({ items }) => {
                   const daysUntilExpiry = Math.floor((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
                   
                   return (
-                    <Alert key={item.id} variant="warning" className="py-2 bg-amber-50 dark:bg-amber-950">
+                    <Alert key={item.id} variant="default" className="py-2 bg-amber-50 dark:bg-amber-950">
                       <AlertCircle className="h-4 w-4" />
                       <AlertTitle className="ml-2">{item.name}</AlertTitle>
                       <AlertDescription className="ml-2">
