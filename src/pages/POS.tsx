@@ -136,7 +136,6 @@ const POS: React.FC = () => {
     toast({
       title: "Payment Processed",
       description: `Order #${newOrder.orderNumber} has been completed.`,
-      variant: "success",
     });
     
     // Close dialog and reset
