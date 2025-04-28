@@ -30,17 +30,22 @@ const TableSelector: React.FC<TableSelectorProps> = ({
 }) => {
   const [open, setOpen] = React.useState(false);
   
+  // Safely handle tables array
+  const safeTablesArray = Array.isArray(tables) ? tables : [];
+  
   // Filter only available tables
-  const availableTables = tables?.filter(table => 
+  const availableTables = safeTablesArray.filter(table => 
     table.status === 'available' || (selectedTable?.id === table.id)
-  ) || [];
+  );
 
-  // Group tables by section
+  // Group tables by section with defensive programming
   const tablesBySection = availableTables.reduce((acc: Record<string, Table[]>, table) => {
-    if (!acc[table.section]) {
-      acc[table.section] = [];
+    // Make sure section exists, default to 'Other' if not
+    const section = table.section || 'Other';
+    if (!acc[section]) {
+      acc[section] = [];
     }
-    acc[table.section].push(table);
+    acc[section].push(table);
     return acc;
   }, {});
 
@@ -64,32 +69,39 @@ const TableSelector: React.FC<TableSelectorProps> = ({
         <Command>
           <CommandInput placeholder="Search table..." />
           <CommandEmpty>No table found.</CommandEmpty>
-          {sections.length > 0 ? (
-            sections.map((section) => (
-              <CommandGroup key={section} heading={section}>
-                {tablesBySection[section].map((table) => (
-                  <CommandItem
-                    key={table.id}
-                    value={table.id}
-                    onSelect={() => {
-                      onSelectTable(table);
-                      setOpen(false);
-                    }}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        selectedTable?.id === table.id ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                    {table.name} ({table.capacity} seats)
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            ))
-          ) : null}
+          
+          {/* Render sections only if we have any */}
+          {sections.length > 0 && (
+            <>
+              {sections.map((section) => (
+                <CommandGroup key={section} heading={section}>
+                  {tablesBySection[section].map((table) => (
+                    <CommandItem
+                      key={table.id}
+                      value={table.id.toString()} // Ensure value is string
+                      onSelect={() => {
+                        onSelectTable(table);
+                        setOpen(false);
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          selectedTable?.id === table.id ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      {table.name} ({table.capacity} seats)
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              ))}
+            </>
+          )}
+
+          {/* Always show the Takeaway option */}
           <CommandGroup heading="Options">
             <CommandItem
+              value="takeaway" // Ensure value is a string
               onSelect={() => {
                 onSelectTable(null);
                 setOpen(false);

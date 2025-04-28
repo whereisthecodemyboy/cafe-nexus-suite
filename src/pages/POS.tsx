@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Search, ShoppingCart, Trash2, CreditCard } from 'lucide-react';
@@ -27,11 +26,12 @@ const POS: React.FC = () => {
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   
-  // Get unique categories
-  const categories = Array.from(new Set(products.map(product => product.category)));
+  // Get unique categories - ensure products is an array
+  const safeProducts = Array.isArray(products) ? products : [];
+  const categories = Array.from(new Set(safeProducts.map(product => product.category)));
   
-  // Filter products based on search and category
-  const filteredProducts = products.filter(product => {
+  // Filter products based on search and category - with safety checks
+  const filteredProducts = safeProducts.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          product.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
@@ -216,10 +216,10 @@ const POS: React.FC = () => {
             </Button>
           </div>
           
-          {/* Table selection */}
+          {/* Table selection - ensure tables is never undefined */}
           <div className="mb-4">
             <TableSelector
-              tables={tables}
+              tables={Array.isArray(tables) ? tables : []}
               selectedTable={selectedTable}
               onSelectTable={setSelectedTable}
             />
