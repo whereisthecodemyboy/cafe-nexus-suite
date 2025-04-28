@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -47,6 +48,10 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
   const [customerEmail, setCustomerEmail] = useState('');
   const [showPaymentDetails, setShowPaymentDetails] = useState(false);
   const { toast } = useToast();
+  
+  // Calculate change - this was missing
+  const cashGivenValue = parseFloat(cashGiven);
+  const changeAmount = !isNaN(cashGivenValue) ? cashGivenValue - total : 0;
 
   const handlePayment = () => {
     if (emailReceipt && !customerEmail) {
@@ -143,8 +148,8 @@ const PaymentDialog: React.FC<PaymentDialogProps> = ({
                 
                 <div className="flex justify-between mt-2">
                   <span>Change:</span>
-                  <span className={change < 0 ? "text-destructive" : ""}>
-                    ${change.toFixed(2)}
+                  <span className={changeAmount < 0 ? "text-destructive" : ""}>
+                    ${changeAmount.toFixed(2)}
                   </span>
                 </div>
               </div>

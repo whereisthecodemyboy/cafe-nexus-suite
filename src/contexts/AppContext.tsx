@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { 
   User, 
@@ -7,7 +8,8 @@ import {
   InventoryItem, 
   Customer, 
   Reservation, 
-  PaymentDetails 
+  PaymentDetails,
+  OrderItem 
 } from '@/data/models';
 import { 
   users, 
@@ -40,6 +42,7 @@ interface AppContextType {
   addOrder: (order: Order) => void;
   updateOrder: (order: Order) => void;
   deleteOrder: (id: string) => void;
+  updateOrderItem: (orderId: string, itemId: string, status: OrderItem['status']) => void;
   
   // Tables related
   tables: Table[];
@@ -144,6 +147,22 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const deleteOrder = (id: string) => {
     setAppOrders(appOrders.filter(o => o.id !== id));
   };
+  
+  // New function to update order item status
+  const updateOrderItem = (orderId: string, itemId: string, status: OrderItem['status']) => {
+    setAppOrders(appOrders.map(order => {
+      if (order.id === orderId) {
+        const updatedItems = order.items.map(item => {
+          if (item.id === itemId) {
+            return { ...item, status };
+          }
+          return item;
+        });
+        return { ...order, items: updatedItems };
+      }
+      return order;
+    }));
+  };
 
   // Table functions
   const updateTable = (table: Table) => {
@@ -205,6 +224,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     addOrder,
     updateOrder,
     deleteOrder,
+    updateOrderItem,
     
     // Tables
     tables: appTables,
