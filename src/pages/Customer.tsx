@@ -7,15 +7,16 @@ import UnpaidCustomerList from '@/components/cashflow/UnpaidCustomerList';
 import CustomerPaymentHistory from '@/components/cashflow/CustomerPaymentHistory';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import CustomerManagement from '@/components/customer/CustomerManagement';
 
 const Customer = () => {
   const { paymentDetails } = useAppContext();
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Filter for unpaid payments
+  // Filter for unpaid payments - fixing the type error
   const unpaidPayments = paymentDetails.filter(
-    payment => payment.paymentStatus === 'pending' || payment.paymentStatus === 'partially_paid'
+    payment => payment.paymentStatus === 'due' || payment.paymentStatus === 'partially_paid'
   );
   
   // Filter payments based on search query
@@ -45,6 +46,7 @@ const Customer = () => {
         <TabsList>
           <TabsTrigger value="unpaid">Unpaid Balances</TabsTrigger>
           <TabsTrigger value="history">Payment History</TabsTrigger>
+          <TabsTrigger value="customers">Customers</TabsTrigger>
         </TabsList>
         
         <TabsContent value="unpaid" className="space-y-4">
@@ -58,6 +60,10 @@ const Customer = () => {
           <CustomerPaymentHistory 
             selectedCustomerId={selectedCustomerId} 
           />
+        </TabsContent>
+        
+        <TabsContent value="customers" className="space-y-4">
+          <CustomerManagement />
         </TabsContent>
       </Tabs>
     </div>
