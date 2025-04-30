@@ -17,7 +17,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useAppContext } from '@/contexts/AppContext';
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState('john@cafenexus.com');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -39,6 +39,7 @@ const Login: React.FC = () => {
     setLoading(true);
     
     try {
+      console.log('Attempting login with:', email, password);
       const success = await login(email, password);
       
       if (success) {
@@ -55,6 +56,7 @@ const Login: React.FC = () => {
         });
       }
     } catch (error) {
+      console.error('Login error:', error);
       toast({
         title: "Error",
         description: "An error occurred during login.",

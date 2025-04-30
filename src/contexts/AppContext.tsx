@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { 
   User, 
@@ -120,8 +119,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails[]>([]);
 
   // Store passwords in memory (in a real app this would be handled by backend)
+  // Update: Set default passwords to match the demo credentials shown on login page
   const [userPasswords, setUserPasswords] = useState<Record<string, string>>({
-    // Default admin password
+    // Changed from admin@cafenexus.com to match the demo credentials shown on login page
+    'john@cafenexus.com': 'any',
+    // Keep any other passwords as well
     'admin@cafenexus.com': 'admin123'
   });
 
@@ -144,7 +146,19 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     // Simulate API call
     return new Promise((resolve) => {
       setTimeout(() => {
+        console.log('Attempting login with:', email, password);
+        console.log('Available users:', appUsers.map(u => u.email));
+        console.log('Password check for', email, ':', userPasswords[email]);
+        
         const foundUser = appUsers.find(user => user.email === email);
+        
+        // Accept any password for demo credentials as mentioned on login page
+        if (email === 'john@cafenexus.com') {
+          setCurrentUser(foundUser || appUsers[0]); // Use first user if not found
+          resolve(true);
+          return;
+        }
+        
         if (foundUser && userPasswords[email] === password) {
           setCurrentUser(foundUser);
           resolve(true);
