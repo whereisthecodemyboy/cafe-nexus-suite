@@ -1,3 +1,4 @@
+
 import React, { ReactNode, useState } from "react";
 import { 
   Coffee, 
@@ -106,7 +107,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       >
         <div className="flex flex-col h-full">
           <div className="p-6 flex items-center justify-center">
-            <h1 className="text-2xl font-serif font-bold text-primary">Caf�� Nexus</h1>
+            <h1 className="text-2xl font-serif font-bold text-primary">Café Nexus</h1>
           </div>
 
           <div className="flex-1 px-3 py-4 space-y-1">

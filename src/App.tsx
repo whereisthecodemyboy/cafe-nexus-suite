@@ -15,6 +15,7 @@ import Kitchen from "@/pages/Kitchen";
 import Employees from "@/pages/Employees";
 import Reservations from "@/pages/Reservations";
 import CashFlow from "@/pages/CashFlow";
+import Customer from "@/pages/Customer";
 import Login from "@/pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -38,6 +39,7 @@ const AppRoutes = () => {
       <Route path="/employees" element={<ProtectedRoute><AppLayout><Employees /></AppLayout></ProtectedRoute>} />
       <Route path="/reservations" element={<ProtectedRoute><AppLayout><Reservations /></AppLayout></ProtectedRoute>} />
       <Route path="/cashflow" element={<ProtectedRoute><AppLayout><CashFlow /></AppLayout></ProtectedRoute>} />
+      <Route path="/customer" element={<ProtectedRoute><AppLayout><Customer /></AppLayout></ProtectedRoute>} />
       <Route path="/analytics" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
