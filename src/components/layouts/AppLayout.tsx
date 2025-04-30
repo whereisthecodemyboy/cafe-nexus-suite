@@ -13,7 +13,12 @@ import {
   ChefHat, 
   LogOut,
   History,
-  User
+  User,
+  Box,
+  Package,
+  Truck,
+  PackageOpen,
+  File
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -30,6 +35,11 @@ import { useToast } from "@/components/ui/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ModeToggle } from "./ModeToggle";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -37,21 +47,94 @@ interface NavItemProps {
   to: string;
   active: boolean;
   onClick: () => void;
+  subItems?: { icon: React.ReactNode; label: string; to: string }[];
 }
 
-const NavItem = ({ icon, label, active, onClick }: NavItemProps) => (
-  <div
-    onClick={onClick}
-    className={cn(
-      "flex items-center space-x-3 px-3 py-2 rounded-md cursor-pointer transition-colors",
-      active
-        ? "bg-primary text-primary-foreground"
-        : "text-foreground/70 hover:bg-secondary hover:text-foreground"
-    )}
+const NavItem = ({ icon, label, active, onClick, subItems }: NavItemProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+
+  if (subItems) {
+    return (
+      <Collapsible
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        className="w-full"
+      >
+        <CollapsibleTrigger asChild>
+          <div
+            className={cn(
+              "flex items-center justify-between px-3 py-2 rounded-md cursor-pointer transition-colors",
+              active
+                ? "bg-primary text-primary-foreground"
+                : "text-foreground/70 hover:bg-secondary hover:text-foreground"
+            )}
+          >
+            <div className="flex items-center space-x-3">
+              <div className="text-xl">{icon}</div>
+              <div className="font-medium">{label}</div>
+            </div>
+            <div className={cn("transform transition-transform", isOpen ? "rotate-180" : "")}>
+              <ChevronIcon />
+            </div>
+          </div>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="pl-9 mt-1 space-y-1">
+            {subItems.map((item) => (
+              <div
+                key={item.to}
+                onClick={() => onClick(item.to)}
+                className={cn(
+                  "flex items-center space-x-3 px-3 py-2 rounded-md cursor-pointer transition-colors",
+                  location.pathname === item.to
+                    ? "bg-primary text-primary-foreground"
+                    : "text-foreground/70 hover:bg-secondary hover:text-foreground"
+                )}
+              >
+                <div className="text-xl">{item.icon}</div>
+                <div className="font-medium">{item.label}</div>
+              </div>
+            ))}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    );
+  }
+
+  return (
+    <div
+      onClick={() => onClick()}
+      className={cn(
+        "flex items-center space-x-3 px-3 py-2 rounded-md cursor-pointer transition-colors",
+        active
+          ? "bg-primary text-primary-foreground"
+          : "text-foreground/70 hover:bg-secondary hover:text-foreground"
+      )}
+    >
+      <div className="text-xl">{icon}</div>
+      <div className="font-medium">{label}</div>
+    </div>
+  );
+};
+
+// Helper ChevronIcon component
+const ChevronIcon = () => (
+  <svg 
+    width="12" 
+    height="12" 
+    viewBox="0 0 12 12" 
+    fill="none" 
+    xmlns="http://www.w3.org/2000/svg"
   >
-    <div className="text-xl">{icon}</div>
-    <div className="font-medium">{label}</div>
-  </div>
+    <path 
+      d="M2 4L6 8L10 4" 
+      stroke="currentColor" 
+      strokeWidth="1.5" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+    />
+  </svg>
 );
 
 interface AppLayoutProps {
@@ -65,11 +148,24 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
 
+  const handleNavigation = (path = '') => {
+    navigate(path);
+    if (isMobile) setSidebarOpen(false);
+  };
+
+  const inventorySubItems = [
+    { icon: <Package size={20} />, label: "Stock In", to: "/inventory/stock-in" },
+    { icon: <PackageOpen size={20} />, label: "Stock Out", to: "/inventory/stock-out" },
+    { icon: <File size={20} />, label: "Wastage", to: "/inventory/wastage" },
+    { icon: <Truck size={20} />, label: "Purchase Orders", to: "/inventory/purchase-orders" }
+  ];
+
   const navItems = [
     { icon: <Home size={20} />, label: "Dashboard", to: "/" },
     { icon: <Coffee size={20} />, label: "POS", to: "/pos" },
     { icon: <ShoppingBasket size={20} />, label: "Menu", to: "/menu" },
     { icon: <ChefHat size={20} />, label: "Kitchen", to: "/kitchen" },
+    { icon: <Box size={20} />, label: "Inventory", to: "/inventory", subItems: inventorySubItems },
     { icon: <Users size={20} />, label: "Employees", to: "/employees" },
     { icon: <Calendar size={20} />, label: "Reservations", to: "/reservations" },
     { icon: <History size={20} />, label: "History", to: "/cashflow" },
@@ -110,18 +206,18 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             <h1 className="text-2xl font-serif font-bold text-primary">Café Nexus</h1>
           </div>
 
-          <div className="flex-1 px-3 py-4 space-y-1">
+          <div className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
             {navItems.map((item) => (
               <NavItem
                 key={item.to}
                 icon={item.icon}
                 label={item.label}
                 to={item.to}
-                active={location.pathname === item.to}
-                onClick={() => {
-                  navigate(item.to);
-                  if (isMobile) setSidebarOpen(false);
-                }}
+                active={item.subItems ? 
+                  item.subItems.some(subItem => location.pathname === subItem.to) || location.pathname === item.to
+                  : location.pathname === item.to}
+                onClick={item.subItems ? () => {} : () => handleNavigation(item.to)}
+                subItems={item.subItems}
               />
             ))}
           </div>

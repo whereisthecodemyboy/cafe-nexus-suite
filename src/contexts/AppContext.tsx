@@ -30,6 +30,7 @@ interface AppContextType {
   users: User[];
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
+  addUser: (user: User, password: string) => void;
   
   // Products related
   products: Product[];
@@ -51,6 +52,7 @@ interface AppContextType {
   // Inventory related
   inventoryItems: InventoryItem[];
   updateInventoryItem: (item: InventoryItem) => void;
+  addInventoryItem: (item: InventoryItem) => void;
   
   // Customer related
   customers: Customer[];
@@ -72,6 +74,21 @@ interface AppContextType {
   paymentDetails: PaymentDetails[];
   addPaymentDetails: (details: PaymentDetails) => void;
   updatePaymentDetails: (details: PaymentDetails) => void;
+
+  // Settings related
+  businessInfo: {
+    name: string;
+    logo: string;
+    address: string;
+    phone: string;
+    email: string;
+  };
+  taxSettings: {
+    taxRate: number;
+    taxIncluded: boolean;
+  };
+  updateBusinessInfo: (info: any) => void;
+  updateTaxSettings: (settings: any) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -102,13 +119,33 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [appPopularItems] = useState(popularItems);
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails[]>([]);
 
+  // Store passwords in memory (in a real app this would be handled by backend)
+  const [userPasswords, setUserPasswords] = useState<Record<string, string>>({
+    // Default admin password
+    'admin@cafenexus.com': 'admin123'
+  });
+
+  // Settings state
+  const [businessInfo, setBusinessInfo] = useState({
+    name: 'Café Nexus',
+    logo: '/assets/logo.png',
+    address: '123 Coffee Street, Brewville',
+    phone: '+1 (555) 123-4567',
+    email: 'info@cafenexus.com',
+  });
+  
+  const [taxSettings, setTaxSettings] = useState({
+    taxRate: 8.5,
+    taxIncluded: false,
+  });
+  
   // Authentication functions
   const login = async (email: string, password: string): Promise<boolean> => {
     // Simulate API call
     return new Promise((resolve) => {
       setTimeout(() => {
         const foundUser = appUsers.find(user => user.email === email);
-        if (foundUser) {
+        if (foundUser && userPasswords[email] === password) {
           setCurrentUser(foundUser);
           resolve(true);
         } else {
@@ -120,6 +157,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   const logout = () => {
     setCurrentUser(null);
+  };
+
+  const addUser = (user: User, password: string) => {
+    setAppUsers([...appUsers, user]);
+    // Store password (in a real app this would be handled securely by backend)
+    setUserPasswords({...userPasswords, [user.email]: password});
   };
 
   // Product functions
@@ -173,6 +216,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const updateInventoryItem = (item: InventoryItem) => {
     setAppInventoryItems(appInventoryItems.map(i => i.id === item.id ? item : i));
   };
+  
+  const addInventoryItem = (item: InventoryItem) => {
+    setAppInventoryItems([...appInventoryItems, item]);
+  };
 
   // Customer functions
   const addCustomer = (customer: Customer) => {
@@ -206,12 +253,22 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     ));
   };
 
+  // Settings functions
+  const updateBusinessInfo = (info: any) => {
+    setBusinessInfo({...businessInfo, ...info});
+  };
+  
+  const updateTaxSettings = (settings: any) => {
+    setTaxSettings({...taxSettings, ...settings});
+  };
+
   const value = {
     // User
     currentUser,
     users: appUsers,
     login,
     logout,
+    addUser,
     
     // Products
     products: appProducts,
@@ -233,6 +290,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     // Inventory
     inventoryItems: appInventoryItems,
     updateInventoryItem,
+    addInventoryItem,
     
     // Customers
     customers: appCustomers,
@@ -254,6 +312,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     paymentDetails,
     addPaymentDetails,
     updatePaymentDetails,
+    
+    // Settings
+    businessInfo,
+    taxSettings,
+    updateBusinessInfo,
+    updateTaxSettings,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

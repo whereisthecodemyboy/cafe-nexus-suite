@@ -18,6 +18,15 @@ import CashFlow from "@/pages/CashFlow";
 import Customer from "@/pages/Customer";
 import Login from "@/pages/Login";
 import NotFound from "./pages/NotFound";
+import Analytics from "@/pages/Analytics";
+import Settings from "@/pages/Settings";
+import Profile from "@/pages/Profile";
+import StockIn from "@/pages/inventory/StockIn";
+import StockOut from "@/pages/inventory/StockOut";
+import Wastage from "@/pages/inventory/Wastage";
+import PurchaseOrders from "@/pages/inventory/PurchaseOrders";
+import AddEmployee from "@/pages/employees/AddEmployee";
+import AddProduct from "@/pages/products/AddProduct";
 
 const queryClient = new QueryClient();
 
@@ -37,11 +46,21 @@ const AppRoutes = () => {
       <Route path="/menu" element={<ProtectedRoute><AppLayout><Menu /></AppLayout></ProtectedRoute>} />
       <Route path="/kitchen" element={<ProtectedRoute><AppLayout><Kitchen /></AppLayout></ProtectedRoute>} />
       <Route path="/employees" element={<ProtectedRoute><AppLayout><Employees /></AppLayout></ProtectedRoute>} />
+      <Route path="/employees/add" element={<ProtectedRoute><AppLayout><AddEmployee /></AppLayout></ProtectedRoute>} />
       <Route path="/reservations" element={<ProtectedRoute><AppLayout><Reservations /></AppLayout></ProtectedRoute>} />
       <Route path="/cashflow" element={<ProtectedRoute><AppLayout><CashFlow /></AppLayout></ProtectedRoute>} />
       <Route path="/customer" element={<ProtectedRoute><AppLayout><Customer /></AppLayout></ProtectedRoute>} />
-      <Route path="/analytics" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
-      <Route path="/settings" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
+      <Route path="/analytics" element={<ProtectedRoute><AppLayout><Analytics /></AppLayout></ProtectedRoute>} />
+      <Route path="/settings" element={<ProtectedRoute><AppLayout><Settings /></AppLayout></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>} />
+      <Route path="/products/add" element={<ProtectedRoute><AppLayout><AddProduct /></AppLayout></ProtectedRoute>} />
+      
+      {/* Inventory Routes */}
+      <Route path="/inventory/stock-in" element={<ProtectedRoute><AppLayout><StockIn /></AppLayout></ProtectedRoute>} />
+      <Route path="/inventory/stock-out" element={<ProtectedRoute><AppLayout><StockOut /></AppLayout></ProtectedRoute>} />
+      <Route path="/inventory/wastage" element={<ProtectedRoute><AppLayout><Wastage /></AppLayout></ProtectedRoute>} />
+      <Route path="/inventory/purchase-orders" element={<ProtectedRoute><AppLayout><PurchaseOrders /></AppLayout></ProtectedRoute>} />
+      
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
