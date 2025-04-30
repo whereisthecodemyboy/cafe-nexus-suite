@@ -104,7 +104,7 @@ const NavItem = ({ icon, label, active, onClick, subItems }: NavItemProps) => {
 
   return (
     <div
-      onClick={() => onClick()}
+      onClick={onClick}
       className={cn(
         "flex items-center space-x-3 px-3 py-2 rounded-md cursor-pointer transition-colors",
         active
@@ -216,7 +216,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 active={item.subItems ? 
                   item.subItems.some(subItem => location.pathname === subItem.to) || location.pathname === item.to
                   : location.pathname === item.to}
-                onClick={item.subItems ? () => {} : () => handleNavigation(item.to)}
+                onClick={() => handleNavigation(item.to)}
                 subItems={item.subItems}
               />
             ))}
