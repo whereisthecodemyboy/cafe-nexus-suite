@@ -46,11 +46,11 @@ interface NavItemProps {
   label: string;
   to: string;
   active: boolean;
-  onClick: (to?: string) => void;
+  onClick: (to: string) => void;
   subItems?: { icon: React.ReactNode; label: string; to: string }[];
 }
 
-const NavItem = ({ icon, label, active, onClick, subItems }: NavItemProps) => {
+const NavItem = ({ icon, label, to, active, onClick, subItems }: NavItemProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
@@ -148,7 +148,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
 
-  const handleNavigation = (path = '') => {
+  const handleNavigation = (path: string) => {
     navigate(path);
     if (isMobile) setSidebarOpen(false);
   };
@@ -165,7 +165,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     { icon: <Coffee size={20} />, label: "POS", to: "/pos" },
     { icon: <ShoppingBasket size={20} />, label: "Menu", to: "/menu" },
     { icon: <ChefHat size={20} />, label: "Kitchen", to: "/kitchen" },
-    { icon: <Box size={20} />, label: "Inventory", to: "/inventory", subItems: inventorySubItems },
+    { icon: <Box size={20} />, label: "Inventory", to: "/inventory/stock-in", subItems: inventorySubItems },
     { icon: <Users size={20} />, label: "Employees", to: "/employees" },
     { icon: <Calendar size={20} />, label: "Reservations", to: "/reservations" },
     { icon: <History size={20} />, label: "History", to: "/cashflow" },

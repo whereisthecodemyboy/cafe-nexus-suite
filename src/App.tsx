@@ -56,6 +56,7 @@ const AppRoutes = () => {
       <Route path="/products/add" element={<ProtectedRoute><AppLayout><AddProduct /></AppLayout></ProtectedRoute>} />
       
       {/* Inventory Routes */}
+      <Route path="/inventory" element={<Navigate to="/inventory/stock-in" replace />} />
       <Route path="/inventory/stock-in" element={<ProtectedRoute><AppLayout><StockIn /></AppLayout></ProtectedRoute>} />
       <Route path="/inventory/stock-out" element={<ProtectedRoute><AppLayout><StockOut /></AppLayout></ProtectedRoute>} />
       <Route path="/inventory/wastage" element={<ProtectedRoute><AppLayout><Wastage /></AppLayout></ProtectedRoute>} />
