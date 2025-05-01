@@ -16,8 +16,8 @@ import {
   User,
   Box,
   Package,
-  Truck,
   PackageOpen,
+  Truck,
   File
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -46,7 +46,7 @@ interface NavItemProps {
   label: string;
   to: string;
   active: boolean;
-  onClick: () => void;
+  onClick: (to?: string) => void;
   subItems?: { icon: React.ReactNode; label: string; to: string }[];
 }
 
@@ -104,7 +104,7 @@ const NavItem = ({ icon, label, active, onClick, subItems }: NavItemProps) => {
 
   return (
     <div
-      onClick={onClick}
+      onClick={() => onClick(to)}
       className={cn(
         "flex items-center space-x-3 px-3 py-2 rounded-md cursor-pointer transition-colors",
         active
