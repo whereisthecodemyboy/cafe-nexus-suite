@@ -37,11 +37,12 @@ const TableManagementDialog: React.FC<TableManagementDialogProps> = ({
   const { tables, addTable, updateTable, deleteTable } = useAppContext();
   const { toast } = useToast();
   
+  // This is the initial state that will be used when adding a new table
   const [newTable, setNewTable] = useState({
     name: '',
     capacity: 4,
     section: 'Main',
-    shape: 'square' as const,
+    shape: 'square' as 'square' | 'rectangle' | 'circle' | 'custom',
   });
   
   const [selectedTables, setSelectedTables] = useState<string[]>([]);
@@ -79,7 +80,7 @@ const TableManagementDialog: React.FC<TableManagementDialogProps> = ({
       name: newTable.name,
       capacity: Number(newTable.capacity),
       status: 'available',
-      shape: newTable.shape as 'square' | 'rectangle' | 'circle' | 'custom',
+      shape: newTable.shape,
       positionX: 0,
       positionY: 0,
       width: 60,
@@ -249,7 +250,7 @@ const TableManagementDialog: React.FC<TableManagementDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Table Management</DialogTitle>
+          <DialogTitle className="text-2xl">Table Management</DialogTitle>
           <DialogDescription>
             Add new tables, combine or separate tables, and manage existing ones.
           </DialogDescription>
@@ -257,8 +258,11 @@ const TableManagementDialog: React.FC<TableManagementDialogProps> = ({
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Add New Table Section */}
-          <div className="space-y-4 border p-4 rounded-md">
-            <h3 className="text-lg font-medium">Add New Table</h3>
+          <div className="space-y-4 bg-card border rounded-lg p-5 shadow-sm">
+            <h3 className="text-lg font-medium flex items-center">
+              <PlusCircle className="mr-2 h-5 w-5 text-primary" /> 
+              Add New Table
+            </h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="table-name">Table Name</Label>
@@ -267,6 +271,7 @@ const TableManagementDialog: React.FC<TableManagementDialogProps> = ({
                   placeholder="e.g., Table 1"
                   value={newTable.name}
                   onChange={(e) => setNewTable({...newTable, name: e.target.value})}
+                  className="bg-background"
                 />
               </div>
               <div className="space-y-2">
@@ -277,6 +282,7 @@ const TableManagementDialog: React.FC<TableManagementDialogProps> = ({
                   min="1"
                   value={newTable.capacity}
                   onChange={(e) => setNewTable({...newTable, capacity: parseInt(e.target.value) || 1})}
+                  className="bg-background"
                 />
               </div>
               <div className="space-y-2">
@@ -285,7 +291,7 @@ const TableManagementDialog: React.FC<TableManagementDialogProps> = ({
                   value={newTable.section} 
                   onValueChange={(value) => setNewTable({...newTable, section: value})}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-background">
                     <SelectValue placeholder="Select section" />
                   </SelectTrigger>
                   <SelectContent>
@@ -310,7 +316,7 @@ const TableManagementDialog: React.FC<TableManagementDialogProps> = ({
                     setNewTable({...newTable, shape: value})
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-background">
                     <SelectValue placeholder="Select shape" />
                   </SelectTrigger>
                   <SelectContent>
@@ -329,8 +335,11 @@ const TableManagementDialog: React.FC<TableManagementDialogProps> = ({
           </div>
           
           {/* Table Actions Section */}
-          <div className="space-y-4 border p-4 rounded-md">
-            <h3 className="text-lg font-medium">Table Actions</h3>
+          <div className="space-y-4 bg-card border rounded-lg p-5 shadow-sm">
+            <h3 className="text-lg font-medium flex items-center">
+              <Link className="mr-2 h-5 w-5 text-primary" />
+              Table Actions
+            </h3>
             <div className="flex gap-4 mb-4">
               <Button 
                 variant={tableAction === 'combine' ? 'default' : 'outline'} 
@@ -357,7 +366,7 @@ const TableManagementDialog: React.FC<TableManagementDialogProps> = ({
                     'Select tables to combine them for larger groups.' : 
                     'Select combined tables to separate them.'}
                 </p>
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-2 flex-wrap max-h-48 overflow-y-auto p-2 border rounded-md bg-background">
                   {tables.map((table) => {
                     // For combining, only show available tables
                     // For separating, show tables that are combined
@@ -373,11 +382,20 @@ const TableManagementDialog: React.FC<TableManagementDialogProps> = ({
                         size="sm"
                         variant={selectedTables.includes(table.id) ? "default" : "outline"}
                         onClick={() => handleTableSelection(table.id)}
+                        className="mb-2"
                       >
                         {table.name}
                       </Button>
                     );
                   })}
+                  
+                  {tableAction === 'combine' && tables.filter(t => t.status === 'available').length === 0 && (
+                    <p className="text-sm text-muted-foreground p-2">No available tables to combine</p>
+                  )}
+                  
+                  {tableAction === 'separate' && tables.filter(t => t.combinedWith && t.combinedWith.length > 0).length === 0 && (
+                    <p className="text-sm text-muted-foreground p-2">No combined tables to separate</p>
+                  )}
                 </div>
                 
                 <Button 
@@ -393,81 +411,91 @@ const TableManagementDialog: React.FC<TableManagementDialogProps> = ({
         </div>
         
         {/* Existing Tables List */}
-        <div className="mt-6">
-          <h3 className="text-lg font-medium mb-4">Existing Tables</h3>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Table</TableHead>
-                <TableHead>Capacity</TableHead>
-                <TableHead>Section</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Combined With</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {tables.map((table) => (
-                <TableRow key={table.id}>
-                  <TableCell>{table.name}</TableCell>
-                  <TableCell>{table.capacity}</TableCell>
-                  <TableCell>{table.section}</TableCell>
-                  <TableCell>
-                    <span 
-                      className={`inline-block rounded-full px-2 text-xs ${
-                        table.status === 'available' 
-                          ? 'bg-green-100 text-green-800' 
-                          : table.status === 'occupied'
-                          ? 'bg-red-100 text-red-800'
-                          : table.status === 'reserved'
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}
-                    >
-                      {table.status}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    {table.combinedWith && table.combinedWith.length > 0 ? (
-                      <div className="flex gap-1 flex-wrap">
-                        {table.combinedWith.map(tableId => {
-                          const combinedTable = tables.find(t => t.id === tableId);
-                          return combinedTable ? (
-                            <span key={tableId} className="bg-gray-100 text-xs px-1 rounded">
-                              {combinedTable.name}
-                            </span>
-                          ) : null;
-                        })}
-                      </div>
-                    ) : (
-                      <span className="text-muted-foreground text-xs">None</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteTable(table.id)}
-                      disabled={table.status === 'occupied' || Boolean(table.currentOrderId)}
-                    >
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {tables.length === 0 && (
+        <div className="mt-6 border rounded-lg shadow-sm p-4 bg-background">
+          <h3 className="text-lg font-medium mb-4 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-primary">
+              <rect x="3" y="8" width="18" height="12" rx="2" />
+              <path d="M10 8V5c0-1.1.9-2 2-2h0c1.1 0 2 .9 2 2v3" />
+            </svg>
+            Existing Tables
+          </h3>
+          <div className="rounded-md border overflow-hidden">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-4 text-muted-foreground">
-                    No tables available. Add your first table above.
-                  </TableCell>
+                  <TableHead>Table</TableHead>
+                  <TableHead>Capacity</TableHead>
+                  <TableHead>Section</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Combined With</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {tables.map((table) => (
+                  <TableRow key={table.id}>
+                    <TableCell className="font-medium">{table.name}</TableCell>
+                    <TableCell>{table.capacity}</TableCell>
+                    <TableCell>{table.section}</TableCell>
+                    <TableCell>
+                      <span 
+                        className={`inline-block rounded-full px-2 py-1 text-xs ${
+                          table.status === 'available' 
+                            ? 'bg-green-100 text-green-800' 
+                            : table.status === 'occupied'
+                            ? 'bg-red-100 text-red-800'
+                            : table.status === 'reserved'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}
+                      >
+                        {table.status}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      {table.combinedWith && table.combinedWith.length > 0 ? (
+                        <div className="flex gap-1 flex-wrap">
+                          {table.combinedWith.map(tableId => {
+                            const combinedTable = tables.find(t => t.id === tableId);
+                            return combinedTable ? (
+                              <span key={tableId} className="bg-gray-100 text-xs px-2 py-1 rounded">
+                                {combinedTable.name}
+                              </span>
+                            ) : null;
+                          })}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">None</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteTable(table.id)}
+                        disabled={table.status === 'occupied' || Boolean(table.currentOrderId)}
+                        className={table.status === 'occupied' || Boolean(table.currentOrderId) ? 
+                          "cursor-not-allowed opacity-50" : "text-red-500 hover:text-red-700 hover:bg-red-50"}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {tables.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      No tables available. Add your first table above.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
             Close
           </Button>
         </DialogFooter>
