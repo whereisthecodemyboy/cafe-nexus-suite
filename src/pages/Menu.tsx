@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { PlusCircle, Filter, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,10 +13,12 @@ import {
 import { useAppContext } from '@/contexts/AppContext';
 import MenuCategorySection from '@/components/menu/MenuCategorySection';
 import { Product } from '@/data/models';
+import { useNavigate } from 'react-router-dom';
 
 const Menu: React.FC = () => {
   const { products, deleteProduct } = useAppContext();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   // State
   const [searchQuery, setSearchQuery] = useState('');
@@ -67,11 +68,7 @@ const Menu: React.FC = () => {
   };
 
   const handleAddProduct = () => {
-    // In a real app, this would open a modal for adding a new product
-    toast({
-      title: "Add Product",
-      description: "You clicked to add a new product.",
-    });
+    navigate('/products/add');
   };
 
   return (
