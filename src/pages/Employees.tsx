@@ -14,10 +14,12 @@ import { useToast } from '@/components/ui/use-toast';
 import { useAppContext } from '@/contexts/AppContext';
 import EmployeeCard from '@/components/employees/EmployeeCard';
 import { User } from '@/data/models';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Employees: React.FC = () => {
   const { users } = useAppContext();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   // State
   const [searchQuery, setSearchQuery] = useState('');
@@ -39,11 +41,7 @@ const Employees: React.FC = () => {
 
   // Handle employee actions
   const handleAddEmployee = () => {
-    // In a real app, this would open a modal for adding a new employee
-    toast({
-      title: "Add Employee",
-      description: "You clicked to add a new employee.",
-    });
+    navigate('/employees/add');
   };
   
   const handleEditEmployee = (employee: User) => {

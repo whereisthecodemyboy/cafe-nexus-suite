@@ -62,8 +62,8 @@ const AddEmployee = () => {
       email: '',
       phone: '',
       role: 'waiter',
-      shiftStart: '',
-      shiftEnd: '',
+      shiftStart: '09:00',
+      shiftEnd: '17:00',
       password: '',
       confirmPassword: ''
     }
@@ -90,8 +90,11 @@ const AddEmployee = () => {
         phone: data.phone,
         hireDate: new Date().toISOString(),
         status: 'active' as const,
+        shiftStart: data.shiftStart,
+        shiftEnd: data.shiftEnd,
       };
 
+      // Add the user to the context
       addUser(newUser, data.password);
       
       toast({
@@ -99,6 +102,7 @@ const AddEmployee = () => {
         description: `${data.name} has been added as a ${data.role}`,
       });
       
+      // Navigate back to employees list
       navigate('/employees');
     } catch (error) {
       console.error("Error adding employee:", error);
