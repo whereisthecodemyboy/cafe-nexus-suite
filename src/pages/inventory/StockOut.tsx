@@ -129,7 +129,7 @@ const StockOut = () => {
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  const reasonLabels = {
+  const reasonLabels: Record<string, string> = {
     'used': 'Used in production',
     'expired': 'Expired',
     'damaged': 'Damaged',
@@ -239,7 +239,7 @@ const StockOut = () => {
                       <TableCell>{formatDate(activity.date)}</TableCell>
                       <TableCell className="font-medium">{activity.itemName}</TableCell>
                       <TableCell>{activity.quantity} {activity.unit}</TableCell>
-                      <TableCell>{reasonLabels[activity.reason as keyof typeof reasonLabels]}</TableCell>
+                      <TableCell>{reasonLabels[activity.reason]}</TableCell>
                       <TableCell>{activity.user}</TableCell>
                     </TableRow>
                   ))}

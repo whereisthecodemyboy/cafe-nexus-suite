@@ -136,7 +136,7 @@ const Wastage = () => {
     }).format(value);
   };
 
-  const wasteReasonLabels = {
+  const wasteReasonLabels: Record<string, string> = {
     'expired': 'Expired',
     'damaged': 'Damaged/Spoiled',
     'preparation': 'Preparation Error',
@@ -257,7 +257,7 @@ const Wastage = () => {
                       <TableCell>{formatDate(activity.date)}</TableCell>
                       <TableCell className="font-medium">{activity.itemName}</TableCell>
                       <TableCell>{activity.quantity} {activity.unit}</TableCell>
-                      <TableCell>{wasteReasonLabels[activity.reason as keyof typeof wasteReasonLabels]}</TableCell>
+                      <TableCell>{wasteReasonLabels[activity.reason]}</TableCell>
                       <TableCell className="text-red-500">{formatCurrency(activity.cost || 0)}</TableCell>
                       <TableCell>{activity.user}</TableCell>
                     </TableRow>

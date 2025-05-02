@@ -1,4 +1,3 @@
-
 import React, { ReactNode, useState } from "react";
 import { 
   Coffee, 
@@ -216,7 +215,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 active={item.subItems ? 
                   item.subItems.some(subItem => location.pathname === subItem.to) || location.pathname === item.to
                   : location.pathname === item.to}
-                onClick={() => handleNavigation(item.to)}
+                onClick={handleNavigation}
                 subItems={item.subItems}
               />
             ))}

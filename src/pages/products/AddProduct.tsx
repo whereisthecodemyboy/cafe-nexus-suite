@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -25,7 +24,8 @@ import {
   FormField, 
   FormItem, 
   FormLabel, 
-  FormMessage 
+  FormMessage, 
+  FormDescription
 } from '@/components/ui/form';
 import {
   Tabs,
@@ -40,7 +40,7 @@ import { useForm } from 'react-hook-form';
 import { useToast } from '@/components/ui/use-toast';
 import { useAppContext } from '@/contexts/AppContext';
 import { v4 as uuidv4 } from 'uuid';
-import { Image, Plus, Trash } from 'lucide-react';
+import { Image, Package, Plus, Trash } from 'lucide-react';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -88,8 +88,11 @@ const AddProduct = () => {
     priceDelta: 0,
   });
   const [activeCustomizationId, setActiveCustomizationId] = useState<string | null>(null);
+  const [customCategory, setCustomCategory] = useState('');
   
-  const categories = [...new Set(products.map(p => p.category))];
+  // Extract existing categories and add "Other" for custom input
+  const existingCategories = [...new Set(products.map(p => p.category))];
+  const categories = existingCategories.length > 0 ? existingCategories : ['Coffee', 'Tea', 'Desserts', 'Breakfast', 'Lunch'];
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -108,30 +111,52 @@ const AddProduct = () => {
   });
 
   const onSubmit = (data: FormValues) => {
-    const newProduct = {
-      id: uuidv4(),
-      name: data.name,
-      description: data.description,
-      category: data.category,
-      price: data.price,
-      cost: data.cost,
-      image: data.image || undefined,
-      available: data.available,
-      preparationTime: data.preparationTime,
-      allergens: data.allergens,
-      variants: [],
-      customizations: customizations,
-      isSpecial: data.isSpecial
-    };
+    try {
+      // Use custom category if selected
+      const finalCategory = data.category === 'custom' ? customCategory : data.category;
+      
+      if (data.category === 'custom' && !customCategory) {
+        toast({
+          title: "Category required",
+          description: "Please enter a custom category name",
+          variant: "destructive"
+        });
+        return;
+      }
 
-    addProduct(newProduct);
-    
-    toast({
-      title: "Product added successfully",
-      description: `${data.name} has been added to the menu`,
-    });
-    
-    navigate('/menu');
+      const newProduct = {
+        id: uuidv4(),
+        name: data.name,
+        description: data.description,
+        category: finalCategory,
+        price: data.price,
+        cost: data.cost,
+        image: data.image || '/placeholder.svg',
+        available: data.available,
+        preparationTime: data.preparationTime,
+        allergens: data.allergens,
+        variants: [],
+        customizations: customizations,
+        isSpecial: data.isSpecial,
+        inventoryItems: selectedInventoryItems
+      };
+
+      addProduct(newProduct);
+      
+      toast({
+        title: "Product added successfully",
+        description: `${data.name} has been added to the menu`,
+      });
+      
+      navigate('/menu');
+    } catch (error) {
+      console.error("Error adding product:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add product. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleAddCustomization = () => {
@@ -212,6 +237,13 @@ const AddProduct = () => {
     }
   };
 
+  const handleCategoryChange = (value: string) => {
+    form.setValue('category', value);
+    if (value !== 'custom') {
+      setCustomCategory('');
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -223,7 +255,10 @@ const AddProduct = () => {
       
       <Card>
         <CardHeader>
-          <CardTitle>Product Information</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Package size={20} />
+            Product Information
+          </CardTitle>
           <CardDescription>Enter the details of the new menu item</CardDescription>
         </CardHeader>
         <CardContent>
@@ -258,7 +293,10 @@ const AddProduct = () => {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Category</FormLabel>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select 
+                            onValueChange={handleCategoryChange} 
+                            value={field.value}
+                          >
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select a category" />
@@ -280,6 +318,23 @@ const AddProduct = () => {
                         </FormItem>
                       )}
                     />
+                    
+                    {form.watch('category') === 'custom' && (
+                      <FormItem className="col-span-2">
+                        <FormLabel>Custom Category Name</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Enter new category name" 
+                            value={customCategory}
+                            onChange={(e) => setCustomCategory(e.target.value)}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Create a new category for your menu items
+                        </FormDescription>
+                      </FormItem>
+                    )}
+                    
                     <FormField
                       control={form.control}
                       name="price"

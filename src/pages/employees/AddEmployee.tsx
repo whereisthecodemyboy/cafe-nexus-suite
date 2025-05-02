@@ -32,6 +32,7 @@ import { useForm } from 'react-hook-form';
 import { useToast } from '@/components/ui/use-toast';
 import { useAppContext } from '@/contexts/AppContext';
 import { v4 as uuidv4 } from 'uuid';
+import { User } from 'lucide-react';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -69,35 +70,44 @@ const AddEmployee = () => {
   });
 
   const onSubmit = (data: FormValues) => {
-    // Check if email already exists
-    const emailExists = users.some(user => user.email === data.email);
-    if (emailExists) {
+    try {
+      // Check if email already exists
+      const emailExists = users.some(user => user.email === data.email);
+      if (emailExists) {
+        toast({
+          title: "Email already exists",
+          description: "Please use a different email address",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const newUser = {
+        id: uuidv4(),
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        phone: data.phone,
+        hireDate: new Date().toISOString(),
+        status: 'active' as const,
+      };
+
+      addUser(newUser, data.password);
+      
       toast({
-        title: "Email already exists",
-        description: "Please use a different email address",
+        title: "Employee added successfully",
+        description: `${data.name} has been added as a ${data.role}`,
+      });
+      
+      navigate('/employees');
+    } catch (error) {
+      console.error("Error adding employee:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add employee. Please try again.",
         variant: "destructive"
       });
-      return;
     }
-
-    const newUser = {
-      id: uuidv4(),
-      name: data.name,
-      email: data.email,
-      role: data.role,
-      phone: data.phone,
-      hireDate: new Date().toISOString(),
-      status: 'active' as const,
-    };
-
-    addUser(newUser, data.password);
-    
-    toast({
-      title: "Employee added successfully",
-      description: `${data.name} has been added as a ${data.role}`,
-    });
-    
-    navigate('/employees');
   };
 
   return (
@@ -111,7 +121,10 @@ const AddEmployee = () => {
       
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
-          <CardTitle>Employee Information</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <User size={20} />
+            Employee Information
+          </CardTitle>
           <CardDescription>Enter the details of the new employee</CardDescription>
         </CardHeader>
         <CardContent>
