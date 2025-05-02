@@ -143,7 +143,7 @@ const TableOrderDialog: React.FC<TableOrderDialogProps> = ({
     if (!currentOrder || !table) return;
     
     // Update order status
-    const updatedOrder = {
+    const updatedOrder: Order = {
       ...currentOrder,
       status: 'completed',
       paymentStatus: 'paid',

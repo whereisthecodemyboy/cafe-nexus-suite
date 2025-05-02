@@ -46,7 +46,9 @@ interface AppContextType {
   
   // Tables related
   tables: Table[];
+  addTable: (table: Table) => void;
   updateTable: (table: Table) => void;
+  deleteTable: (id: string) => void;
   
   // Inventory related
   inventoryItems: InventoryItem[];
@@ -222,8 +224,16 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   };
 
   // Table functions
+  const addTable = (table: Table) => {
+    setAppTables([...appTables, table]);
+  };
+
   const updateTable = (table: Table) => {
     setAppTables(appTables.map(t => t.id === table.id ? table : t));
+  };
+
+  const deleteTable = (id: string) => {
+    setAppTables(appTables.filter(t => t.id !== id));
   };
 
   // Inventory functions
@@ -299,7 +309,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     
     // Tables
     tables: appTables,
+    addTable,
     updateTable,
+    deleteTable,
     
     // Inventory
     inventoryItems: appInventoryItems,

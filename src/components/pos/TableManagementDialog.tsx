@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, PlusCircle, Trash2, Link, LinkOff } from 'lucide-react';
+import { X, PlusCircle, Trash2, Link, Link2Off } from 'lucide-react';
 import { 
   Dialog, 
   DialogContent, 
@@ -345,7 +345,7 @@ const TableManagementDialog: React.FC<TableManagementDialogProps> = ({
                 className="flex-1"
                 onClick={() => setTableAction(tableAction === 'separate' ? null : 'separate')}
               >
-                <LinkOff className="mr-2 h-4 w-4" />
+                <Link2Off className="mr-2 h-4 w-4" />
                 Separate Tables
               </Button>
             </div>
