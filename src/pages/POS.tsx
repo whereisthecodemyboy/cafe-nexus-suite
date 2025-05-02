@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Search, ShoppingCart, Trash2, CreditCard } from 'lucide-react';
+import { Search, ShoppingCart, Trash2, CreditCard, Settings } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -12,6 +12,8 @@ import OrderItemCard from '@/components/pos/OrderItemCard';
 import CategoryFilter from '@/components/pos/CategoryFilter';
 import TableSelector from '@/components/pos/TableSelector';
 import PaymentDialog from '@/components/pos/PaymentDialog';
+import TableManagementDialog from '@/components/pos/TableManagementDialog';
+import TableOrderDialog from '@/components/pos/TableOrderDialog';
 import { Product, OrderItem, Order, Table } from '@/data/models';
 
 const POS: React.FC = () => {
@@ -25,6 +27,9 @@ const POS: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [tableManagementOpen, setTableManagementOpen] = useState(false);
+  const [tableOrderOpen, setTableOrderOpen] = useState(false);
+  const [existingOrder, setExistingOrder] = useState<Order | null>(null);
   
   // Get unique categories - ensure products is an array
   const safeProducts = Array.isArray(products) ? products : [];
@@ -48,6 +53,18 @@ const POS: React.FC = () => {
   const taxRate = 0.1; // 10% tax
   const tax = subtotal * taxRate;
   const total = subtotal + tax;
+  
+  // Check if selected table has an existing order
+  useEffect(() => {
+    if (selectedTable && selectedTable.currentOrderId) {
+      const order = orders.find(o => o.id === selectedTable.currentOrderId);
+      if (order) {
+        setExistingOrder(order);
+        return;
+      }
+    }
+    setExistingOrder(null);
+  }, [selectedTable, orders]);
   
   // Handle adding product to cart
   const handleAddToCart = (product: Product) => {
@@ -143,12 +160,34 @@ const POS: React.FC = () => {
     setCartItems([]);
     setSelectedTable(null);
   };
+  
+  // Handle table selection
+  const handleTableSelect = (table: Table | null) => {
+    setSelectedTable(table);
+    
+    // If table has existing order, show the order dialog
+    if (table && table.currentOrderId) {
+      setTableOrderOpen(true);
+    }
+  };
+  
+  // Handle adding more items to an existing order
+  const handleAddToExistingOrder = () => {
+    setTableOrderOpen(false);
+    // Keep the selected table, but start a fresh cart for adding items
+  };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-serif font-bold tracking-tight">Point of Sale</h1>
-        <p className="text-muted-foreground">Create and manage customer orders</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-serif font-bold tracking-tight">Point of Sale</h1>
+          <p className="text-muted-foreground">Create and manage customer orders</p>
+        </div>
+        <Button variant="outline" onClick={() => setTableManagementOpen(true)}>
+          <Settings className="mr-2 h-4 w-4" />
+          Manage Tables
+        </Button>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -221,8 +260,24 @@ const POS: React.FC = () => {
             <TableSelector
               tables={Array.isArray(tables) ? tables : []}
               selectedTable={selectedTable}
-              onSelectTable={setSelectedTable}
+              onSelectTable={handleTableSelect}
             />
+            
+            {existingOrder && (
+              <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded-md text-sm">
+                <p className="font-medium text-amber-800">
+                  This table has an active order ({existingOrder.orderNumber})
+                </p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-1 w-full text-amber-800 border-amber-300 hover:bg-amber-100"
+                  onClick={() => setTableOrderOpen(true)}
+                >
+                  View Existing Order
+                </Button>
+              </div>
+            )}
           </div>
           
           <Separator className="mb-4" />
@@ -271,12 +326,18 @@ const POS: React.FC = () => {
           <Button 
             className="w-full"
             size="lg"
-            disabled={cartItems.length === 0}
+            disabled={cartItems.length === 0 || existingOrder !== null}
             onClick={() => setPaymentDialogOpen(true)}
           >
             <CreditCard className="mr-2 h-5 w-5" />
             Process Payment
           </Button>
+          
+          {existingOrder && (
+            <p className="text-center mt-2 text-sm text-muted-foreground">
+              You must manage the existing order before creating a new one.
+            </p>
+          )}
         </div>
       </div>
       
@@ -289,6 +350,20 @@ const POS: React.FC = () => {
         tax={tax}
         total={total}
         onProcessPayment={handleProcessPayment}
+      />
+      
+      {/* Table Management Dialog */}
+      <TableManagementDialog
+        open={tableManagementOpen}
+        onOpenChange={setTableManagementOpen}
+      />
+      
+      {/* Table Order Dialog */}
+      <TableOrderDialog
+        open={tableOrderOpen}
+        onOpenChange={setTableOrderOpen}
+        table={selectedTable}
+        onAddItems={handleAddToExistingOrder}
       />
     </div>
   );
