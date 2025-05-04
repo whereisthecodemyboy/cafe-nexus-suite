@@ -17,7 +17,8 @@ import {
   Package,
   PackageOpen,
   Truck,
-  File
+  File,
+  Table2
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -162,6 +163,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const navItems = [
     { icon: <Home size={20} />, label: "Dashboard", to: "/" },
     { icon: <Coffee size={20} />, label: "POS", to: "/pos" },
+    { icon: <Table2 size={20} />, label: "Table Management", to: "/table-management" },
     { icon: <ShoppingBasket size={20} />, label: "Menu", to: "/menu" },
     { icon: <ChefHat size={20} />, label: "Kitchen", to: "/kitchen" },
     { icon: <Box size={20} />, label: "Inventory", to: "/inventory/stock-in", subItems: inventorySubItems },

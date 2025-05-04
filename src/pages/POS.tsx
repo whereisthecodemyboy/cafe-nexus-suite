@@ -12,13 +12,14 @@ import OrderItemCard from '@/components/pos/OrderItemCard';
 import CategoryFilter from '@/components/pos/CategoryFilter';
 import TableSelector from '@/components/pos/TableSelector';
 import PaymentDialog from '@/components/pos/PaymentDialog';
-import TableManagementDialog from '@/components/pos/TableManagementDialog';
 import TableOrderDialog from '@/components/pos/TableOrderDialog';
 import { Product, OrderItem, Order, Table } from '@/data/models';
+import { useNavigate } from 'react-router-dom';
 
 const POS: React.FC = () => {
   const { products, tables, orders, addOrder, updateTable } = useAppContext();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   // State
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,7 +28,6 @@ const POS: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
-  const [tableManagementOpen, setTableManagementOpen] = useState(false);
   const [tableOrderOpen, setTableOrderOpen] = useState(false);
   const [existingOrder, setExistingOrder] = useState<Order | null>(null);
   
@@ -184,7 +184,7 @@ const POS: React.FC = () => {
           <h1 className="text-3xl font-serif font-bold tracking-tight">Point of Sale</h1>
           <p className="text-muted-foreground">Create and manage customer orders</p>
         </div>
-        <Button variant="outline" onClick={() => setTableManagementOpen(true)}>
+        <Button variant="outline" onClick={() => navigate('/table-management')}>
           <Settings className="mr-2 h-4 w-4" />
           Manage Tables
         </Button>
@@ -350,12 +350,6 @@ const POS: React.FC = () => {
         tax={tax}
         total={total}
         onProcessPayment={handleProcessPayment}
-      />
-      
-      {/* Table Management Dialog */}
-      <TableManagementDialog
-        open={tableManagementOpen}
-        onOpenChange={setTableManagementOpen}
       />
       
       {/* Table Order Dialog */}

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -27,6 +26,7 @@ import Wastage from "@/pages/inventory/Wastage";
 import PurchaseOrders from "@/pages/inventory/PurchaseOrders";
 import AddEmployee from "@/pages/employees/AddEmployee";
 import AddProduct from "@/pages/products/AddProduct";
+import TableManagement from "@/pages/TableManagement";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +43,7 @@ const AppRoutes = () => {
       <Route path="/login" element={currentUser ? <Navigate to="/" replace /> : <Login />} />
       <Route path="/" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
       <Route path="/pos" element={<ProtectedRoute><AppLayout><POS /></AppLayout></ProtectedRoute>} />
+      <Route path="/table-management" element={<ProtectedRoute><AppLayout><TableManagement /></AppLayout></ProtectedRoute>} />
       <Route path="/menu" element={<ProtectedRoute><AppLayout><Menu /></AppLayout></ProtectedRoute>} />
       <Route path="/kitchen" element={<ProtectedRoute><AppLayout><Kitchen /></AppLayout></ProtectedRoute>} />
       <Route path="/employees" element={<ProtectedRoute><AppLayout><Employees /></AppLayout></ProtectedRoute>} />

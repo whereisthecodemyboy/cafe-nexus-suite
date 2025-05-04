@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { X, PlusCircle, Trash2, Link, Link2Off } from 'lucide-react';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogFooter,
-} from '@/components/ui/dialog';
+import {
+  Table2,
+  Plus,
+  Trash2,
+  Link,
+  Link2Off,
+  ArrowLeft,
+  Grid3X3,
+  List,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,18 +25,17 @@ import { useToast } from '@/components/ui/use-toast';
 import { useAppContext } from '@/contexts/AppContext';
 import { v4 as uuidv4 } from 'uuid';
 import { Table as TableType } from '@/data/models';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import TableLayout from '@/components/tables/TableLayout';
 
-interface TableManagementDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-const TableManagementDialog: React.FC<TableManagementDialogProps> = ({
-  open,
-  onOpenChange,
-}) => {
+const TableManagement: React.FC = () => {
   const { tables, addTable, updateTable, deleteTable } = useAppContext();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   // This is the initial state that will be used when adding a new table
   const [newTable, setNewTable] = useState({
@@ -47,6 +47,7 @@ const TableManagementDialog: React.FC<TableManagementDialogProps> = ({
   
   const [selectedTables, setSelectedTables] = useState<string[]>([]);
   const [tableAction, setTableAction] = useState<'combine' | 'separate' | null>(null);
+  const [activeTab, setActiveTab] = useState('visual');
   
   // Get unique sections
   const sections = Array.from(new Set(tables.map(table => table.section)));
@@ -247,22 +248,29 @@ const TableManagementDialog: React.FC<TableManagementDialogProps> = ({
   };
   
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
-        <DialogHeader>
-          <DialogTitle className="text-2xl">Table Management</DialogTitle>
-          <DialogDescription>
-            Add new tables, combine or separate tables, and manage existing ones.
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Add New Table Section */}
-          <div className="space-y-4 bg-card border rounded-lg p-5 shadow-sm">
-            <h3 className="text-lg font-medium flex items-center">
-              <PlusCircle className="mr-2 h-5 w-5 text-primary" /> 
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-serif font-bold tracking-tight">Table Management</h1>
+          <p className="text-muted-foreground">Manage tables, their layout and combinations</p>
+        </div>
+        <Button onClick={() => navigate('/pos')} variant="outline">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to POS
+        </Button>
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Add New Table Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Plus className="mr-2 h-5 w-5 text-primary" /> 
               Add New Table
-            </h3>
+            </CardTitle>
+            <CardDescription>Create a new table in your restaurant</CardDescription>
+          </CardHeader>
+          <CardContent>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="table-name">Table Name</Label>
@@ -328,19 +336,24 @@ const TableManagementDialog: React.FC<TableManagementDialogProps> = ({
                 </Select>
               </div>
             </div>
-            <Button className="w-full" onClick={handleAddTable}>
-              <PlusCircle className="mr-2 h-4 w-4" />
+            <Button className="w-full mt-4" onClick={handleAddTable}>
+              <Plus className="mr-2 h-4 w-4" />
               Add Table
             </Button>
-          </div>
-          
-          {/* Table Actions Section */}
-          <div className="space-y-4 bg-card border rounded-lg p-5 shadow-sm">
-            <h3 className="text-lg font-medium flex items-center">
+          </CardContent>
+        </Card>
+        
+        {/* Table Actions Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
               <Link className="mr-2 h-5 w-5 text-primary" />
               Table Actions
-            </h3>
-            <div className="flex gap-4 mb-4">
+            </CardTitle>
+            <CardDescription>Combine or separate tables as needed</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex gap-4">
               <Button 
                 variant={tableAction === 'combine' ? 'default' : 'outline'} 
                 className="flex-1"
@@ -407,101 +420,162 @@ const TableManagementDialog: React.FC<TableManagementDialogProps> = ({
                 </Button>
               </div>
             )}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
         
-        {/* Existing Tables List */}
-        <div className="mt-6 border rounded-lg shadow-sm p-4 bg-background">
-          <h3 className="text-lg font-medium mb-4 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-primary">
-              <rect x="3" y="8" width="18" height="12" rx="2" />
-              <path d="M10 8V5c0-1.1.9-2 2-2h0c1.1 0 2 .9 2 2v3" />
-            </svg>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Table2 className="mr-2 h-5 w-5 text-primary" />
+              Table Overview
+            </CardTitle>
+            <CardDescription>Summary of your restaurant tables</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-muted rounded-md p-4 text-center">
+                <p className="text-3xl font-bold">{tables.length}</p>
+                <p className="text-sm text-muted-foreground">Total Tables</p>
+              </div>
+              <div className="bg-muted rounded-md p-4 text-center">
+                <p className="text-3xl font-bold">{tables.filter(t => t.status === 'available').length}</p>
+                <p className="text-sm text-muted-foreground">Available</p>
+              </div>
+              <div className="bg-muted rounded-md p-4 text-center">
+                <p className="text-3xl font-bold">{tables.filter(t => t.status === 'occupied').length}</p>
+                <p className="text-sm text-muted-foreground">Occupied</p>
+              </div>
+              <div className="bg-muted rounded-md p-4 text-center">
+                <p className="text-3xl font-bold">{tables.filter(t => t.combinedWith && t.combinedWith.length > 0).length}</p>
+                <p className="text-sm text-muted-foreground">Combined</p>
+              </div>
+            </div>
+            <Separator />
+            <div className="text-sm text-muted-foreground">
+              <p>Sections: {Array.from(new Set(tables.map(t => t.section))).join(', ') || 'None'}</p>
+              <p>Total Capacity: {tables.reduce((sum, table) => sum + table.capacity, 0)} guests</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
+      {/* Existing Tables With Tabs for Different Views */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Table2 className="mr-2 h-5 w-5 text-primary" />
             Existing Tables
-          </h3>
-          <div className="rounded-md border overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Table</TableHead>
-                  <TableHead>Capacity</TableHead>
-                  <TableHead>Section</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Combined With</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {tables.map((table) => (
-                  <TableRow key={table.id}>
-                    <TableCell className="font-medium">{table.name}</TableCell>
-                    <TableCell>{table.capacity}</TableCell>
-                    <TableCell>{table.section}</TableCell>
-                    <TableCell>
-                      <span 
-                        className={`inline-block rounded-full px-2 py-1 text-xs ${
-                          table.status === 'available' 
-                            ? 'bg-green-100 text-green-800' 
-                            : table.status === 'occupied'
-                            ? 'bg-red-100 text-red-800'
-                            : table.status === 'reserved'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}
-                      >
-                        {table.status}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      {table.combinedWith && table.combinedWith.length > 0 ? (
-                        <div className="flex gap-1 flex-wrap">
-                          {table.combinedWith.map(tableId => {
-                            const combinedTable = tables.find(t => t.id === tableId);
-                            return combinedTable ? (
-                              <span key={tableId} className="bg-gray-100 text-xs px-2 py-1 rounded">
-                                {combinedTable.name}
-                              </span>
-                            ) : null;
-                          })}
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground text-xs">None</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteTable(table.id)}
-                        disabled={table.status === 'occupied' || Boolean(table.currentOrderId)}
-                        className={table.status === 'occupied' || Boolean(table.currentOrderId) ? 
-                          "cursor-not-allowed opacity-50" : "text-red-500 hover:text-red-700 hover:bg-red-50"}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {tables.length === 0 && (
+          </CardTitle>
+          <CardDescription className="flex justify-between items-center">
+            <span>View and manage all your restaurant tables</span>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-auto">
+              <TabsList>
+                <TabsTrigger value="visual" className="flex items-center">
+                  <Grid3X3 className="h-4 w-4 mr-1" />
+                  Visual
+                </TabsTrigger>
+                <TabsTrigger value="list" className="flex items-center">
+                  <List className="h-4 w-4 mr-1" />
+                  List
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <TabsContent value="visual" className="mt-0">
+            {tables.length > 0 ? (
+              <TableLayout 
+                tables={tables} 
+                selectedTable={selectedTables.length === 1 ? selectedTables[0] : null}
+                onSelectTable={(tableId) => handleTableSelection(tableId)}
+              />
+            ) : (
+              <div className="w-full p-8 text-center text-muted-foreground border rounded-md">
+                No tables available. Add your first table above.
+              </div>
+            )}
+          </TabsContent>
+          <TabsContent value="list" className="mt-0">
+            <div className="rounded-md border overflow-hidden">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                      No tables available. Add your first table above.
-                    </TableCell>
+                    <TableHead>Table</TableHead>
+                    <TableHead>Capacity</TableHead>
+                    <TableHead>Section</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Combined With</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-        
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
-            Close
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+                </TableHeader>
+                <TableBody>
+                  {tables.map((table) => (
+                    <TableRow key={table.id}>
+                      <TableCell className="font-medium">{table.name}</TableCell>
+                      <TableCell>{table.capacity}</TableCell>
+                      <TableCell>{table.section}</TableCell>
+                      <TableCell>
+                        <Badge 
+                          variant="outline"
+                          className={`${
+                            table.status === 'available' 
+                              ? 'bg-green-100 text-green-800 hover:bg-green-100' 
+                              : table.status === 'occupied'
+                              ? 'bg-red-100 text-red-800 hover:bg-red-100'
+                              : table.status === 'reserved'
+                              ? 'bg-blue-100 text-blue-800 hover:bg-blue-100'
+                              : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100'
+                          }`}
+                        >
+                          {table.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {table.combinedWith && table.combinedWith.length > 0 ? (
+                          <div className="flex gap-1 flex-wrap">
+                            {table.combinedWith.map(tableId => {
+                              const combinedTable = tables.find(t => t.id === tableId);
+                              return combinedTable ? (
+                                <Badge key={tableId} variant="secondary" className="text-xs">
+                                  {combinedTable.name}
+                                </Badge>
+                              ) : null;
+                            })}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-xs">None</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteTable(table.id)}
+                          disabled={table.status === 'occupied' || Boolean(table.currentOrderId)}
+                          className={table.status === 'occupied' || Boolean(table.currentOrderId) ? 
+                            "cursor-not-allowed opacity-50" : "text-red-500 hover:text-red-700 hover:bg-red-50"}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {tables.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                        No tables available. Add your first table above.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </TabsContent>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
-export default TableManagementDialog;
+export default TableManagement;
