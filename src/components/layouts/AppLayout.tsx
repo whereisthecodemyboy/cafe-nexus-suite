@@ -1,3 +1,4 @@
+
 import React, { ReactNode, useState } from "react";
 import { 
   Coffee, 
@@ -164,6 +165,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     { icon: <Home size={20} />, label: "Dashboard", to: "/" },
     { icon: <Coffee size={20} />, label: "POS", to: "/pos" },
     { icon: <Table2 size={20} />, label: "Table Management", to: "/table-management" },
+    { icon: <Truck size={20} />, label: "Delivery", to: "/delivery" },
     { icon: <ShoppingBasket size={20} />, label: "Menu", to: "/menu" },
     { icon: <ChefHat size={20} />, label: "Kitchen", to: "/kitchen" },
     { icon: <Box size={20} />, label: "Inventory", to: "/inventory/stock-in", subItems: inventorySubItems },

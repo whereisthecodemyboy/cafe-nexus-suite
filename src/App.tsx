@@ -29,6 +29,7 @@ import PurchaseOrders from "@/pages/inventory/PurchaseOrders";
 import AddEmployee from "@/pages/employees/AddEmployee";
 import AddProduct from "@/pages/products/AddProduct";
 import TableManagement from "@/pages/TableManagement";
+import Delivery from "@/pages/Delivery";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,7 @@ const AppRoutes = () => {
       <Route path="/settings" element={<ProtectedRoute><AppLayout><Settings /></AppLayout></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>} />
       <Route path="/products/add" element={<ProtectedRoute><AppLayout><AddProduct /></AppLayout></ProtectedRoute>} />
+      <Route path="/delivery" element={<ProtectedRoute><AppLayout><Delivery /></AppLayout></ProtectedRoute>} />
       
       {/* Inventory Routes */}
       <Route path="/inventory" element={<Navigate to="/inventory/stock-in" replace />} />
