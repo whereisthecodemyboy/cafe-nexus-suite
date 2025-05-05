@@ -30,6 +30,7 @@ interface AppContextType {
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   addUser: (user: User, password: string) => void;
+  updateUser: (user: User) => void;
   
   // Products related
   products: Product[];
@@ -181,6 +182,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setUserPasswords({...userPasswords, [user.email]: password});
   };
 
+  const updateUser = (user: User) => {
+    setAppUsers(appUsers.map(u => u.id === user.id ? user : u));
+    
+    // Update current user if this is the logged in user
+    if (currentUser && currentUser.id === user.id) {
+      setCurrentUser(user);
+    }
+  };
+
   // Product functions
   const addProduct = (product: Product) => {
     setAppProducts([...appProducts, product]);
@@ -293,6 +303,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     login,
     logout,
     addUser,
+    updateUser,
     
     // Products
     products: appProducts,

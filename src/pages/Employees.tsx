@@ -10,14 +10,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { useToast } from '@/components/ui/use-toast';
 import { useAppContext } from '@/contexts/AppContext';
 import EmployeeCard from '@/components/employees/EmployeeCard';
 import { User } from '@/data/models';
 import { Link, useNavigate } from 'react-router-dom';
+import { Label } from '@/components/ui/label';
 
 const Employees: React.FC = () => {
-  const { users } = useAppContext();
+  const { users, updateUser } = useAppContext();
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -25,6 +33,8 @@ const Employees: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterRole, setFilterRole] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [currentEmployee, setCurrentEmployee] = useState<User | null>(null);
   
   // Get unique roles
   const roles = Array.from(new Set(users.map(user => user.role)));
@@ -45,11 +55,8 @@ const Employees: React.FC = () => {
   };
   
   const handleEditEmployee = (employee: User) => {
-    // In a real app, this would open a modal for editing
-    toast({
-      title: "Edit Employee",
-      description: `You clicked to edit ${employee.name}.`,
-    });
+    setCurrentEmployee({ ...employee });
+    setEditDialogOpen(true);
   };
 
   const handleDeleteEmployee = (employeeId: string) => {
@@ -58,6 +65,17 @@ const Employees: React.FC = () => {
       title: "Delete Employee",
       description: "You clicked to delete an employee.",
     });
+  };
+  
+  const handleSaveEmployee = () => {
+    if (currentEmployee) {
+      updateUser(currentEmployee);
+      setEditDialogOpen(false);
+      toast({
+        title: "Employee Updated",
+        description: `${currentEmployee.name} has been updated.`,
+      });
+    }
   };
 
   return (
@@ -142,6 +160,94 @@ const Employees: React.FC = () => {
           </Button>
         </div>
       )}
+      
+      {/* Edit Employee Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Employee</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Name
+              </Label>
+              <Input
+                id="name"
+                value={currentEmployee?.name || ''}
+                onChange={(e) => currentEmployee && setCurrentEmployee({...currentEmployee, name: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="email" className="text-right">
+                Email
+              </Label>
+              <Input
+                id="email"
+                value={currentEmployee?.email || ''}
+                onChange={(e) => currentEmployee && setCurrentEmployee({...currentEmployee, email: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="phone" className="text-right">
+                Phone
+              </Label>
+              <Input
+                id="phone"
+                value={currentEmployee?.phone || ''}
+                onChange={(e) => currentEmployee && setCurrentEmployee({...currentEmployee, phone: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="role" className="text-right">
+                Role
+              </Label>
+              <Select 
+                value={currentEmployee?.role} 
+                onValueChange={(value) => currentEmployee && setCurrentEmployee({...currentEmployee, role: value as any})}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="manager">Manager</SelectItem>
+                  <SelectItem value="cashier">Cashier</SelectItem>
+                  <SelectItem value="waiter">Waiter</SelectItem>
+                  <SelectItem value="chef">Chef</SelectItem>
+                  <SelectItem value="barista">Barista</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="status" className="text-right">
+                Status
+              </Label>
+              <Select 
+                value={currentEmployee?.status} 
+                onValueChange={(value) => currentEmployee && setCurrentEmployee({...currentEmployee, status: value as any})}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveEmployee}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
