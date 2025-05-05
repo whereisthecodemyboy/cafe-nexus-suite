@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   Table2,
@@ -483,95 +484,98 @@ const TableManagement: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <TabsContent value="visual" className="mt-0">
-            {tables.length > 0 ? (
-              <TableLayout 
-                tables={tables} 
-                selectedTable={selectedTables.length === 1 ? selectedTables[0] : null}
-                onSelectTable={(tableId) => handleTableSelection(tableId)}
-              />
-            ) : (
-              <div className="w-full p-8 text-center text-muted-foreground border rounded-md">
-                No tables available. Add your first table above.
-              </div>
-            )}
-          </TabsContent>
-          <TabsContent value="list" className="mt-0">
-            <div className="rounded-md border overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Table</TableHead>
-                    <TableHead>Capacity</TableHead>
-                    <TableHead>Section</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Combined With</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {tables.map((table) => (
-                    <TableRow key={table.id}>
-                      <TableCell className="font-medium">{table.name}</TableCell>
-                      <TableCell>{table.capacity}</TableCell>
-                      <TableCell>{table.section}</TableCell>
-                      <TableCell>
-                        <Badge 
-                          variant="outline"
-                          className={`${
-                            table.status === 'available' 
-                              ? 'bg-green-100 text-green-800 hover:bg-green-100' 
-                              : table.status === 'occupied'
-                              ? 'bg-red-100 text-red-800 hover:bg-red-100'
-                              : table.status === 'reserved'
-                              ? 'bg-blue-100 text-blue-800 hover:bg-blue-100'
-                              : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100'
-                          }`}
-                        >
-                          {table.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {table.combinedWith && table.combinedWith.length > 0 ? (
-                          <div className="flex gap-1 flex-wrap">
-                            {table.combinedWith.map(tableId => {
-                              const combinedTable = tables.find(t => t.id === tableId);
-                              return combinedTable ? (
-                                <Badge key={tableId} variant="secondary" className="text-xs">
-                                  {combinedTable.name}
-                                </Badge>
-                              ) : null;
-                            })}
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground text-xs">None</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteTable(table.id)}
-                          disabled={table.status === 'occupied' || Boolean(table.currentOrderId)}
-                          className={table.status === 'occupied' || Boolean(table.currentOrderId) ? 
-                            "cursor-not-allowed opacity-50" : "text-red-500 hover:text-red-700 hover:bg-red-50"}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {tables.length === 0 && (
+          {/* This is the fixed part - we need to ensure TabsContent is within Tabs */}
+          <Tabs value={activeTab} className="w-full">
+            <TabsContent value="visual" className="mt-0">
+              {tables.length > 0 ? (
+                <TableLayout 
+                  tables={tables} 
+                  selectedTable={selectedTables.length === 1 ? selectedTables[0] : null}
+                  onSelectTable={(tableId) => handleTableSelection(tableId)}
+                />
+              ) : (
+                <div className="w-full p-8 text-center text-muted-foreground border rounded-md">
+                  No tables available. Add your first table above.
+                </div>
+              )}
+            </TabsContent>
+            <TabsContent value="list" className="mt-0">
+              <div className="rounded-md border overflow-hidden">
+                <Table>
+                  <TableHeader>
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                        No tables available. Add your first table above.
-                      </TableCell>
+                      <TableHead>Table</TableHead>
+                      <TableHead>Capacity</TableHead>
+                      <TableHead>Section</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Combined With</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </TabsContent>
+                  </TableHeader>
+                  <TableBody>
+                    {tables.map((table) => (
+                      <TableRow key={table.id}>
+                        <TableCell className="font-medium">{table.name}</TableCell>
+                        <TableCell>{table.capacity}</TableCell>
+                        <TableCell>{table.section}</TableCell>
+                        <TableCell>
+                          <Badge 
+                            variant="outline"
+                            className={`${
+                              table.status === 'available' 
+                                ? 'bg-green-100 text-green-800 hover:bg-green-100' 
+                                : table.status === 'occupied'
+                                ? 'bg-red-100 text-red-800 hover:bg-red-100'
+                                : table.status === 'reserved'
+                                ? 'bg-blue-100 text-blue-800 hover:bg-blue-100'
+                                : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100'
+                            }`}
+                          >
+                            {table.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {table.combinedWith && table.combinedWith.length > 0 ? (
+                            <div className="flex gap-1 flex-wrap">
+                              {table.combinedWith.map(tableId => {
+                                const combinedTable = tables.find(t => t.id === tableId);
+                                return combinedTable ? (
+                                  <Badge key={tableId} variant="secondary" className="text-xs">
+                                    {combinedTable.name}
+                                  </Badge>
+                                ) : null;
+                              })}
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground text-xs">None</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteTable(table.id)}
+                            disabled={table.status === 'occupied' || Boolean(table.currentOrderId)}
+                            className={table.status === 'occupied' || Boolean(table.currentOrderId) ? 
+                              "cursor-not-allowed opacity-50" : "text-red-500 hover:text-red-700 hover:bg-red-50"}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {tables.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                          No tables available. Add your first table above.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>
