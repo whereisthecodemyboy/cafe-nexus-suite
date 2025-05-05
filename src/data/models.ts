@@ -68,7 +68,7 @@ export type Order = {
   id: string;
   orderNumber: string;
   type: "dine-in" | "takeaway" | "delivery" | "online";
-  status: "pending" | "confirmed" | "preparing" | "ready" | "served" | "completed" | "cancelled";
+  status: "pending" | "confirmed" | "preparing" | "ready" | "served" | "completed" | "cancelled" | "out-for-delivery" | "delivered";
   tableId?: string;
   customerId?: string;
   employeeId: string;
@@ -85,6 +85,12 @@ export type Order = {
   notes?: string;
   deliveryAddress?: string;
   deliveryFee?: number;
+  deliveryInfo?: {
+    customerName: string;
+    phone: string;
+    address: string;
+    estimatedDeliveryTime?: number;
+  };
 };
 
 export type Table = {

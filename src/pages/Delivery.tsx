@@ -48,9 +48,9 @@ const Delivery: React.FC = () => {
     const targetOrder = orders.find(order => order.id === orderId);
     if (!targetOrder) return;
     
-    const updatedOrder = {
+    const updatedOrder: Order = {
       ...targetOrder,
-      status: 'out-for-delivery',
+      status: 'out-for-delivery' as Order['status'],
       updatedAt: new Date().toISOString(),
     };
     
@@ -67,10 +67,10 @@ const Delivery: React.FC = () => {
     const targetOrder = orders.find(order => order.id === orderId);
     if (!targetOrder) return;
     
-    const updatedOrder = {
+    const updatedOrder: Order = {
       ...targetOrder,
-      status: 'delivered',
-      paymentStatus: 'paid', // Assuming payment is completed upon delivery
+      status: 'delivered' as Order['status'],
+      paymentStatus: 'paid' as Order['paymentStatus'], // Assuming payment is completed upon delivery
       updatedAt: new Date().toISOString(),
     };
     
@@ -87,9 +87,9 @@ const Delivery: React.FC = () => {
     const targetOrder = orders.find(order => order.id === orderId);
     if (!targetOrder) return;
     
-    const updatedOrder = {
+    const updatedOrder: Order = {
       ...targetOrder,
-      status: 'cancelled',
+      status: 'cancelled' as Order['status'],
       updatedAt: new Date().toISOString(),
     };
     
