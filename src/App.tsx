@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/hooks/use-theme";
 import { AppProvider, useAppContext } from "@/contexts/AppContext";
 
 import AppLayout from "@/components/layouts/AppLayout";
+import AdminLayout from "@/components/layouts/AdminLayout";
 import Dashboard from "@/pages/Dashboard";
 import POS from "@/pages/POS";
 import Menu from "@/pages/Menu";
@@ -18,6 +19,7 @@ import AddReservation from "@/pages/reservations/AddReservation";
 import CashFlow from "@/pages/CashFlow";
 import Customer from "@/pages/Customer";
 import Login from "@/pages/Login";
+import AdminLogin from "@/pages/AdminLogin";
 import NotFound from "./pages/NotFound";
 import Analytics from "@/pages/Analytics";
 import Settings from "@/pages/Settings";
@@ -30,6 +32,8 @@ import AddEmployee from "@/pages/employees/AddEmployee";
 import AddProduct from "@/pages/products/AddProduct";
 import TableManagement from "@/pages/TableManagement";
 import Delivery from "@/pages/Delivery";
+import AdminDashboard from "@/pages/admin/AdminDashboard";
+import StaffManagement from "@/pages/admin/StaffManagement";
 
 const queryClient = new QueryClient();
 
@@ -38,11 +42,26 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return currentUser ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
+const AdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { currentUser } = useAppContext();
+  
+  if (!currentUser) {
+    return <Navigate to="/admin/login" replace />;
+  }
+  
+  if (currentUser.role !== 'superAdmin') {
+    return <Navigate to="/unauthorized" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
 const AppRoutes = () => {
   const { currentUser } = useAppContext();
   
   return (
     <Routes>
+      {/* Regular user routes */}
       <Route path="/login" element={currentUser ? <Navigate to="/" replace /> : <Login />} />
       <Route path="/" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
       <Route path="/pos" element={<ProtectedRoute><AppLayout><POS /></AppLayout></ProtectedRoute>} />
@@ -68,6 +87,21 @@ const AppRoutes = () => {
       <Route path="/inventory/wastage" element={<ProtectedRoute><AppLayout><Wastage /></AppLayout></ProtectedRoute>} />
       <Route path="/inventory/purchase-orders" element={<ProtectedRoute><AppLayout><PurchaseOrders /></AppLayout></ProtectedRoute>} />
       
+      {/* Admin Routes */}
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/admin/dashboard" element={<AdminProtectedRoute><AdminLayout><AdminDashboard /></AdminLayout></AdminProtectedRoute>} />
+      <Route path="/admin/staff" element={<AdminProtectedRoute><AdminLayout><StaffManagement /></AdminLayout></AdminProtectedRoute>} />
+      <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+      
+      {/* Placeholder routes for other admin sections */}
+      <Route path="/admin/tables" element={<AdminProtectedRoute><AdminLayout><div>Table Management (Admin)</div></AdminLayout></AdminProtectedRoute>} />
+      <Route path="/admin/menu" element={<AdminProtectedRoute><AdminLayout><div>Menu Management (Admin)</div></AdminLayout></AdminProtectedRoute>} />
+      <Route path="/admin/orders" element={<AdminProtectedRoute><AdminLayout><div>Orders Management (Admin)</div></AdminLayout></AdminProtectedRoute>} />
+      <Route path="/admin/reports" element={<AdminProtectedRoute><AdminLayout><div>Reports & Analytics (Admin)</div></AdminLayout></AdminProtectedRoute>} />
+      <Route path="/admin/access" element={<AdminProtectedRoute><AdminLayout><div>Access Control (Admin)</div></AdminLayout></AdminProtectedRoute>} />
+      <Route path="/admin/settings" element={<AdminProtectedRoute><AdminLayout><div>System Settings (Admin)</div></AdminLayout></AdminProtectedRoute>} />
+      
+      <Route path="/unauthorized" element={<div className="flex items-center justify-center h-screen">Unauthorized Access</div>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

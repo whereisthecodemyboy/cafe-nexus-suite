@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { 
   User, 
@@ -22,6 +23,7 @@ import {
   hourlyTraffic, 
   popularItems 
 } from '@/data/mockData';
+import { v4 as uuidv4 } from 'uuid';
 
 interface AppContextType {
   // User related
@@ -31,6 +33,7 @@ interface AppContextType {
   logout: () => void;
   addUser: (user: User, password: string) => void;
   updateUser: (user: User) => void;
+  deleteUser?: (id: string) => void; // New method for superAdmin
   
   // Products related
   products: Product[];
@@ -108,8 +111,23 @@ interface AppProviderProps {
 }
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
+  // Initialize with a superAdmin user
+  const initialUsers = [
+    ...users,
+    {
+      id: uuidv4(),
+      name: "System Administrator",
+      email: "admin@cafenexus.com",
+      role: "superAdmin" as User['role'],
+      avatar: "/assets/admin-avatar.png",
+      phone: "+1 (555) 987-6543",
+      hireDate: "2023-01-01",
+      status: "active" as User['status'],
+    }
+  ];
+
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [appUsers, setAppUsers] = useState<User[]>(users);
+  const [appUsers, setAppUsers] = useState<User[]>(initialUsers);
   const [appProducts, setAppProducts] = useState<Product[]>(products);
   const [appOrders, setAppOrders] = useState<Order[]>(orders);
   const [appTables, setAppTables] = useState<Table[]>(tables);
@@ -122,11 +140,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails[]>([]);
 
   // Store passwords in memory (in a real app this would be handled by backend)
-  // Update: Set default passwords to match the demo credentials shown on login page
   const [userPasswords, setUserPasswords] = useState<Record<string, string>>({
-    // Changed from admin@cafenexus.com to match the demo credentials shown on login page
     'john@cafenexus.com': 'any',
-    // Keep any other passwords as well
     'admin@cafenexus.com': 'admin123'
   });
 
@@ -162,6 +177,16 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
           return;
         }
         
+        // For the admin account
+        if (email === 'admin@cafenexus.com' && password === 'admin123') {
+          const adminUser = appUsers.find(u => u.email === email);
+          if (adminUser) {
+            setCurrentUser(adminUser);
+            resolve(true);
+            return;
+          }
+        }
+        
         if (foundUser && userPasswords[email] === password) {
           setCurrentUser(foundUser);
           resolve(true);
@@ -176,6 +201,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setCurrentUser(null);
   };
 
+  // User management functions
   const addUser = (user: User, password: string) => {
     setAppUsers([...appUsers, user]);
     // Store password (in a real app this would be handled securely by backend)
@@ -188,6 +214,20 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     // Update current user if this is the logged in user
     if (currentUser && currentUser.id === user.id) {
       setCurrentUser(user);
+    }
+  };
+
+  const deleteUser = (id: string) => {
+    const userToDelete = appUsers.find(u => u.id === id);
+    if (userToDelete) {
+      // In a real app, we might archive rather than delete
+      setAppUsers(appUsers.filter(u => u.id !== id));
+      
+      // Remove from passwords store
+      if (userToDelete.email) {
+        const { [userToDelete.email]: _, ...rest } = userPasswords;
+        setUserPasswords(rest);
+      }
     }
   };
 
@@ -304,6 +344,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     logout,
     addUser,
     updateUser,
+    deleteUser,
     
     // Products
     products: appProducts,

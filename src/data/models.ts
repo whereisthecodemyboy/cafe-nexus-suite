@@ -1,10 +1,11 @@
+
 // Types for our data models
 
 export type User = {
   id: string;
   name: string;
   email: string;
-  role: "admin" | "manager" | "cashier" | "waiter" | "chef" | "barista";
+  role: "superAdmin" | "admin" | "manager" | "cashier" | "waiter" | "chef" | "barista";
   avatar?: string;
   phone?: string;
   hireDate: string;
