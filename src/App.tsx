@@ -14,6 +14,7 @@ import Menu from "@/pages/Menu";
 import Kitchen from "@/pages/Kitchen";
 import Employees from "@/pages/Employees";
 import Reservations from "@/pages/Reservations";
+import AddReservation from "@/pages/reservations/AddReservation";
 import CashFlow from "@/pages/CashFlow";
 import Customer from "@/pages/Customer";
 import Login from "@/pages/Login";
@@ -50,6 +51,7 @@ const AppRoutes = () => {
       <Route path="/employees" element={<ProtectedRoute><AppLayout><Employees /></AppLayout></ProtectedRoute>} />
       <Route path="/employees/add" element={<ProtectedRoute><AppLayout><AddEmployee /></AppLayout></ProtectedRoute>} />
       <Route path="/reservations" element={<ProtectedRoute><AppLayout><Reservations /></AppLayout></ProtectedRoute>} />
+      <Route path="/reservations/add" element={<ProtectedRoute><AppLayout><AddReservation /></AppLayout></ProtectedRoute>} />
       <Route path="/cashflow" element={<ProtectedRoute><AppLayout><CashFlow /></AppLayout></ProtectedRoute>} />
       <Route path="/customer" element={<ProtectedRoute><AppLayout><Customer /></AppLayout></ProtectedRoute>} />
       <Route path="/analytics" element={<ProtectedRoute><AppLayout><Analytics /></AppLayout></ProtectedRoute>} />
