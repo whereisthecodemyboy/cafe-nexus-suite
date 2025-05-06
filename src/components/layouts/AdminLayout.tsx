@@ -115,7 +115,8 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             <h1 className="text-2xl font-serif font-bold">Admin Panel</h1>
           </div>
 
-          <Alert variant="warning" className="m-3 border-amber-500">
+          {/* Fix the variant type here from "warning" to "destructive" */}
+          <Alert variant="destructive" className="m-3 border-amber-500">
             <AlertTitle>Restricted Area</AlertTitle>
             <AlertDescription>
               You are in the admin panel. This area is restricted to authorized personnel only.

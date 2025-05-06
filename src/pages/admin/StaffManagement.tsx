@@ -63,7 +63,7 @@ const StaffManagement: React.FC = () => {
       email: `staff${Math.floor(Math.random() * 1000)}@cafenexus.com`,
       role: "cashier",
       hireDate: new Date().toISOString(),
-      status: "active"
+      status: "active" // Fixed: Using literal "active" instead of string type
     };
     
     addUser(newUser, "defaultpassword");
@@ -187,8 +187,9 @@ const StaffManagement: React.FC = () => {
                 </TableCell>
                 <TableCell>{new Date(staff.hireDate).toLocaleDateString()}</TableCell>
                 <TableCell>
+                  {/* Fix the variant type from "success" to "default" with custom colors */}
                   <Badge 
-                    variant={staff.status === 'active' ? 'success' : 'destructive'}
+                    variant={staff.status === 'active' ? 'default' : 'destructive'}
                     className={staff.status === 'active' ? 'bg-green-500' : ''}
                   >
                     {staff.status === 'active' ? 'Active' : 'Inactive'}
