@@ -1,4 +1,3 @@
-
 // Types for our data models
 
 export type User = {
@@ -10,6 +9,18 @@ export type User = {
   phone?: string;
   hireDate: string;
   status: "active" | "inactive";
+  cafeId?: string; // To identify which cafe this user belongs to
+};
+
+export type Cafe = {
+  id: string;
+  name: string;
+  address: string;
+  phone?: string;
+  email?: string;
+  status: "active" | "inactive";
+  createdAt: string;
+  logo?: string;
 };
 
 export type Product = {
@@ -92,6 +103,7 @@ export type Order = {
     address: string;
     estimatedDeliveryTime?: number;
   };
+  cafeId?: string; // To identify which cafe this order belongs to
 };
 
 export type Table = {
@@ -192,4 +204,5 @@ export type PaymentDetails = {
   notes?: string;
   createdAt: string;
   updatedAt: string;
+  cafeId?: string; // To identify which cafe this payment belongs to
 };

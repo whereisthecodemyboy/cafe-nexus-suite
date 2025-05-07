@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { 
   User, 
@@ -9,7 +8,8 @@ import {
   Customer, 
   Reservation, 
   PaymentDetails,
-  OrderItem 
+  OrderItem,
+  Cafe
 } from '@/data/models';
 import { 
   users, 
@@ -34,6 +34,14 @@ interface AppContextType {
   addUser: (user: User, password: string) => void;
   updateUser: (user: User) => void;
   deleteUser?: (id: string) => void; // New method for superAdmin
+  
+  // Cafe related
+  cafes: Cafe[];
+  currentCafe: Cafe | null;
+  addCafe: (cafe: Cafe) => void;
+  updateCafe: (cafe: Cafe) => void;
+  deleteCafe: (id: string) => void;
+  switchCafe: (cafeId: string) => void;
   
   // Products related
   products: Product[];
@@ -111,9 +119,33 @@ interface AppProviderProps {
 }
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
+  // Sample cafes data
+  const initialCafes: Cafe[] = [
+    {
+      id: "cafe-001",
+      name: "Café Nexus Downtown",
+      address: "123 Main Street, Downtown",
+      phone: "+1 (555) 123-4567",
+      email: "downtown@cafenexus.com",
+      status: "active",
+      createdAt: "2023-01-01",
+      logo: "/assets/logo-1.png"
+    },
+    {
+      id: "cafe-002",
+      name: "Café Nexus Uptown",
+      address: "456 High Street, Uptown",
+      phone: "+1 (555) 987-6543",
+      email: "uptown@cafenexus.com",
+      status: "active",
+      createdAt: "2023-02-15",
+      logo: "/assets/logo-2.png"
+    }
+  ];
+
   // Initialize with a superAdmin user
   const initialUsers = [
-    ...users,
+    ...users.map(user => ({ ...user, cafeId: "cafe-001" })),
     {
       id: uuidv4(),
       name: "System Administrator",
@@ -123,11 +155,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       phone: "+1 (555) 987-6543",
       hireDate: "2023-01-01",
       status: "active" as User['status'],
+      // SuperAdmin doesn't belong to any specific cafe
     }
   ];
 
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [appUsers, setAppUsers] = useState<User[]>(initialUsers);
+  const [appCafes, setAppCafes] = useState<Cafe[]>(initialCafes);
+  const [currentCafe, setCurrentCafe] = useState<Cafe | null>(null);
   const [appProducts, setAppProducts] = useState<Product[]>(products);
   const [appOrders, setAppOrders] = useState<Order[]>(orders);
   const [appTables, setAppTables] = useState<Table[]>(tables);
@@ -142,7 +177,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // Store passwords in memory (in a real app this would be handled by backend)
   const [userPasswords, setUserPasswords] = useState<Record<string, string>>({
     'john@cafenexus.com': 'any',
-    'admin@cafenexus.com': 'admin123'
+    'admin@cafenexus.com': 'admin123',
+    'downtown@cafenexus.com': 'cafe123',
+    'uptown@cafenexus.com': 'cafe456'
   });
 
   // Settings state
@@ -173,6 +210,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         // Accept any password for demo credentials as mentioned on login page
         if (email === 'john@cafenexus.com') {
           setCurrentUser(foundUser || appUsers[0]); // Use first user if not found
+          
+          // Set current cafe for this user
+          if (foundUser?.cafeId) {
+            const userCafe = appCafes.find(cafe => cafe.id === foundUser.cafeId);
+            if (userCafe) setCurrentCafe(userCafe);
+          }
+          
           resolve(true);
           return;
         }
@@ -182,13 +226,23 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
           const adminUser = appUsers.find(u => u.email === email);
           if (adminUser) {
             setCurrentUser(adminUser);
+            // SuperAdmin doesn't have a default cafe
+            setCurrentCafe(null);
             resolve(true);
             return;
           }
         }
         
+        // For cafe admin accounts or other staff
         if (foundUser && userPasswords[email] === password) {
           setCurrentUser(foundUser);
+          
+          // Set current cafe for this user
+          if (foundUser.cafeId) {
+            const userCafe = appCafes.find(cafe => cafe.id === foundUser.cafeId);
+            if (userCafe) setCurrentCafe(userCafe);
+          }
+          
           resolve(true);
         } else {
           resolve(false);
@@ -199,6 +253,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   const logout = () => {
     setCurrentUser(null);
+    setCurrentCafe(null);
   };
 
   // User management functions
@@ -228,6 +283,41 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         const { [userToDelete.email]: _, ...rest } = userPasswords;
         setUserPasswords(rest);
       }
+    }
+  };
+
+  // Cafe management functions
+  const addCafe = (cafe: Cafe) => {
+    setAppCafes([...appCafes, cafe]);
+  };
+
+  const updateCafe = (cafe: Cafe) => {
+    setAppCafes(appCafes.map(c => c.id === cafe.id ? cafe : c));
+    
+    // Update current cafe if it's the active one
+    if (currentCafe && currentCafe.id === cafe.id) {
+      setCurrentCafe(cafe);
+    }
+  };
+
+  const deleteCafe = (id: string) => {
+    setAppCafes(appCafes.filter(cafe => cafe.id !== id));
+    
+    // Clear current cafe if it's the deleted one
+    if (currentCafe && currentCafe.id === id) {
+      setCurrentCafe(null);
+    }
+    
+    // Update user associations
+    setAppUsers(appUsers.map(user => 
+      user.cafeId === id ? { ...user, cafeId: undefined, status: 'inactive' as const } : user
+    ));
+  };
+
+  const switchCafe = (cafeId: string) => {
+    const cafe = appCafes.find(c => c.id === cafeId);
+    if (cafe) {
+      setCurrentCafe(cafe);
     }
   };
 
@@ -346,14 +436,22 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     updateUser,
     deleteUser,
     
+    // Cafe
+    cafes: appCafes,
+    currentCafe,
+    addCafe,
+    updateCafe,
+    deleteCafe,
+    switchCafe,
+    
     // Products
-    products: appProducts,
+    products: appProducts.filter(p => !currentCafe || p.cafeId === undefined || p.cafeId === currentCafe.id),
     addProduct,
     updateProduct,
     deleteProduct,
     
     // Orders
-    orders: appOrders,
+    orders: appOrders.filter(o => !currentCafe || o.cafeId === undefined || o.cafeId === currentCafe.id),
     addOrder,
     updateOrder,
     deleteOrder,

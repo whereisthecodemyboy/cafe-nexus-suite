@@ -11,7 +11,8 @@ import {
   Table2,
   Menu as MenuIcon,
   FileText,
-  Key
+  Key,
+  Building2
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -29,6 +30,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ModeToggle } from "./ModeToggle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useAppContext } from "@/contexts/AppContext";
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -65,13 +67,18 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
+  const { currentUser, currentCafe } = useAppContext();
 
   const handleNavigation = (path: string) => {
     navigate(path);
     if (isMobile) setSidebarOpen(false);
   };
 
-  const navItems = [
+  // Determine if the user is a SuperAdmin
+  const isSuperAdmin = currentUser?.role === 'superAdmin';
+
+  // Basic nav items that all admin users should see
+  const baseNavItems = [
     { icon: <Shield size={20} />, label: "Dashboard", to: "/admin/dashboard" },
     { icon: <Users size={20} />, label: "Staff Management", to: "/admin/staff" },
     { icon: <Table2 size={20} />, label: "Table Management", to: "/admin/tables" },
@@ -81,6 +88,16 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { icon: <Key size={20} />, label: "Access Control", to: "/admin/access" },
     { icon: <Settings size={20} />, label: "System Settings", to: "/admin/settings" },
   ];
+  
+  // SuperAdmin specific nav items
+  const superAdminItems = [
+    { icon: <Building2 size={20} />, label: "Cafe Management", to: "/admin/cafes" }
+  ];
+  
+  // Combine nav items based on user role
+  const navItems = isSuperAdmin 
+    ? [...superAdminItems, ...baseNavItems]
+    : baseNavItems;
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -123,6 +140,13 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             </AlertDescription>
           </Alert>
 
+          {isSuperAdmin && currentCafe && (
+            <div className="px-4 py-2 bg-secondary/50">
+              <p className="text-sm font-medium">Currently managing:</p>
+              <p className="text-primary font-bold">{currentCafe.name}</p>
+            </div>
+          )}
+
           <div className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
             {navItems.map((item) => (
               <NavItem
@@ -143,11 +167,15 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                   <DropdownMenuTrigger asChild>
                     <Avatar className="cursor-pointer">
                       <AvatarImage src="/assets/avatar.png" />
-                      <AvatarFallback className="bg-primary text-primary-foreground">SA</AvatarFallback>
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        {isSuperAdmin ? "SA" : "A"}
+                      </AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="w-56">
-                    <DropdownMenuLabel>Super Admin</DropdownMenuLabel>
+                    <DropdownMenuLabel>
+                      {isSuperAdmin ? "Super Admin" : "Admin"}
+                    </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                       <LogOut className="w-4 h-4 mr-2" />
@@ -156,8 +184,12 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                   </DropdownMenuContent>
                 </DropdownMenu>
                 <div className="flex flex-col">
-                  <span className="text-sm font-medium">Super Admin</span>
-                  <span className="text-xs text-muted-foreground">System Controller</span>
+                  <span className="text-sm font-medium">
+                    {isSuperAdmin ? "Super Admin" : "Admin"}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {isSuperAdmin ? "System Controller" : "Cafe Manager"}
+                  </span>
                 </div>
               </div>
               <ModeToggle />

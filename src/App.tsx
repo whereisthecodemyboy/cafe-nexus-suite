@@ -34,6 +34,7 @@ import TableManagement from "@/pages/TableManagement";
 import Delivery from "@/pages/Delivery";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import StaffManagement from "@/pages/admin/StaffManagement";
+import CafeManagement from "@/pages/admin/CafeManagement";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,20 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { currentUser } = useAppContext();
+  
+  if (!currentUser) {
+    return <Navigate to="/admin/login" replace />;
+  }
+  
+  if (currentUser.role !== 'superAdmin' && currentUser.role !== 'admin') {
+    return <Navigate to="/unauthorized" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
+const SuperAdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { currentUser } = useAppContext();
   
   if (!currentUser) {
@@ -91,6 +106,10 @@ const AppRoutes = () => {
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/dashboard" element={<AdminProtectedRoute><AdminLayout><AdminDashboard /></AdminLayout></AdminProtectedRoute>} />
       <Route path="/admin/staff" element={<AdminProtectedRoute><AdminLayout><StaffManagement /></AdminLayout></AdminProtectedRoute>} />
+      
+      {/* SuperAdmin specific routes */}
+      <Route path="/admin/cafes" element={<SuperAdminProtectedRoute><AdminLayout><CafeManagement /></AdminLayout></SuperAdminProtectedRoute>} />
+      
       <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
       
       {/* Placeholder routes for other admin sections */}

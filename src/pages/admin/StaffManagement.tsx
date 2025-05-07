@@ -35,7 +35,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 
 const StaffManagement: React.FC = () => {
-  const { users, addUser, updateUser } = useAppContext();
+  const { users, addUser, updateUser, cafes, currentCafe, switchCafe, currentUser } = useAppContext();
   const { toast } = useToast();
   
   // State
@@ -44,26 +44,58 @@ const StaffManagement: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedCafeId, setSelectedCafeId] = useState<string | undefined>(
+    currentCafe ? currentCafe.id : undefined
+  );
 
-  // Filter employees
+  // Determine if user is SuperAdmin
+  const isSuperAdmin = currentUser?.role === 'superAdmin';
+  
+  // Filter staff based on search, role, status, and selected cafe
   const filteredStaff = users.filter(employee => {
     const matchesSearch = employee.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          employee.email.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesRole = filterRole === 'all' || employee.role === filterRole;
     const matchesStatus = filterStatus === 'all' || employee.status === filterStatus;
+    const matchesCafe = isSuperAdmin 
+      ? (selectedCafeId ? employee.cafeId === selectedCafeId : true) 
+      : (currentCafe ? employee.cafeId === currentCafe.id : true);
     
-    return matchesSearch && matchesRole && matchesStatus;
+    return matchesSearch && matchesRole && matchesStatus && matchesCafe;
   });
+  
+  // Handle cafe change (for SuperAdmin only)
+  const handleCafeChange = (cafeId: string) => {
+    setSelectedCafeId(cafeId);
+    if (cafeId) {
+      const selectedCafe = cafes.find(cafe => cafe.id === cafeId);
+      if (selectedCafe) {
+        switchCafe(cafeId);
+      }
+    }
+  };
   
   // Add New Staff Member (placeholder - would open a form dialog in a real implementation)
   const handleAddStaff = () => {
+    const cafeId = selectedCafeId || (currentCafe ? currentCafe.id : undefined);
+    
+    if (isSuperAdmin && !cafeId) {
+      toast({
+        title: "No Cafe Selected",
+        description: "Please select a cafe before adding staff.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     const newUser: User = {
       id: uuidv4(),
       name: "New Staff Member",
       email: `staff${Math.floor(Math.random() * 1000)}@cafenexus.com`,
       role: "cashier",
       hireDate: new Date().toISOString(),
-      status: "active" // Fixed: Using literal "active" instead of string type
+      status: "active" as const,
+      cafeId: cafeId
     };
     
     addUser(newUser, "defaultpassword");
@@ -77,7 +109,7 @@ const StaffManagement: React.FC = () => {
   // Toggle Active Status
   const toggleUserStatus = (user: User) => {
     const newStatus = user.status === 'active' ? 'inactive' : 'active';
-    const updatedUser = { ...user, status: newStatus };
+    const updatedUser = { ...user, status: newStatus as 'active' | 'inactive' };
     updateUser(updatedUser);
     
     toast({
@@ -131,7 +163,21 @@ const StaffManagement: React.FC = () => {
           />
         </div>
         
-        <div className="flex gap-2">
+        <div className="flex flex-col md:flex-row gap-2">
+          {isSuperAdmin && (
+            <Select value={selectedCafeId} onValueChange={handleCafeChange}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select Cafe" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Cafes</SelectItem>
+                {cafes.map(cafe => (
+                  <SelectItem key={cafe.id} value={cafe.id}>{cafe.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          
           <Select value={filterRole} onValueChange={setFilterRole}>
             <SelectTrigger className="w-[180px]">
               <Filter className="h-4 w-4 mr-2" />
@@ -170,6 +216,7 @@ const StaffManagement: React.FC = () => {
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
+              {isSuperAdmin && <TableHead>Cafe</TableHead>}
               <TableHead>Hire Date</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -185,9 +232,16 @@ const StaffManagement: React.FC = () => {
                     {staff.role.charAt(0).toUpperCase() + staff.role.slice(1)}
                   </Badge>
                 </TableCell>
+                {isSuperAdmin && (
+                  <TableCell>
+                    {staff.cafeId ? 
+                      cafes.find(cafe => cafe.id === staff.cafeId)?.name || 'Unknown' : 
+                      'System-wide'
+                    }
+                  </TableCell>
+                )}
                 <TableCell>{new Date(staff.hireDate).toLocaleDateString()}</TableCell>
                 <TableCell>
-                  {/* Fix the variant type from "success" to "default" with custom colors */}
                   <Badge 
                     variant={staff.status === 'active' ? 'default' : 'destructive'}
                     className={staff.status === 'active' ? 'bg-green-500' : ''}
@@ -221,7 +275,7 @@ const StaffManagement: React.FC = () => {
             ))}
             {filteredStaff.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-4">
+                <TableCell colSpan={isSuperAdmin ? 7 : 6} className="text-center py-4">
                   No staff members found
                 </TableCell>
               </TableRow>
