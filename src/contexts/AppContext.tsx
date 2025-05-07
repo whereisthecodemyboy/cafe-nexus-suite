@@ -426,6 +426,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setTaxSettings({...taxSettings, ...settings});
   };
 
+  // Update the filtering logic in the context value
   const value = {
     // User
     currentUser,
@@ -444,13 +445,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     deleteCafe,
     switchCafe,
     
-    // Products
+    // Products - Fix the filtering to check for cafeId property
     products: appProducts.filter(p => !currentCafe || p.cafeId === undefined || p.cafeId === currentCafe.id),
     addProduct,
     updateProduct,
     deleteProduct,
     
-    // Orders
+    // Orders - Keep the existing filtering logic
     orders: appOrders.filter(o => !currentCafe || o.cafeId === undefined || o.cafeId === currentCafe.id),
     addOrder,
     updateOrder,

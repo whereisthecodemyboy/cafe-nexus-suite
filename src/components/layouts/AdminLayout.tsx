@@ -1,4 +1,3 @@
-
 import React, { ReactNode, useState } from "react";
 import { 
   Shield, 
@@ -132,7 +131,6 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             <h1 className="text-2xl font-serif font-bold">Admin Panel</h1>
           </div>
 
-          {/* Fix the variant type here from "warning" to "destructive" */}
           <Alert variant="destructive" className="m-3 border-amber-500">
             <AlertTitle>Restricted Area</AlertTitle>
             <AlertDescription>
