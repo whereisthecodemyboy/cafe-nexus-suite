@@ -52,7 +52,7 @@ const AdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/admin/login" replace />;
   }
   
-  if (currentUser.role !== 'superAdmin' && currentUser.role !== 'admin') {
+  if (currentUser.role !== 'superAdmin' && currentUser.role !== 'admin' && currentUser.role !== 'manager') {
     return <Navigate to="/unauthorized" replace />;
   }
   
@@ -67,6 +67,20 @@ const SuperAdminProtectedRoute = ({ children }: { children: React.ReactNode }) =
   }
   
   if (currentUser.role !== 'superAdmin') {
+    return <Navigate to="/unauthorized" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
+const CafeAdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { currentUser } = useAppContext();
+  
+  if (!currentUser) {
+    return <Navigate to="/admin/login" replace />;
+  }
+  
+  if (currentUser.role !== 'admin' && currentUser.role !== 'manager') {
     return <Navigate to="/unauthorized" replace />;
   }
   
@@ -108,14 +122,14 @@ const AppRoutes = () => {
       <Route path="/admin/login" element={<AdminLogin />} />
       
       {/* Cafe Admin Routes - use the regular AdminLayout */}
-      <Route path="/admin/dashboard" element={<AdminProtectedRoute><AdminLayout><AdminDashboard /></AdminLayout></AdminProtectedRoute>} />
-      <Route path="/admin/staff" element={<AdminProtectedRoute><AdminLayout><StaffManagement /></AdminLayout></AdminProtectedRoute>} />
-      <Route path="/admin/tables" element={<AdminProtectedRoute><AdminLayout><div>Table Management (Admin)</div></AdminLayout></AdminProtectedRoute>} />
-      <Route path="/admin/menu" element={<AdminProtectedRoute><AdminLayout><div>Menu Management (Admin)</div></AdminLayout></AdminProtectedRoute>} />
-      <Route path="/admin/orders" element={<AdminProtectedRoute><AdminLayout><div>Orders Management (Admin)</div></AdminLayout></AdminProtectedRoute>} />
-      <Route path="/admin/reports" element={<AdminProtectedRoute><AdminLayout><div>Reports & Analytics (Admin)</div></AdminLayout></AdminProtectedRoute>} />
-      <Route path="/admin/access" element={<AdminProtectedRoute><AdminLayout><div>Access Control (Admin)</div></AdminLayout></AdminProtectedRoute>} />
-      <Route path="/admin/settings" element={<AdminProtectedRoute><AdminLayout><div>System Settings (Admin)</div></AdminLayout></AdminProtectedRoute>} />
+      <Route path="/admin/dashboard" element={<CafeAdminProtectedRoute><AdminLayout><AdminDashboard /></AdminLayout></CafeAdminProtectedRoute>} />
+      <Route path="/admin/staff" element={<CafeAdminProtectedRoute><AdminLayout><StaffManagement /></AdminLayout></CafeAdminProtectedRoute>} />
+      <Route path="/admin/tables" element={<CafeAdminProtectedRoute><AdminLayout><div>Table Management (Admin)</div></AdminLayout></CafeAdminProtectedRoute>} />
+      <Route path="/admin/menu" element={<CafeAdminProtectedRoute><AdminLayout><div>Menu Management (Admin)</div></AdminLayout></CafeAdminProtectedRoute>} />
+      <Route path="/admin/orders" element={<CafeAdminProtectedRoute><AdminLayout><div>Orders Management (Admin)</div></AdminLayout></CafeAdminProtectedRoute>} />
+      <Route path="/admin/reports" element={<CafeAdminProtectedRoute><AdminLayout><div>Reports & Analytics (Admin)</div></AdminLayout></CafeAdminProtectedRoute>} />
+      <Route path="/admin/access" element={<CafeAdminProtectedRoute><AdminLayout><div>Access Control (Admin)</div></AdminLayout></CafeAdminProtectedRoute>} />
+      <Route path="/admin/settings" element={<CafeAdminProtectedRoute><AdminLayout><div>System Settings (Admin)</div></AdminLayout></CafeAdminProtectedRoute>} />
       
       {/* Super Admin Routes - use the new SuperAdminLayout */}
       <Route path="/admin/super/dashboard" element={<SuperAdminProtectedRoute><SuperAdminLayout><SuperAdminDashboard /></SuperAdminLayout></SuperAdminProtectedRoute>} />
@@ -136,7 +150,7 @@ const AppRoutes = () => {
         </ProtectedRoute>
       } />
       
-      <Route path="/unauthorized" element={<div className="flex items-center justify-center h-screen">Unauthorized Access</div>} />
+      {/* Default route to redirect to index page */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
