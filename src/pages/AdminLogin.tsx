@@ -61,7 +61,13 @@ const AdminLogin: React.FC = () => {
           title: loginType === 'super' ? "Super Admin Login Successful" : "Café Admin Login Successful",
           description: "Welcome to the admin panel.",
         });
-        navigate('/admin/dashboard');
+        
+        // Redirect based on role - Super Admin gets a special route
+        if (potentialUser.role === 'superAdmin') {
+          navigate('/admin/super/dashboard');
+        } else {
+          navigate('/admin/dashboard');
+        }
       } else {
         setError('Invalid email or password.');
       }

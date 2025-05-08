@@ -9,6 +9,7 @@ import { AppProvider, useAppContext } from "@/contexts/AppContext";
 
 import AppLayout from "@/components/layouts/AppLayout";
 import AdminLayout from "@/components/layouts/AdminLayout";
+import SuperAdminLayout from "@/components/layouts/SuperAdminLayout";
 import Dashboard from "@/pages/Dashboard";
 import POS from "@/pages/POS";
 import Menu from "@/pages/Menu";
@@ -33,6 +34,7 @@ import AddProduct from "@/pages/products/AddProduct";
 import TableManagement from "@/pages/TableManagement";
 import Delivery from "@/pages/Delivery";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
+import SuperAdminDashboard from "@/pages/admin/SuperAdminDashboard";
 import StaffManagement from "@/pages/admin/StaffManagement";
 import CafeManagement from "@/pages/admin/CafeManagement";
 
@@ -102,23 +104,37 @@ const AppRoutes = () => {
       <Route path="/inventory/wastage" element={<ProtectedRoute><AppLayout><Wastage /></AppLayout></ProtectedRoute>} />
       <Route path="/inventory/purchase-orders" element={<ProtectedRoute><AppLayout><PurchaseOrders /></AppLayout></ProtectedRoute>} />
       
-      {/* Admin Routes */}
+      {/* Admin Login */}
       <Route path="/admin/login" element={<AdminLogin />} />
+      
+      {/* Cafe Admin Routes - use the regular AdminLayout */}
       <Route path="/admin/dashboard" element={<AdminProtectedRoute><AdminLayout><AdminDashboard /></AdminLayout></AdminProtectedRoute>} />
       <Route path="/admin/staff" element={<AdminProtectedRoute><AdminLayout><StaffManagement /></AdminLayout></AdminProtectedRoute>} />
-      
-      {/* SuperAdmin specific routes */}
-      <Route path="/admin/cafes" element={<SuperAdminProtectedRoute><AdminLayout><CafeManagement /></AdminLayout></SuperAdminProtectedRoute>} />
-      
-      <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-      
-      {/* Placeholder routes for other admin sections */}
       <Route path="/admin/tables" element={<AdminProtectedRoute><AdminLayout><div>Table Management (Admin)</div></AdminLayout></AdminProtectedRoute>} />
       <Route path="/admin/menu" element={<AdminProtectedRoute><AdminLayout><div>Menu Management (Admin)</div></AdminLayout></AdminProtectedRoute>} />
       <Route path="/admin/orders" element={<AdminProtectedRoute><AdminLayout><div>Orders Management (Admin)</div></AdminLayout></AdminProtectedRoute>} />
       <Route path="/admin/reports" element={<AdminProtectedRoute><AdminLayout><div>Reports & Analytics (Admin)</div></AdminLayout></AdminProtectedRoute>} />
       <Route path="/admin/access" element={<AdminProtectedRoute><AdminLayout><div>Access Control (Admin)</div></AdminLayout></AdminProtectedRoute>} />
       <Route path="/admin/settings" element={<AdminProtectedRoute><AdminLayout><div>System Settings (Admin)</div></AdminLayout></AdminProtectedRoute>} />
+      
+      {/* Super Admin Routes - use the new SuperAdminLayout */}
+      <Route path="/admin/super/dashboard" element={<SuperAdminProtectedRoute><SuperAdminLayout><SuperAdminDashboard /></SuperAdminLayout></SuperAdminProtectedRoute>} />
+      <Route path="/admin/cafes" element={<SuperAdminProtectedRoute><SuperAdminLayout><CafeManagement /></SuperAdminLayout></SuperAdminProtectedRoute>} />
+      <Route path="/admin/super/users" element={<SuperAdminProtectedRoute><SuperAdminLayout><div>User Management (Super Admin)</div></SuperAdminLayout></SuperAdminProtectedRoute>} />
+      <Route path="/admin/super/database" element={<SuperAdminProtectedRoute><SuperAdminLayout><div>System Database (Super Admin)</div></SuperAdminLayout></SuperAdminProtectedRoute>} />
+      <Route path="/admin/super/settings" element={<SuperAdminProtectedRoute><SuperAdminLayout><div>Global Settings (Super Admin)</div></SuperAdminLayout></SuperAdminProtectedRoute>} />
+      <Route path="/admin/super/maintenance" element={<SuperAdminProtectedRoute><SuperAdminLayout><div>System Maintenance (Super Admin)</div></SuperAdminLayout></SuperAdminProtectedRoute>} />
+      <Route path="/admin/super/analytics" element={<SuperAdminProtectedRoute><SuperAdminLayout><div>Global Analytics (Super Admin)</div></SuperAdminLayout></SuperAdminProtectedRoute>} />
+      
+      {/* Redirect from /admin to appropriate dashboard based on role */}
+      <Route path="/admin" element={
+        <ProtectedRoute>
+          {currentUser?.role === 'superAdmin' ? 
+            <Navigate to="/admin/super/dashboard" replace /> : 
+            <Navigate to="/admin/dashboard" replace />
+          }
+        </ProtectedRoute>
+      } />
       
       <Route path="/unauthorized" element={<div className="flex items-center justify-center h-screen">Unauthorized Access</div>} />
       <Route path="*" element={<NotFound />} />
