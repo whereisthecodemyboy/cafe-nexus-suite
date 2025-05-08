@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Shield, Plus, Search, Building2, Edit, Trash2 } from 'lucide-react';
+import { Shield, Plus, Search, Building2, Edit, Trash2, ChevronDown } from 'lucide-react';
 import { 
   Table, 
   TableBody, 
@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 import {
   Select,
   SelectContent,
@@ -40,13 +41,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { v4 as uuidv4 } from 'uuid';
 
 const CafeManagement: React.FC = () => {
-  const { cafes, addCafe, updateCafe, switchCafe, addUser } = useAppContext();
+  const { cafes, addCafe, updateCafe, deleteCafe, switchCafe, addUser } = useAppContext();
   const { toast } = useToast();
   
   // State
@@ -197,14 +197,11 @@ const CafeManagement: React.FC = () => {
   
   const handleDeleteCafe = () => {
     if (selectedCafe) {
-      // In a real app, this would handle proper deletion with data cleanup
-      // For now, we just update the status to inactive
-      const updatedCafe = { ...selectedCafe, status: 'inactive' as const };
-      updateCafe(updatedCafe);
+      deleteCafe(selectedCafe.id);
       
       toast({
-        title: "Cafe Deactivated",
-        description: `${selectedCafe.name} has been deactivated.`,
+        title: "Cafe Deleted",
+        description: `${selectedCafe.name} has been removed from the system.`,
       });
       setShowDeleteDialog(false);
     }
@@ -217,17 +214,22 @@ const CafeManagement: React.FC = () => {
           <Shield className="h-5 w-5 text-primary" />
           <h1 className="text-3xl font-serif font-bold tracking-tight">Cafe Management</h1>
         </div>
-        <Button onClick={() => openEditDialog()}>
+        <Button onClick={() => openEditDialog()} className="bg-primary">
           <Plus className="h-4 w-4 mr-2" />
-          Add Cafe
+          Add New Cafe
         </Button>
+      </div>
+
+      <div className="bg-primary/10 p-4 rounded-md border border-primary/30 mb-6">
+        <h2 className="font-semibold text-primary">Super Admin Controls</h2>
+        <p className="text-sm text-muted-foreground">This panel allows you to create, manage, and access all cafes in the system</p>
       </div>
       
       <div className="flex flex-col md:flex-row gap-4 mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search cafes..."
+            placeholder="Search cafe name, address, or email..."
             className="pl-10"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -250,41 +252,74 @@ const CafeManagement: React.FC = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCafes.map(cafe => (
-          <Card key={cafe.id}>
-            <CardHeader className="pb-2">
+          <Card key={cafe.id} className={cn(
+            "overflow-hidden transition-all hover:shadow-md",
+            cafe.status === 'inactive' && "opacity-70"
+          )}>
+            <CardHeader className="pb-2 relative">
               <div className="flex justify-between items-start">
                 <Building2 className="h-8 w-8 text-primary" />
                 <Badge variant={cafe.status === 'active' ? 'default' : 'destructive'}>
                   {cafe.status === 'active' ? 'Active' : 'Inactive'}
                 </Badge>
               </div>
-              <CardTitle className="mt-2">{cafe.name}</CardTitle>
+              <CardTitle className="mt-2 pr-16">{cafe.name}</CardTitle>
+              
+              {cafe.logo && (
+                <div className="absolute top-4 right-4 h-16 w-16 rounded-md overflow-hidden bg-background">
+                  <img 
+                    src={cafe.logo} 
+                    alt={`${cafe.name} logo`} 
+                    className="h-full w-full object-contain" 
+                  />
+                </div>
+              )}
             </CardHeader>
             <CardContent>
               <div className="space-y-2 mb-4">
-                <p className="text-sm">{cafe.address}</p>
-                {cafe.phone && <p className="text-sm">{cafe.phone}</p>}
-                {cafe.email && <p className="text-sm">{cafe.email}</p>}
-                <p className="text-sm text-muted-foreground">
-                  Created on {new Date(cafe.createdAt).toLocaleDateString()}
-                </p>
+                <div className="flex items-start gap-2">
+                  <span className="text-muted-foreground">Address:</span>
+                  <span className="text-sm flex-1">{cafe.address}</span>
+                </div>
+                
+                {cafe.phone && (
+                  <div className="flex items-start gap-2">
+                    <span className="text-muted-foreground">Phone:</span>
+                    <span className="text-sm">{cafe.phone}</span>
+                  </div>
+                )}
+                
+                {cafe.email && (
+                  <div className="flex items-start gap-2">
+                    <span className="text-muted-foreground">Email:</span>
+                    <span className="text-sm">{cafe.email}</span>
+                  </div>
+                )}
+                
+                <div className="flex items-start gap-2">
+                  <span className="text-muted-foreground">Created:</span>
+                  <span className="text-sm">{new Date(cafe.createdAt).toLocaleDateString()}</span>
+                </div>
               </div>
               
-              <div className="flex justify-between gap-2">
-                <Button variant="outline" size="sm" onClick={() => handleAccessCafe(cafe)}>
-                  Access
+              <div className="flex flex-col gap-2">
+                <Button className="w-full" onClick={() => handleAccessCafe(cafe)}>
+                  Access & Manage
                 </Button>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => openEditDialog(cafe)}>
-                    <Edit className="h-4 w-4" />
+                
+                <div className="flex justify-between gap-2">
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => openEditDialog(cafe)}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit
                   </Button>
                   <Button 
                     variant="outline" 
                     size="sm"
-                    className="text-destructive"
+                    className="flex-1 text-destructive hover:text-destructive"
                     onClick={() => confirmDelete(cafe)}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
                   </Button>
                 </div>
               </div>
@@ -293,14 +328,19 @@ const CafeManagement: React.FC = () => {
         ))}
         
         {filteredCafes.length === 0 && (
-          <div className="col-span-full flex justify-center items-center p-8 border rounded-lg">
-            <p className="text-muted-foreground">No cafes found</p>
+          <div className="col-span-full flex flex-col items-center justify-center p-8 border rounded-lg bg-background/50">
+            <Building2 className="h-12 w-12 text-muted-foreground mb-4" />
+            <p className="text-muted-foreground text-center">No cafes found.</p>
+            <Button variant="outline" className="mt-4" onClick={() => openEditDialog()}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Your First Cafe
+            </Button>
           </div>
         )}
       </div>
       
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>{selectedCafe ? 'Edit Cafe' : 'Add New Cafe'}</DialogTitle>
             <DialogDescription>
@@ -310,65 +350,75 @@ const CafeManagement: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Cafe Name *</Label>
-              <Input
-                id="name"
-                value={cafeFormData.name}
-                onChange={(e) => setCafeFormData({...cafeFormData, name: e.target.value})}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="address">Address *</Label>
-              <Input
-                id="address"
-                value={cafeFormData.address}
-                onChange={(e) => setCafeFormData({...cafeFormData, address: e.target.value})}
-              />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  value={cafeFormData.phone}
-                  onChange={(e) => setCafeFormData({...cafeFormData, phone: e.target.value})}
-                />
+          <div className="space-y-6 py-4">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Cafe Information</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Cafe Name *</Label>
+                  <Input
+                    id="name"
+                    value={cafeFormData.name}
+                    onChange={(e) => setCafeFormData({...cafeFormData, name: e.target.value})}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="status">Status</Label>
+                  <Select 
+                    value={cafeFormData.status} 
+                    onValueChange={(value) => setCafeFormData({...cafeFormData, status: value as 'active' | 'inactive'})}
+                  >
+                    <SelectTrigger id="status">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="inactive">Inactive</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="address">Address *</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  value={cafeFormData.email}
-                  onChange={(e) => setCafeFormData({...cafeFormData, email: e.target.value})}
+                  id="address"
+                  value={cafeFormData.address}
+                  onChange={(e) => setCafeFormData({...cafeFormData, address: e.target.value})}
                 />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    value={cafeFormData.phone}
+                    onChange={(e) => setCafeFormData({...cafeFormData, phone: e.target.value})}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={cafeFormData.email}
+                    onChange={(e) => setCafeFormData({...cafeFormData, email: e.target.value})}
+                  />
+                </div>
               </div>
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select 
-                value={cafeFormData.status} 
-                onValueChange={(value) => setCafeFormData({...cafeFormData, status: value as 'active' | 'inactive'})}
-              >
-                <SelectTrigger id="status">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
             {!selectedCafe && (
-              <div className="space-y-4 mt-6 pt-6 border-t">
-                <h3 className="text-lg font-medium">Admin Account</h3>
+              <div className="space-y-4 pt-4 border-t">
+                <h3 className="text-lg font-semibold">Admin Account</h3>
+                <p className="text-sm text-muted-foreground">
+                  Create a cafe manager account that will have access to this cafe.
+                </p>
+                
                 <div className="space-y-2">
                   <Label htmlFor="admin-name">Admin Name *</Label>
                   <Input
@@ -415,16 +465,17 @@ const CafeManagement: React.FC = () => {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure you want to deactivate this cafe?</AlertDialogTitle>
+            <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
             <AlertDialogDescription>
-              This will mark the cafe as inactive and restrict access to its data.
-              All related staff accounts will also be deactivated.
+              Are you sure you want to delete <strong>{selectedCafe?.name}</strong>?
+              <br /><br />
+              This will permanently remove the cafe and all associated data including staff accounts, menu items, orders, and settings. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteCafe} className="bg-destructive">
-              Deactivate
+              Delete Permanently
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

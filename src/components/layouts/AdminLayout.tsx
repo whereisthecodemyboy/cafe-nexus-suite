@@ -1,3 +1,4 @@
+
 import React, { ReactNode, useState } from "react";
 import { 
   Shield, 
@@ -11,7 +12,8 @@ import {
   Menu as MenuIcon,
   FileText,
   Key,
-  Building2
+  Building2,
+  ChevronDown
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -66,7 +68,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
-  const { currentUser, currentCafe } = useAppContext();
+  const { currentUser, currentCafe, cafes, switchCafe } = useAppContext();
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -110,6 +112,17 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     navigate("/admin/login");
   };
 
+  const handleCafeChange = (cafeId: string) => {
+    const cafe = cafes.find(c => c.id === cafeId);
+    if (cafe) {
+      switchCafe(cafeId);
+      toast({
+        title: "Switched Cafe",
+        description: `Now managing: ${cafe.name}`,
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen flex bg-background">
       <div className="fixed top-4 left-4 z-50 md:hidden">
@@ -128,7 +141,9 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         <div className="flex flex-col h-full">
           <div className="p-6 flex items-center justify-center space-x-2 border-b border-border">
             <Shield className="h-6 w-6 text-primary" />
-            <h1 className="text-2xl font-serif font-bold">Admin Panel</h1>
+            <h1 className="text-2xl font-serif font-bold">
+              {isSuperAdmin ? "Super Admin" : "Café Admin"}
+            </h1>
           </div>
 
           <Alert variant="destructive" className="m-3 border-amber-500">
@@ -138,9 +153,53 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             </AlertDescription>
           </Alert>
 
-          {isSuperAdmin && currentCafe && (
+          {isSuperAdmin && (
+            <div className="px-4 py-3 bg-primary/10 border-y border-primary/30">
+              <h3 className="text-sm font-medium mb-2">Currently Managing</h3>
+              
+              {currentCafe ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="w-full flex justify-between items-center">
+                      <span className="truncate">{currentCafe.name}</span>
+                      <ChevronDown size={16} />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56">
+                    <DropdownMenuLabel>Switch Cafe</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {cafes.filter(c => c.status === 'active').map(cafe => (
+                      <DropdownMenuItem 
+                        key={cafe.id} 
+                        onClick={() => handleCafeChange(cafe.id)}
+                        className={currentCafe.id === cafe.id ? "bg-secondary" : ""}
+                      >
+                        {cafe.name}
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate('/admin/cafes')}>
+                      <Building2 className="w-4 h-4 mr-2" />
+                      <span>Manage All Cafes</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={() => navigate('/admin/cafes')}
+                >
+                  <Building2 className="w-4 h-4 mr-2" />
+                  <span>Select a Cafe</span>
+                </Button>
+              )}
+            </div>
+          )}
+
+          {!isSuperAdmin && currentCafe && (
             <div className="px-4 py-2 bg-secondary/50">
-              <p className="text-sm font-medium">Currently managing:</p>
+              <p className="text-sm font-medium">Managing Cafe:</p>
               <p className="text-primary font-bold">{currentCafe.name}</p>
             </div>
           )}
@@ -172,7 +231,10 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="w-56">
                     <DropdownMenuLabel>
-                      {isSuperAdmin ? "Super Admin" : "Admin"}
+                      {currentUser?.name || (isSuperAdmin ? "Super Admin" : "Admin")}
+                    </DropdownMenuLabel>
+                    <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
+                      {currentUser?.email}
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout} className="text-destructive">
@@ -183,7 +245,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
                 </DropdownMenu>
                 <div className="flex flex-col">
                   <span className="text-sm font-medium">
-                    {isSuperAdmin ? "Super Admin" : "Admin"}
+                    {isSuperAdmin ? "Super Admin" : "Cafe Admin"}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {isSuperAdmin ? "System Controller" : "Cafe Manager"}

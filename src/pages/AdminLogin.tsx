@@ -16,12 +16,14 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/components/ui/use-toast';
 import { useAppContext } from '@/contexts/AppContext';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const AdminLogin: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loginType, setLoginType] = useState('cafe');
   const navigate = useNavigate();
   const { toast } = useToast();
   const { login, users } = useAppContext();
@@ -38,12 +40,15 @@ const AdminLogin: React.FC = () => {
     setLoading(true);
     
     try {
-      // Check if the email belongs to a superAdmin
-      const potentialAdmin = users.find(user => 
-        user.email === email && user.role === 'superAdmin' && user.status === 'active'
+      // Check if the credentials match the expected role
+      const potentialUser = users.find(user => 
+        user.email === email && 
+        ((loginType === 'super' && user.role === 'superAdmin') || 
+         (loginType === 'cafe' && (user.role === 'admin' || user.role === 'manager'))) &&
+        user.status === 'active'
       );
       
-      if (!potentialAdmin) {
+      if (!potentialUser) {
         setError('Invalid credentials or insufficient permissions.');
         setLoading(false);
         return;
@@ -53,7 +58,7 @@ const AdminLogin: React.FC = () => {
       
       if (success) {
         toast({
-          title: "Admin Login Successful",
+          title: loginType === 'super' ? "Super Admin Login Successful" : "Café Admin Login Successful",
           description: "Welcome to the admin panel.",
         });
         navigate('/admin/dashboard');
@@ -76,16 +81,23 @@ const AdminLogin: React.FC = () => {
             <Shield className="w-10 h-10 text-primary-foreground" />
           </div>
           <h1 className="mt-4 text-3xl font-serif font-bold tracking-tight text-foreground">
-            Admin Access
+            {loginType === 'super' ? 'Super Admin Access' : 'Café Admin Access'}
           </h1>
           <p className="text-muted-foreground">Restricted Area - Authorized Personnel Only</p>
         </div>
         
         <Card>
           <CardHeader>
-            <CardTitle>Admin Login</CardTitle>
-            <CardDescription>
-              This area is restricted to system administrators only
+            <Tabs defaultValue="cafe" value={loginType} onValueChange={setLoginType} className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="cafe">Café Admin</TabsTrigger>
+                <TabsTrigger value="super">Super Admin</TabsTrigger>
+              </TabsList>
+            </Tabs>
+            <CardDescription className="mt-2">
+              {loginType === 'super' 
+                ? "Access the central management system for all cafés" 
+                : "Access your café's management dashboard"}
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
@@ -102,7 +114,7 @@ const AdminLogin: React.FC = () => {
                 <Input
                   id="admin-email"
                   type="email"
-                  placeholder="admin@cafenexus.com"
+                  placeholder={loginType === 'super' ? "admin@cafenexus.com" : "cafe@example.com"}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -118,6 +130,12 @@ const AdminLogin: React.FC = () => {
                   required
                 />
               </div>
+              
+              {loginType === 'cafe' && (
+                <div className="text-sm text-muted-foreground pt-2">
+                  Contact the system administrator if you need access to your café's dashboard.
+                </div>
+              )}
             </CardContent>
             <CardFooter>
               <Button className="w-full" type="submit" disabled={loading}>
@@ -127,12 +145,20 @@ const AdminLogin: React.FC = () => {
                     Authenticating...
                   </>
                 ) : (
-                  'Access Admin Panel'
+                  loginType === 'super' ? 'Access Super Admin Panel' : 'Access Café Admin Panel'
                 )}
               </Button>
             </CardFooter>
           </form>
         </Card>
+        
+        {loginType === 'super' && (
+          <div className="mt-4 p-4 border border-destructive/20 bg-destructive/5 rounded-lg">
+            <h3 className="font-semibold text-destructive">Super Admin Demo Credentials</h3>
+            <p className="text-sm text-muted-foreground">Email: admin@cafenexus.com</p>
+            <p className="text-sm text-muted-foreground">Password: admin123</p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -15,19 +15,46 @@ const AdminDashboard: React.FC = () => {
     tables, 
     reservations,
     cafes,
-    currentUser 
+    currentUser,
+    currentCafe
   } = useAppContext();
   
   // Determine if the user is a SuperAdmin
   const isSuperAdmin = currentUser?.role === 'superAdmin';
   
-  const activeUsers = users.filter(user => user.status === 'active').length;
+  // Calculate statistics based on active cafes or current cafe
   const activeCafes = cafes.filter(cafe => cafe.status === 'active').length;
-  const activeProducts = products.filter(product => product.available).length;
-  const pendingOrders = orders.filter(order => 
+  
+  // Filter users for either all cafes (super admin) or current cafe (cafe admin)
+  const filteredUsers = isSuperAdmin 
+    ? users 
+    : users.filter(user => user.cafeId === currentCafe?.id);
+  
+  const activeUsers = filteredUsers.filter(user => user.status === 'active').length;
+  
+  // Filter products for either all cafes or current cafe
+  const filteredProducts = isSuperAdmin 
+    ? products 
+    : products.filter(p => !p.cafeId || p.cafeId === currentCafe?.id);
+  
+  const activeProducts = filteredProducts.filter(product => product.available).length;
+  
+  // Filter orders for either all cafes or current cafe
+  const filteredOrders = isSuperAdmin 
+    ? orders 
+    : orders.filter(o => !o.cafeId || o.cafeId === currentCafe?.id);
+  
+  const pendingOrders = filteredOrders.filter(order => 
     order.status !== 'completed' && order.status !== 'cancelled'
   ).length;
-  const todayReservations = reservations.filter(reservation => {
+  
+  // Filter tables for either all cafes or current cafe
+  const filteredTables = tables.length;
+  
+  // Filter reservations for either all cafes or current cafe
+  const filteredReservations = reservations;
+  
+  const todayReservations = filteredReservations.filter(reservation => {
     const today = new Date().toISOString().split('T')[0];
     return reservation.date === today;
   }).length;
@@ -43,49 +70,49 @@ const AdminDashboard: React.FC = () => {
     },
     {
       title: "Staff Management",
-      description: "Manage staff accounts, roles, and permissions",
+      description: "Manage staff accounts, roles, and permissions across all cafes",
       icon: <Users className="h-8 w-8 text-primary" />,
-      stats: `${activeUsers} active staff`,
+      stats: `${activeUsers} active staff members`,
       path: "/admin/staff"
     },
     {
       title: "Menu Management",
-      description: "Update menu items, prices, and categories",
+      description: "Oversee all menu items across the system",
       icon: <ShoppingBasket className="h-8 w-8 text-primary" />,
-      stats: `${activeProducts} active items`,
+      stats: `${activeProducts} active menu items`,
       path: "/admin/menu"
     },
     {
       title: "Table Management",
-      description: "Configure restaurant layout and table settings",
+      description: "Configure restaurant layouts for all cafes",
       icon: <Table2 className="h-8 w-8 text-primary" />,
-      stats: `${tables.length} tables configured`,
+      stats: `${filteredTables} tables configured`,
       path: "/admin/tables"
     },
     {
       title: "Orders & Reservations",
-      description: "Monitor and manage orders and bookings",
+      description: "Monitor all orders and bookings across the system",
       icon: <FileText className="h-8 w-8 text-primary" />,
       stats: `${pendingOrders} pending orders, ${todayReservations} today's reservations`,
       path: "/admin/orders"
     },
     {
       title: "Reports & Analytics",
-      description: "View sales reports and business analytics",
+      description: "View system-wide sales reports and business analytics",
       icon: <BarChart2 className="h-8 w-8 text-primary" />,
       stats: "System-wide analytics",
       path: "/admin/reports"
     },
     {
       title: "Access Control",
-      description: "Manage user access and permissions",
+      description: "Manage system access and roles across the platform",
       icon: <Key className="h-8 w-8 text-primary" />,
       stats: "Configure system access",
       path: "/admin/access"
     },
     {
       title: "System Settings",
-      description: "Configure system-wide settings and preferences",
+      description: "Configure global system settings and preferences",
       icon: <Settings className="h-8 w-8 text-primary" />,
       stats: "Global configuration",
       path: "/admin/settings"
@@ -95,51 +122,51 @@ const AdminDashboard: React.FC = () => {
   const adminCards = [
     {
       title: "Staff Management",
-      description: "Manage staff accounts, roles, and permissions",
+      description: "Manage staff accounts for your cafe",
       icon: <Users className="h-8 w-8 text-primary" />,
       stats: `${activeUsers} active staff`,
       path: "/admin/staff"
     },
     {
-      title: "Table Management",
-      description: "Configure restaurant layout and table settings",
-      icon: <Table2 className="h-8 w-8 text-primary" />,
-      stats: `${tables.length} tables configured`,
-      path: "/admin/tables"
-    },
-    {
       title: "Menu Management",
-      description: "Update menu items, prices, and categories",
+      description: "Update menu items for your cafe",
       icon: <ShoppingBasket className="h-8 w-8 text-primary" />,
       stats: `${activeProducts} active items`,
       path: "/admin/menu"
     },
     {
+      title: "Table Management",
+      description: "Configure restaurant layout for your cafe",
+      icon: <Table2 className="h-8 w-8 text-primary" />,
+      stats: `${filteredTables} tables configured`,
+      path: "/admin/tables"
+    },
+    {
       title: "Orders & Reservations",
-      description: "Monitor and manage orders and bookings",
+      description: "Monitor orders and bookings for your cafe",
       icon: <FileText className="h-8 w-8 text-primary" />,
       stats: `${pendingOrders} pending orders, ${todayReservations} today's reservations`,
       path: "/admin/orders"
     },
     {
       title: "Reports & Analytics",
-      description: "View sales reports and business analytics",
+      description: "View sales reports for your cafe",
       icon: <BarChart2 className="h-8 w-8 text-primary" />,
-      stats: "Full access to all reports",
+      stats: "Cafe analytics",
       path: "/admin/reports"
     },
     {
       title: "Access Control",
-      description: "Manage user access and permissions",
+      description: "Manage user access for your cafe",
       icon: <Key className="h-8 w-8 text-primary" />,
-      stats: "Configure system access",
+      stats: "Configure cafe access",
       path: "/admin/access"
     },
     {
-      title: "System Settings",
-      description: "Configure system-wide settings and preferences",
+      title: "Cafe Settings",
+      description: "Configure settings for your cafe",
       icon: <Settings className="h-8 w-8 text-primary" />,
-      stats: "Global configuration",
+      stats: "Cafe configuration",
       path: "/admin/settings"
     }
   ];
@@ -151,15 +178,33 @@ const AdminDashboard: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center space-x-2">
         <Shield className="h-6 w-6 text-primary" />
-        <h1 className="text-3xl font-serif font-bold tracking-tight">Admin Dashboard</h1>
+        <h1 className="text-3xl font-serif font-bold tracking-tight">
+          {isSuperAdmin ? "Super Admin Dashboard" : "Café Admin Dashboard"}
+        </h1>
       </div>
       
-      <p className="text-muted-foreground">
-        {isSuperAdmin 
-          ? "Welcome to the master control panel. As Super Admin, you have complete control over all cafes and system-wide settings."
-          : "Welcome to the admin control panel. This secure area provides complete control over the café management system."
-        }
-      </p>
+      <div className="flex flex-col space-y-2">
+        <p className="text-muted-foreground">
+          {isSuperAdmin 
+            ? "Welcome to the central management system. As Super Admin, you have complete control over all cafes and system-wide settings."
+            : `Welcome to the ${currentCafe?.name} dashboard. This area provides complete control over your café management.`
+          }
+        </p>
+        
+        {isSuperAdmin && (
+          <div className="bg-primary/10 p-4 rounded-md border border-primary/30">
+            <p className="font-semibold text-primary">You are currently in the System Administrator view</p>
+            <p className="text-sm text-muted-foreground">You have access to manage all cafes in the system</p>
+          </div>
+        )}
+        
+        {!isSuperAdmin && currentCafe && (
+          <div className="bg-secondary/30 p-4 rounded-md border border-secondary/50">
+            <p className="font-semibold">Currently managing: {currentCafe.name}</p>
+            <p className="text-sm text-muted-foreground">You have access to manage this cafe only</p>
+          </div>
+        )}
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {cardsToDisplay.map((card) => (
