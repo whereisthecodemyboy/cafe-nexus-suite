@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BarChart, LineChart, PieChart } from '@/components/ui/chart';
+import { BarChart, LineChart, PieChart } from '@/components/ui/chart-components';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAppContext } from '@/contexts/AppContext';
@@ -435,7 +435,7 @@ const GlobalAnalytics: React.FC = () => {
                     <thead>
                       <tr className="bg-muted/50">
                         <th className="px-4 py-2 text-left text-sm font-medium">Cafe</th>
-                        <th className="px-4 py-2 text-left text-sm font-medium">Location</th>
+                        <th className="px-4 py-2 text-left text-sm font-medium">Address</th>
                         <th className="px-4 py-2 text-left text-sm font-medium">Revenue (30d)</th>
                         <th className="px-4 py-2 text-left text-sm font-medium">Orders</th>
                         <th className="px-4 py-2 text-left text-sm font-medium">Avg Order</th>
@@ -447,7 +447,7 @@ const GlobalAnalytics: React.FC = () => {
                       {cafes.map((cafe) => (
                         <tr key={cafe.id} className="hover:bg-muted/50">
                           <td className="px-4 py-2 whitespace-nowrap font-medium">{cafe.name}</td>
-                          <td className="px-4 py-2 whitespace-nowrap">{cafe.location}</td>
+                          <td className="px-4 py-2 whitespace-nowrap">{cafe.address}</td>
                           <td className="px-4 py-2 whitespace-nowrap">${(Math.random() * 80000 + 20000).toFixed(0)}</td>
                           <td className="px-4 py-2 whitespace-nowrap">{Math.floor(Math.random() * 3000 + 1000)}</td>
                           <td className="px-4 py-2 whitespace-nowrap">${(Math.random() * 10 + 15).toFixed(2)}</td>

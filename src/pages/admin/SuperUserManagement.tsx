@@ -103,7 +103,7 @@ const SuperUserManagement: React.FC = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge variant="success" className="bg-green-100 text-green-800 border-green-300">Active</Badge>;
+        return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">Active</Badge>;
       case 'inactive':
         return <Badge variant="secondary" className="bg-gray-100 text-gray-800 border-gray-300">Inactive</Badge>;
       case 'suspended':
