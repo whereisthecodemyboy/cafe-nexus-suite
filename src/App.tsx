@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { AppProvider, useAppContext } from "@/contexts/AppContext";
+import { Button } from "@/components/ui/button"; // Added missing Button import
 
 import AppLayout from "@/components/layouts/AppLayout";
 import AdminLayout from "@/components/layouts/AdminLayout";
