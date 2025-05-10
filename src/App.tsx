@@ -39,6 +39,11 @@ import SuperAdminDashboard from "@/pages/admin/SuperAdminDashboard";
 import StaffManagement from "@/pages/admin/StaffManagement";
 import CafeManagement from "@/pages/admin/CafeManagement";
 import Index from "@/pages/Index";
+import SuperUserManagement from "@/pages/admin/SuperUserManagement";
+import SystemDatabase from "@/pages/admin/SystemDatabase";
+import GlobalSettings from "@/pages/admin/GlobalSettings";
+import SystemMaintenance from "@/pages/admin/SystemMaintenance";
+import GlobalAnalytics from "@/pages/admin/GlobalAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -141,11 +146,11 @@ const AppRoutes = () => {
       {/* Super Admin Routes - use the new SuperAdminLayout */}
       <Route path="/admin/super/dashboard" element={<SuperAdminProtectedRoute><SuperAdminLayout><SuperAdminDashboard /></SuperAdminLayout></SuperAdminProtectedRoute>} />
       <Route path="/admin/cafes" element={<SuperAdminProtectedRoute><SuperAdminLayout><CafeManagement /></SuperAdminLayout></SuperAdminProtectedRoute>} />
-      <Route path="/admin/super/users" element={<SuperAdminProtectedRoute><SuperAdminLayout><div className="p-6"><h1 className="text-2xl font-bold">User Management (Super Admin)</h1><p className="mt-4">Manage all users across the system.</p></div></SuperAdminLayout></SuperAdminProtectedRoute>} />
-      <Route path="/admin/super/database" element={<SuperAdminProtectedRoute><SuperAdminLayout><div className="p-6"><h1 className="text-2xl font-bold">System Database (Super Admin)</h1><p className="mt-4">Manage central database for all cafes.</p></div></SuperAdminLayout></SuperAdminProtectedRoute>} />
-      <Route path="/admin/super/settings" element={<SuperAdminProtectedRoute><SuperAdminLayout><div className="p-6"><h1 className="text-2xl font-bold">Global Settings (Super Admin)</h1><p className="mt-4">Configure system-wide settings.</p></div></SuperAdminLayout></SuperAdminProtectedRoute>} />
-      <Route path="/admin/super/maintenance" element={<SuperAdminProtectedRoute><SuperAdminLayout><div className="p-6"><h1 className="text-2xl font-bold">System Maintenance (Super Admin)</h1><p className="mt-4">Perform system updates and maintenance tasks.</p></div></SuperAdminLayout></SuperAdminProtectedRoute>} />
-      <Route path="/admin/super/analytics" element={<SuperAdminProtectedRoute><SuperAdminLayout><div className="p-6"><h1 className="text-2xl font-bold">Global Analytics (Super Admin)</h1><p className="mt-4">View analytics data across all cafes.</p></div></SuperAdminLayout></SuperAdminProtectedRoute>} />
+      <Route path="/admin/super/users" element={<SuperAdminProtectedRoute><SuperAdminLayout><SuperUserManagement /></SuperAdminLayout></SuperAdminProtectedRoute>} />
+      <Route path="/admin/super/database" element={<SuperAdminProtectedRoute><SuperAdminLayout><SystemDatabase /></SuperAdminLayout></SuperAdminProtectedRoute>} />
+      <Route path="/admin/super/settings" element={<SuperAdminProtectedRoute><SuperAdminLayout><GlobalSettings /></SuperAdminLayout></SuperAdminProtectedRoute>} />
+      <Route path="/admin/super/maintenance" element={<SuperAdminProtectedRoute><SuperAdminLayout><SystemMaintenance /></SuperAdminLayout></SuperAdminProtectedRoute>} />
+      <Route path="/admin/super/analytics" element={<SuperAdminProtectedRoute><SuperAdminLayout><GlobalAnalytics /></SuperAdminLayout></SuperAdminProtectedRoute>} />
       
       {/* Redirect from /admin to appropriate dashboard based on role */}
       <Route path="/admin" element={
