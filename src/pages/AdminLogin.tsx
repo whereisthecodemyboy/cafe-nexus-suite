@@ -62,12 +62,10 @@ const AdminLogin: React.FC = () => {
           description: "Welcome to the admin panel.",
         });
         
-        // Clear the redirection logic here - ensure Super Admin and Cafe Admin go to different routes
+        // Ensure Super Admin and Cafe Admin go to different routes
         if (potentialUser.role === 'superAdmin') {
-          // Super Admin should go to their special dashboard
           navigate('/admin/super/dashboard');
         } else {
-          // Cafe Admin/Manager should go to the regular admin dashboard
           navigate('/admin/dashboard');
         }
       } else {

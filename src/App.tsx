@@ -37,6 +37,7 @@ import AdminDashboard from "@/pages/admin/AdminDashboard";
 import SuperAdminDashboard from "@/pages/admin/SuperAdminDashboard";
 import StaffManagement from "@/pages/admin/StaffManagement";
 import CafeManagement from "@/pages/admin/CafeManagement";
+import Index from "@/pages/Index";
 
 const queryClient = new QueryClient();
 
@@ -92,9 +93,11 @@ const AppRoutes = () => {
   
   return (
     <Routes>
+      {/* Index Route */}
+      <Route path="/" element={<Index />} />
+      
       {/* Regular user routes */}
       <Route path="/login" element={currentUser ? <Navigate to="/" replace /> : <Login />} />
-      <Route path="/" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
       <Route path="/pos" element={<ProtectedRoute><AppLayout><POS /></AppLayout></ProtectedRoute>} />
       <Route path="/table-management" element={<ProtectedRoute><AppLayout><TableManagement /></AppLayout></ProtectedRoute>} />
       <Route path="/menu" element={<ProtectedRoute><AppLayout><Menu /></AppLayout></ProtectedRoute>} />
@@ -121,24 +124,27 @@ const AppRoutes = () => {
       {/* Admin Login */}
       <Route path="/admin/login" element={<AdminLogin />} />
       
+      {/* Staff Dashboard Route */}
+      <Route path="/dashboard" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
+      
       {/* Cafe Admin Routes - use the regular AdminLayout */}
       <Route path="/admin/dashboard" element={<CafeAdminProtectedRoute><AdminLayout><AdminDashboard /></AdminLayout></CafeAdminProtectedRoute>} />
       <Route path="/admin/staff" element={<CafeAdminProtectedRoute><AdminLayout><StaffManagement /></AdminLayout></CafeAdminProtectedRoute>} />
-      <Route path="/admin/tables" element={<CafeAdminProtectedRoute><AdminLayout><div>Table Management (Admin)</div></AdminLayout></CafeAdminProtectedRoute>} />
-      <Route path="/admin/menu" element={<CafeAdminProtectedRoute><AdminLayout><div>Menu Management (Admin)</div></AdminLayout></CafeAdminProtectedRoute>} />
-      <Route path="/admin/orders" element={<CafeAdminProtectedRoute><AdminLayout><div>Orders Management (Admin)</div></AdminLayout></CafeAdminProtectedRoute>} />
-      <Route path="/admin/reports" element={<CafeAdminProtectedRoute><AdminLayout><div>Reports & Analytics (Admin)</div></AdminLayout></CafeAdminProtectedRoute>} />
-      <Route path="/admin/access" element={<CafeAdminProtectedRoute><AdminLayout><div>Access Control (Admin)</div></AdminLayout></CafeAdminProtectedRoute>} />
-      <Route path="/admin/settings" element={<CafeAdminProtectedRoute><AdminLayout><div>System Settings (Admin)</div></AdminLayout></CafeAdminProtectedRoute>} />
+      <Route path="/admin/tables" element={<CafeAdminProtectedRoute><AdminLayout><div className="p-6"><h1 className="text-2xl font-bold">Table Management (Admin)</h1><p className="mt-4">Configure restaurant layout for your cafe.</p></div></AdminLayout></CafeAdminProtectedRoute>} />
+      <Route path="/admin/menu" element={<CafeAdminProtectedRoute><AdminLayout><div className="p-6"><h1 className="text-2xl font-bold">Menu Management (Admin)</h1><p className="mt-4">Configure menu items for your cafe.</p></div></AdminLayout></CafeAdminProtectedRoute>} />
+      <Route path="/admin/orders" element={<CafeAdminProtectedRoute><AdminLayout><div className="p-6"><h1 className="text-2xl font-bold">Orders Management (Admin)</h1><p className="mt-4">Manage orders for your cafe.</p></div></AdminLayout></CafeAdminProtectedRoute>} />
+      <Route path="/admin/reports" element={<CafeAdminProtectedRoute><AdminLayout><div className="p-6"><h1 className="text-2xl font-bold">Reports & Analytics (Admin)</h1><p className="mt-4">View analytics data for your cafe.</p></div></AdminLayout></CafeAdminProtectedRoute>} />
+      <Route path="/admin/access" element={<CafeAdminProtectedRoute><AdminLayout><div className="p-6"><h1 className="text-2xl font-bold">Access Control (Admin)</h1><p className="mt-4">Manage user permissions for your cafe.</p></div></AdminLayout></CafeAdminProtectedRoute>} />
+      <Route path="/admin/settings" element={<CafeAdminProtectedRoute><AdminLayout><div className="p-6"><h1 className="text-2xl font-bold">System Settings (Admin)</h1><p className="mt-4">Configure settings for your cafe.</p></div></AdminLayout></CafeAdminProtectedRoute>} />
       
       {/* Super Admin Routes - use the new SuperAdminLayout */}
       <Route path="/admin/super/dashboard" element={<SuperAdminProtectedRoute><SuperAdminLayout><SuperAdminDashboard /></SuperAdminLayout></SuperAdminProtectedRoute>} />
       <Route path="/admin/cafes" element={<SuperAdminProtectedRoute><SuperAdminLayout><CafeManagement /></SuperAdminLayout></SuperAdminProtectedRoute>} />
-      <Route path="/admin/super/users" element={<SuperAdminProtectedRoute><SuperAdminLayout><div>User Management (Super Admin)</div></SuperAdminLayout></SuperAdminProtectedRoute>} />
-      <Route path="/admin/super/database" element={<SuperAdminProtectedRoute><SuperAdminLayout><div>System Database (Super Admin)</div></SuperAdminLayout></SuperAdminProtectedRoute>} />
-      <Route path="/admin/super/settings" element={<SuperAdminProtectedRoute><SuperAdminLayout><div>Global Settings (Super Admin)</div></SuperAdminLayout></SuperAdminProtectedRoute>} />
-      <Route path="/admin/super/maintenance" element={<SuperAdminProtectedRoute><SuperAdminLayout><div>System Maintenance (Super Admin)</div></SuperAdminLayout></SuperAdminProtectedRoute>} />
-      <Route path="/admin/super/analytics" element={<SuperAdminProtectedRoute><SuperAdminLayout><div>Global Analytics (Super Admin)</div></SuperAdminLayout></SuperAdminProtectedRoute>} />
+      <Route path="/admin/super/users" element={<SuperAdminProtectedRoute><SuperAdminLayout><div className="p-6"><h1 className="text-2xl font-bold">User Management (Super Admin)</h1><p className="mt-4">Manage all users across the system.</p></div></SuperAdminLayout></SuperAdminProtectedRoute>} />
+      <Route path="/admin/super/database" element={<SuperAdminProtectedRoute><SuperAdminLayout><div className="p-6"><h1 className="text-2xl font-bold">System Database (Super Admin)</h1><p className="mt-4">Manage central database for all cafes.</p></div></SuperAdminLayout></SuperAdminProtectedRoute>} />
+      <Route path="/admin/super/settings" element={<SuperAdminProtectedRoute><SuperAdminLayout><div className="p-6"><h1 className="text-2xl font-bold">Global Settings (Super Admin)</h1><p className="mt-4">Configure system-wide settings.</p></div></SuperAdminLayout></SuperAdminProtectedRoute>} />
+      <Route path="/admin/super/maintenance" element={<SuperAdminProtectedRoute><SuperAdminLayout><div className="p-6"><h1 className="text-2xl font-bold">System Maintenance (Super Admin)</h1><p className="mt-4">Perform system updates and maintenance tasks.</p></div></SuperAdminLayout></SuperAdminProtectedRoute>} />
+      <Route path="/admin/super/analytics" element={<SuperAdminProtectedRoute><SuperAdminLayout><div className="p-6"><h1 className="text-2xl font-bold">Global Analytics (Super Admin)</h1><p className="mt-4">View analytics data across all cafes.</p></div></SuperAdminLayout></SuperAdminProtectedRoute>} />
       
       {/* Redirect from /admin to appropriate dashboard based on role */}
       <Route path="/admin" element={
@@ -150,7 +156,22 @@ const AppRoutes = () => {
         </ProtectedRoute>
       } />
       
-      {/* Default route to redirect to index page */}
+      {/* Unauthorized page */}
+      <Route path="/unauthorized" element={
+        <div className="min-h-screen flex flex-col items-center justify-center">
+          <h1 className="text-2xl font-bold text-red-500">Unauthorized Access</h1>
+          <p className="mt-4">You don't have permission to access this page.</p>
+          <Button 
+            variant="outline" 
+            className="mt-6"
+            onClick={() => window.history.back()}
+          >
+            Go Back
+          </Button>
+        </div>
+      } />
+      
+      {/* Default route for not found */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
