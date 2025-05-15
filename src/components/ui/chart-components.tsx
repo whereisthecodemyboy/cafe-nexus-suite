@@ -15,7 +15,6 @@ import {
   Legend,
   ResponsiveContainer
 } from 'recharts';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from './chart';
 
 interface ChartProps {
   data: {

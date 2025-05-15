@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   ServerCog, 
@@ -417,7 +416,7 @@ const SystemMaintenance: React.FC = () => {
                     <p>[15:40:12] [INFO] Database backup completed successfully</p>
                     <p>[15:38:45] [WARNING] High CPU usage detected: 87%</p>
                     <p>[15:37:22] [INFO] User john.smith@example.com logged in from IP 192.168.1.110</p>
-                    <p>[15:35:01] [ERROR] Database query timeout: SELECT * FROM orders WHERE date > '2023-01-01'</p>
+                    <p>[15:35:01] [ERROR] Database query timeout: SELECT * FROM orders WHERE date {'>'}  &apos;2023-01-01&apos;</p>
                     <p>[15:30:59] [INFO] Scheduled maintenance task started: Clear temporary files</p>
                     <p>[15:29:30] [WARNING] Low disk space on /var/log: 85% used</p>
                     <p>[15:25:47] [INFO] New user registered: sarah.johnson@example.com</p>
