@@ -47,7 +47,8 @@ const Login: React.FC = () => {
           title: "Login Successful",
           description: "Welcome to Café Nexus!",
         });
-        navigate('/');
+        // Redirect to dashboard instead of root path
+        navigate('/dashboard');
       } else {
         toast({
           title: "Login Failed",
