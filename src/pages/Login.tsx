@@ -47,7 +47,6 @@ const Login: React.FC = () => {
           title: "Login Successful",
           description: "Welcome to the Cafe Management Platform!",
         });
-        // Redirect to dashboard instead of root path
         navigate('/dashboard');
       } else {
         toast({
@@ -81,8 +80,8 @@ const Login: React.FC = () => {
         
         <Card>
           <CardHeader>
-            <CardTitle>Login</CardTitle>
-            <CardDescription>Enter your credentials to access your cafe</CardDescription>
+            <CardTitle>Staff Login</CardTitle>
+            <CardDescription>Enter your credentials to access your cafe dashboard</CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
@@ -132,7 +131,7 @@ const Login: React.FC = () => {
                     Logging in...
                   </>
                 ) : (
-                  'Login'
+                  'Login to Cafe System'
                 )}
               </Button>
             </CardFooter>
@@ -142,6 +141,14 @@ const Login: React.FC = () => {
         <div className="text-center mt-6 text-sm text-muted-foreground">
           <p>Demo Credentials:</p>
           <p>Email: john@cafenexus.com | Password: any</p>
+          <div className="mt-4">
+            <a 
+              href="/admin/login"
+              className="text-primary hover:text-primary/90 underline"
+            >
+              Admin Login Portal
+            </a>
+          </div>
         </div>
       </div>
     </div>

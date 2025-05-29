@@ -37,7 +37,7 @@ export type Product = {
   variants?: ProductVariant[];
   customizations?: ProductCustomization[];
   isSpecial?: boolean;
-  cafeId?: string; // Added this property to associate products with cafes
+  cafeId?: string; // To associate products with cafes
 };
 
 export type ProductVariant = {

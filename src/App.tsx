@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { AppProvider, useAppContext } from "@/contexts/AppContext";
-import { Button } from "@/components/ui/button"; // Added missing Button import
+import { Button } from "@/components/ui/button";
 
 import AppLayout from "@/components/layouts/AppLayout";
 import AdminLayout from "@/components/layouts/AdminLayout";
@@ -59,7 +59,7 @@ const AdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/admin/login" replace />;
   }
   
-  if (currentUser.role !== 'superAdmin' && currentUser.role !== 'admin' && currentUser.role !== 'manager') {
+  if (!['superAdmin', 'admin', 'manager'].includes(currentUser.role)) {
     return <Navigate to="/unauthorized" replace />;
   }
   
@@ -87,7 +87,7 @@ const CafeAdminProtectedRoute = ({ children }: { children: React.ReactNode }) =>
     return <Navigate to="/admin/login" replace />;
   }
   
-  if (currentUser.role !== 'admin' && currentUser.role !== 'manager') {
+  if (!['admin', 'manager'].includes(currentUser.role)) {
     return <Navigate to="/unauthorized" replace />;
   }
   
@@ -102,8 +102,11 @@ const AppRoutes = () => {
       {/* Index Route */}
       <Route path="/" element={<Index />} />
       
-      {/* Regular user routes */}
-      <Route path="/login" element={currentUser ? <Navigate to="/" replace /> : <Login />} />
+      {/* Staff login route */}
+      <Route path="/login" element={currentUser ? <Navigate to="/dashboard" replace /> : <Login />} />
+      
+      {/* Staff routes */}
+      <Route path="/dashboard" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
       <Route path="/pos" element={<ProtectedRoute><AppLayout><POS /></AppLayout></ProtectedRoute>} />
       <Route path="/table-management" element={<ProtectedRoute><AppLayout><TableManagement /></AppLayout></ProtectedRoute>} />
       <Route path="/menu" element={<ProtectedRoute><AppLayout><Menu /></AppLayout></ProtectedRoute>} />
@@ -128,12 +131,9 @@ const AppRoutes = () => {
       <Route path="/inventory/purchase-orders" element={<ProtectedRoute><AppLayout><PurchaseOrders /></AppLayout></ProtectedRoute>} />
       
       {/* Admin Login */}
-      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/admin/login" element={currentUser ? <Navigate to={currentUser.role === 'superAdmin' ? '/admin/super/dashboard' : '/admin/dashboard'} replace /> : <AdminLogin />} />
       
-      {/* Staff Dashboard Route */}
-      <Route path="/dashboard" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
-      
-      {/* Cafe Admin Routes - use the regular AdminLayout */}
+      {/* Cafe Admin Routes */}
       <Route path="/admin/dashboard" element={<CafeAdminProtectedRoute><AdminLayout><AdminDashboard /></AdminLayout></CafeAdminProtectedRoute>} />
       <Route path="/admin/staff" element={<CafeAdminProtectedRoute><AdminLayout><StaffManagement /></AdminLayout></CafeAdminProtectedRoute>} />
       <Route path="/admin/tables" element={<CafeAdminProtectedRoute><AdminLayout><div className="p-6"><h1 className="text-2xl font-bold">Table Management (Admin)</h1><p className="mt-4">Configure restaurant layout for your cafe.</p></div></AdminLayout></CafeAdminProtectedRoute>} />
@@ -143,7 +143,7 @@ const AppRoutes = () => {
       <Route path="/admin/access" element={<CafeAdminProtectedRoute><AdminLayout><div className="p-6"><h1 className="text-2xl font-bold">Access Control (Admin)</h1><p className="mt-4">Manage user permissions for your cafe.</p></div></AdminLayout></CafeAdminProtectedRoute>} />
       <Route path="/admin/settings" element={<CafeAdminProtectedRoute><AdminLayout><div className="p-6"><h1 className="text-2xl font-bold">System Settings (Admin)</h1><p className="mt-4">Configure settings for your cafe.</p></div></AdminLayout></CafeAdminProtectedRoute>} />
       
-      {/* Super Admin Routes - use the new SuperAdminLayout */}
+      {/* Super Admin Routes */}
       <Route path="/admin/super/dashboard" element={<SuperAdminProtectedRoute><SuperAdminLayout><SuperAdminDashboard /></SuperAdminLayout></SuperAdminProtectedRoute>} />
       <Route path="/admin/cafes" element={<SuperAdminProtectedRoute><SuperAdminLayout><CafeManagement /></SuperAdminLayout></SuperAdminProtectedRoute>} />
       <Route path="/admin/super/users" element={<SuperAdminProtectedRoute><SuperAdminLayout><SuperUserManagement /></SuperAdminLayout></SuperAdminProtectedRoute>} />
@@ -152,14 +152,14 @@ const AppRoutes = () => {
       <Route path="/admin/super/maintenance" element={<SuperAdminProtectedRoute><SuperAdminLayout><SystemMaintenance /></SuperAdminLayout></SuperAdminProtectedRoute>} />
       <Route path="/admin/super/analytics" element={<SuperAdminProtectedRoute><SuperAdminLayout><GlobalAnalytics /></SuperAdminLayout></SuperAdminProtectedRoute>} />
       
-      {/* Redirect from /admin to appropriate dashboard based on role */}
+      {/* Admin redirect based on role */}
       <Route path="/admin" element={
-        <ProtectedRoute>
+        <AdminProtectedRoute>
           {currentUser?.role === 'superAdmin' ? 
             <Navigate to="/admin/super/dashboard" replace /> : 
             <Navigate to="/admin/dashboard" replace />
           }
-        </ProtectedRoute>
+        </AdminProtectedRoute>
       } />
       
       {/* Unauthorized page */}
@@ -177,7 +177,7 @@ const AppRoutes = () => {
         </div>
       } />
       
-      {/* Default route for not found */}
+      {/* 404 page */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
