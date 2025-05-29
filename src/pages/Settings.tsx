@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -23,14 +22,25 @@ import { ModeToggle } from '@/components/layouts/ModeToggle';
 
 const Settings = () => {
   const { toast } = useToast();
-  const { businessInfo, taxSettings, updateBusinessInfo, updateTaxSettings, users } = useAppContext();
+  const { currentCafe, updateCafe, taxSettings, updateTaxSettings, users } = useAppContext();
   
-  // Business information state
-  const [businessName, setBusinessName] = useState(businessInfo.name);
-  const [businessLogo, setBusinessLogo] = useState(businessInfo.logo);
-  const [businessAddress, setBusinessAddress] = useState(businessInfo.address);
-  const [businessPhone, setBusinessPhone] = useState(businessInfo.phone);
-  const [businessEmail, setBusinessEmail] = useState(businessInfo.email);
+  // Cafe information state - now based on current cafe
+  const [cafeName, setCafeName] = useState(currentCafe?.name || '');
+  const [cafeLogo, setCafeLogo] = useState(currentCafe?.logo || '');
+  const [cafeAddress, setCafeAddress] = useState(currentCafe?.address || '');
+  const [cafePhone, setCafePhone] = useState(currentCafe?.phone || '');
+  const [cafeEmail, setCafeEmail] = useState(currentCafe?.email || '');
+  
+  // Update state when current cafe changes
+  useEffect(() => {
+    if (currentCafe) {
+      setCafeName(currentCafe.name);
+      setCafeLogo(currentCafe.logo || '');
+      setCafeAddress(currentCafe.address);
+      setCafePhone(currentCafe.phone || '');
+      setCafeEmail(currentCafe.email || '');
+    }
+  }, [currentCafe]);
   
   // Tax settings state
   const [taxRate, setTaxRate] = useState(taxSettings.taxRate);
@@ -94,7 +104,7 @@ const Settings = () => {
     },
   });
 
-  const [receiptMessage, setReceiptMessage] = useState("Thank you for dining at Café Nexus!");
+  const [receiptMessage, setReceiptMessage] = useState("Thank you for dining with us!");
   const [enabledNotifications, setEnabledNotifications] = useState({
     lowInventory: true,
     newOrders: true,
@@ -102,18 +112,30 @@ const Settings = () => {
     dailyReport: true,
   });
   
-  const handleSaveBusinessInfo = () => {
-    updateBusinessInfo({
-      name: businessName,
-      logo: businessLogo,
-      address: businessAddress,
-      phone: businessPhone,
-      email: businessEmail,
-    });
+  const handleSaveCafeInfo = () => {
+    if (!currentCafe) {
+      toast({
+        title: "Error",
+        description: "No cafe selected. Please contact support.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const updatedCafe = {
+      ...currentCafe,
+      name: cafeName,
+      logo: cafeLogo,
+      address: cafeAddress,
+      phone: cafePhone,
+      email: cafeEmail,
+    };
+
+    updateCafe(updatedCafe);
     
     toast({
-      title: "Business information updated",
-      description: "Your changes have been saved successfully",
+      title: "Cafe information updated",
+      description: `${cafeName} details have been saved successfully`,
     });
   };
   
@@ -177,16 +199,27 @@ const Settings = () => {
     }
   };
 
+  if (!currentCafe) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+          <p className="text-muted-foreground">No cafe selected. Please contact support.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">Manage your café settings and preferences</p>
+        <p className="text-muted-foreground">Manage {currentCafe.name} settings and preferences</p>
       </div>
       
       <Tabs defaultValue="business">
         <TabsList className="grid grid-cols-5 mb-6">
-          <TabsTrigger value="business">Business</TabsTrigger>
+          <TabsTrigger value="business">Cafe Info</TabsTrigger>
           <TabsTrigger value="tax">Tax</TabsTrigger>
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
           <TabsTrigger value="permissions">Permissions</TabsTrigger>
@@ -196,18 +229,19 @@ const Settings = () => {
         <TabsContent value="business">
           <Card>
             <CardHeader>
-              <CardTitle>Business Information</CardTitle>
-              <CardDescription>Update your café details and branding</CardDescription>
+              <CardTitle>Cafe Information</CardTitle>
+              <CardDescription>Update {currentCafe.name} details and branding</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Business Name</Label>
+                    <Label htmlFor="name">Cafe Name</Label>
                     <Input 
                       id="name"
-                      value={businessName}
-                      onChange={(e) => setBusinessName(e.target.value)}
+                      value={cafeName}
+                      onChange={(e) => setCafeName(e.target.value)}
+                      placeholder="Enter cafe name"
                     />
                   </div>
                   
@@ -215,8 +249,9 @@ const Settings = () => {
                     <Label htmlFor="address">Address</Label>
                     <Textarea 
                       id="address"
-                      value={businessAddress}
-                      onChange={(e) => setBusinessAddress(e.target.value)}
+                      value={cafeAddress}
+                      onChange={(e) => setCafeAddress(e.target.value)}
+                      placeholder="Enter cafe address"
                     />
                   </div>
                   
@@ -225,8 +260,9 @@ const Settings = () => {
                       <Label htmlFor="phone">Phone</Label>
                       <Input 
                         id="phone"
-                        value={businessPhone}
-                        onChange={(e) => setBusinessPhone(e.target.value)}
+                        value={cafePhone}
+                        onChange={(e) => setCafePhone(e.target.value)}
+                        placeholder="Enter phone number"
                       />
                     </div>
                     <div className="space-y-2">
@@ -234,8 +270,9 @@ const Settings = () => {
                       <Input 
                         id="email"
                         type="email"
-                        value={businessEmail}
-                        onChange={(e) => setBusinessEmail(e.target.value)}
+                        value={cafeEmail}
+                        onChange={(e) => setCafeEmail(e.target.value)}
+                        placeholder="Enter email address"
                       />
                     </div>
                   </div>
@@ -246,23 +283,23 @@ const Settings = () => {
                     <Label>Logo</Label>
                     <div className="border rounded-md p-4 flex flex-col items-center">
                       <Avatar className="w-24 h-24">
-                        <AvatarImage src={businessLogo} alt={businessName} />
-                        <AvatarFallback className="text-2xl">{businessName.charAt(0)}</AvatarFallback>
+                        <AvatarImage src={cafeLogo} alt={cafeName} />
+                        <AvatarFallback className="text-2xl">{cafeName.charAt(0).toUpperCase()}</AvatarFallback>
                       </Avatar>
                       <div className="mt-4 flex space-x-2">
                         <Button variant="outline" size="sm">
                           <Image className="mr-2 h-4 w-4" />
                           Upload
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => setBusinessLogo('')}>
+                        <Button variant="ghost" size="sm" onClick={() => setCafeLogo('')}>
                           Remove
                         </Button>
                       </div>
                       <Input 
                         className="mt-4"
                         placeholder="Or enter image URL"
-                        value={businessLogo}
-                        onChange={(e) => setBusinessLogo(e.target.value)}
+                        value={cafeLogo}
+                        onChange={(e) => setCafeLogo(e.target.value)}
                       />
                     </div>
                   </div>
@@ -270,7 +307,7 @@ const Settings = () => {
               </div>
               
               <div className="flex justify-end">
-                <Button onClick={handleSaveBusinessInfo}>
+                <Button onClick={handleSaveCafeInfo}>
                   <Save className="mr-2 h-4 w-4" />
                   Save Changes
                 </Button>
@@ -283,7 +320,7 @@ const Settings = () => {
           <Card>
             <CardHeader>
               <CardTitle>Tax Settings</CardTitle>
-              <CardDescription>Configure tax rates and calculation methods</CardDescription>
+              <CardDescription>Configure tax rates and calculation methods for {currentCafe.name}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -382,7 +419,7 @@ const Settings = () => {
           <Card>
             <CardHeader>
               <CardTitle>Role Permissions</CardTitle>
-              <CardDescription>Configure what each role can access</CardDescription>
+              <CardDescription>Configure what each role can access in {currentCafe.name}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -500,7 +537,7 @@ const Settings = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Receipt Settings</CardTitle>
-                <CardDescription>Configure how receipts are formatted and displayed</CardDescription>
+                <CardDescription>Configure how receipts are formatted for {currentCafe.name}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -543,7 +580,7 @@ const Settings = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Notification Settings</CardTitle>
-                <CardDescription>Configure system notifications and alerts</CardDescription>
+                <CardDescription>Configure system notifications and alerts for {currentCafe.name}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-4">
