@@ -17,7 +17,9 @@ const Dashboard: React.FC = () => {
     popularItems, 
     customers,
     reservations,
-    inventoryItems
+    inventoryItems,
+    currentCafe,
+    currentUser
   } = useAppContext();
 
   // Calculate today's sales
@@ -51,8 +53,20 @@ const Dashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-serif font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">Overview of your café performance and operations.</p>
+        <h1 className="text-3xl font-serif font-bold tracking-tight">
+          {currentCafe ? `${currentCafe.name} Dashboard` : 'Dashboard'}
+        </h1>
+        <p className="text-muted-foreground">
+          {currentCafe 
+            ? `Overview of ${currentCafe.name} performance and operations.`
+            : 'Overview of your café performance and operations.'
+          }
+        </p>
+        {currentCafe && (
+          <p className="text-sm text-muted-foreground mt-1">
+            {currentCafe.address} • {currentCafe.phone}
+          </p>
+        )}
       </div>
       
       {/* Stats Cards */}

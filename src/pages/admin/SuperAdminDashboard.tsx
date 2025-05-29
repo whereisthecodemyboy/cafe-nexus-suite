@@ -28,7 +28,7 @@ const SuperAdminDashboard: React.FC = () => {
   const adminCards = [
     {
       title: "Cafe Management",
-      description: "Create, edit and manage all cafe accounts in the system",
+      description: "Create, edit and manage all cafe accounts in the platform",
       icon: <Building2 className="h-8 w-8 text-destructive" />,
       stats: `${activeCafes} active, ${inactiveCafes} inactive cafes`,
       path: "/admin/cafes",
@@ -36,7 +36,7 @@ const SuperAdminDashboard: React.FC = () => {
     },
     {
       title: "User Management",
-      description: "Manage all users, roles and permissions across the system",
+      description: "Manage all users, roles and permissions across all cafes",
       icon: <Users className="h-8 w-8 text-destructive" />,
       stats: `${activeUsers} active users`,
       path: "/admin/super/users",
@@ -44,28 +44,28 @@ const SuperAdminDashboard: React.FC = () => {
     },
     {
       title: "System Database",
-      description: "Manage and monitor the central database",
+      description: "Manage and monitor the central platform database",
       icon: <Database className="h-8 w-8 text-destructive" />,
       stats: "Database management",
       path: "/admin/super/database"
     },
     {
       title: "Global Settings",
-      description: "Configure system-wide settings and defaults",
+      description: "Configure platform-wide settings and defaults",
       icon: <Globe className="h-8 w-8 text-destructive" />,
       stats: "Global configuration",
       path: "/admin/super/settings"
     },
     {
       title: "System Maintenance",
-      description: "Perform maintenance tasks and system updates",
+      description: "Perform maintenance tasks and platform updates",
       icon: <ServerCog className="h-8 w-8 text-destructive" />,
       stats: "System maintenance",
       path: "/admin/super/maintenance"
     },
     {
       title: "Global Analytics",
-      description: "Access analytics data across all cafes",
+      description: "Access analytics data across all cafes in the platform",
       icon: <BarChart2 className="h-8 w-8 text-destructive" />,
       stats: "Cross-cafe analytics",
       path: "/admin/super/analytics"
@@ -77,15 +77,15 @@ const SuperAdminDashboard: React.FC = () => {
       <div className="flex items-center space-x-2">
         <Shield className="h-6 w-6 text-destructive" />
         <h1 className="text-3xl font-serif font-bold tracking-tight">
-          Super Admin System Dashboard
+          Platform Admin Dashboard
         </h1>
       </div>
       
       <div className="flex flex-col space-y-4">
         <div className="bg-destructive/10 p-4 rounded-md border border-destructive/30">
-          <p className="font-semibold text-destructive">System Controller Dashboard</p>
+          <p className="font-semibold text-destructive">Multi-Cafe Management Platform</p>
           <p className="text-sm text-muted-foreground">
-            Welcome to the central management system. As Super Admin, you have complete control over all cafes and system-wide settings.
+            Welcome to the central management system. As Platform Administrator, you have complete control over all cafes and platform-wide settings.
           </p>
         </div>
         
@@ -135,11 +135,11 @@ const SuperAdminDashboard: React.FC = () => {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center">
-                <Settings className="mr-2 h-5 w-5 text-destructive" /> System
+                <Settings className="mr-2 h-5 w-5 text-destructive" /> Platform
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">System</div>
+              <div className="text-2xl font-bold">Platform</div>
               <p className="text-xs text-muted-foreground">
                 Global settings and maintenance
               </p>
@@ -148,7 +148,7 @@ const SuperAdminDashboard: React.FC = () => {
                 className="w-full mt-4 border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground"
                 onClick={() => navigate('/admin/super/settings')}
               >
-                System Settings
+                Platform Settings
               </Button>
             </CardContent>
           </Card>

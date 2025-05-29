@@ -1,3 +1,4 @@
+
 import React, { ReactNode, useState } from "react";
 import { 
   Shield, 
@@ -78,7 +79,7 @@ const SuperAdminLayout = ({ children }: SuperAdminLayoutProps) => {
 
   // Super Admin specific nav items - different from Cafe Admin
   const navItems = [
-    { icon: <Shield size={20} />, label: "System Dashboard", to: "/admin/super/dashboard" },
+    { icon: <Shield size={20} />, label: "Platform Dashboard", to: "/admin/super/dashboard" },
     { icon: <Building2 size={20} />, label: "Cafe Management", to: "/admin/cafes" },
     { icon: <Users size={20} />, label: "User Management", to: "/admin/super/users" },
     { icon: <Database size={20} />, label: "System Database", to: "/admin/super/database" },
@@ -94,7 +95,7 @@ const SuperAdminLayout = ({ children }: SuperAdminLayoutProps) => {
   const handleLogout = () => {
     toast({
       title: "Logged out successfully",
-      description: "You have been logged out of the Super Admin panel.",
+      description: "You have been logged out of the Platform Admin panel.",
     });
     navigate("/admin/login");
   };
@@ -117,20 +118,20 @@ const SuperAdminLayout = ({ children }: SuperAdminLayoutProps) => {
         <div className="flex flex-col h-full">
           <div className="p-6 flex items-center justify-center space-x-2 border-b border-border">
             <Shield className="h-6 w-6 text-destructive" />
-            <h1 className="text-2xl font-serif font-bold text-destructive">
-              Super Admin
+            <h1 className="text-xl font-serif font-bold text-destructive">
+              Platform Admin
             </h1>
           </div>
 
           <div className="m-3">
             <Badge variant="destructive" className="w-full justify-center py-1 text-sm font-bold">
-              SYSTEM CONTROLLER
+              PLATFORM CONTROLLER
             </Badge>
           </div>
 
           <div className="px-4 py-2 mb-2">
             <div className="bg-destructive/10 border border-destructive/30 rounded-md p-3">
-              <h3 className="text-sm font-semibold text-destructive mb-1">System Overview</h3>
+              <h3 className="text-sm font-semibold text-destructive mb-1">Platform Overview</h3>
               <div className="text-xs text-muted-foreground space-y-1">
                 <p><span className="font-medium">Active Cafes:</span> {cafes.filter(c => c.status === 'active').length}</p>
                 <p><span className="font-medium">Total Cafes:</span> {cafes.length}</p>
@@ -159,13 +160,13 @@ const SuperAdminLayout = ({ children }: SuperAdminLayoutProps) => {
                     <Avatar className="cursor-pointer">
                       <AvatarImage src="/assets/avatar.png" />
                       <AvatarFallback className="bg-destructive text-destructive-foreground">
-                        SA
+                        PA
                       </AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="w-56">
                     <DropdownMenuLabel>
-                      {currentUser?.name || "System Administrator"}
+                      {currentUser?.name || "Platform Administrator"}
                     </DropdownMenuLabel>
                     <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
                       {currentUser?.email}
@@ -179,7 +180,7 @@ const SuperAdminLayout = ({ children }: SuperAdminLayoutProps) => {
                 </DropdownMenu>
                 <div className="flex flex-col">
                   <span className="text-sm font-medium">
-                    Super Admin
+                    Platform Admin
                   </span>
                   <span className="text-xs text-muted-foreground">
                     System Controller

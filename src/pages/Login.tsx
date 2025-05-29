@@ -45,7 +45,7 @@ const Login: React.FC = () => {
       if (success) {
         toast({
           title: "Login Successful",
-          description: "Welcome to Café Nexus!",
+          description: "Welcome to the Cafe Management Platform!",
         });
         // Redirect to dashboard instead of root path
         navigate('/dashboard');
@@ -74,15 +74,15 @@ const Login: React.FC = () => {
         <div className="text-center mb-6">
           <Coffee className="w-12 h-12 mx-auto text-primary" />
           <h1 className="mt-4 text-3xl font-serif font-bold tracking-tight text-foreground">
-            Café Nexus
+            Cafe Management Platform
           </h1>
-          <p className="text-muted-foreground">Café Management System</p>
+          <p className="text-muted-foreground">Multi-Cafe Management System</p>
         </div>
         
         <Card>
           <CardHeader>
             <CardTitle>Login</CardTitle>
-            <CardDescription>Enter your credentials to access your account</CardDescription>
+            <CardDescription>Enter your credentials to access your cafe</CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">

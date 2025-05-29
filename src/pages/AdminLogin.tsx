@@ -87,9 +87,9 @@ const AdminLogin: React.FC = () => {
             <Shield className="w-10 h-10 text-primary-foreground" />
           </div>
           <h1 className="mt-4 text-3xl font-serif font-bold tracking-tight text-foreground">
-            {loginType === 'super' ? 'Super Admin Access' : 'Café Admin Access'}
+            {loginType === 'super' ? 'Platform Admin Access' : 'Café Admin Access'}
           </h1>
-          <p className="text-muted-foreground">Restricted Area - Authorized Personnel Only</p>
+          <p className="text-muted-foreground">Multi-Cafe Management Platform</p>
         </div>
         
         <Card>
@@ -97,7 +97,7 @@ const AdminLogin: React.FC = () => {
             <Tabs defaultValue="cafe" value={loginType} onValueChange={setLoginType} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="cafe">Café Admin</TabsTrigger>
-                <TabsTrigger value="super">Super Admin</TabsTrigger>
+                <TabsTrigger value="super">Platform Admin</TabsTrigger>
               </TabsList>
             </Tabs>
             <CardDescription className="mt-2">
@@ -120,7 +120,7 @@ const AdminLogin: React.FC = () => {
                 <Input
                   id="admin-email"
                   type="email"
-                  placeholder={loginType === 'super' ? "admin@cafenexus.com" : "cafe@example.com"}
+                  placeholder={loginType === 'super' ? "admin@cafeplatform.com" : "cafe@example.com"}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -139,7 +139,7 @@ const AdminLogin: React.FC = () => {
               
               {loginType === 'cafe' && (
                 <div className="text-sm text-muted-foreground pt-2">
-                  Contact the system administrator if you need access to your café's dashboard.
+                  Contact the platform administrator if you need access to your café's dashboard.
                 </div>
               )}
             </CardContent>
@@ -151,7 +151,7 @@ const AdminLogin: React.FC = () => {
                     Authenticating...
                   </>
                 ) : (
-                  loginType === 'super' ? 'Access Super Admin Panel' : 'Access Café Admin Panel'
+                  loginType === 'super' ? 'Access Platform Admin Panel' : 'Access Café Admin Panel'
                 )}
               </Button>
             </CardFooter>
@@ -160,8 +160,8 @@ const AdminLogin: React.FC = () => {
         
         {loginType === 'super' && (
           <div className="mt-4 p-4 border border-destructive/20 bg-destructive/5 rounded-lg">
-            <h3 className="font-semibold text-destructive">Super Admin Demo Credentials</h3>
-            <p className="text-sm text-muted-foreground">Email: admin@cafenexus.com</p>
+            <h3 className="font-semibold text-destructive">Platform Admin Demo Credentials</h3>
+            <p className="text-sm text-muted-foreground">Email: admin@cafeplatform.com</p>
             <p className="text-sm text-muted-foreground">Password: admin123</p>
           </div>
         )}

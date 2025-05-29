@@ -119,7 +119,7 @@ interface AppProviderProps {
 }
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
-  // Sample cafes data
+  // Sample cafes data - representing multiple cafes in the platform
   const initialCafes: Cafe[] = [
     {
       id: "cafe-001",
@@ -140,22 +140,67 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       status: "active",
       createdAt: "2023-02-15",
       logo: "/assets/logo-2.png"
+    },
+    {
+      id: "cafe-003",
+      name: "Brew & Bean Coffee",
+      address: "789 Coffee Lane, Midtown",
+      phone: "+1 (555) 456-7890",
+      email: "contact@brewandbean.com",
+      status: "active",
+      createdAt: "2023-03-20",
+      logo: "/assets/logo-3.png"
+    },
+    {
+      id: "cafe-004",
+      name: "Urban Grind",
+      address: "321 Urban Street, City Center",
+      phone: "+1 (555) 654-3210",
+      email: "info@urbangrind.com",
+      status: "active",
+      createdAt: "2023-04-10",
+      logo: "/assets/logo-4.png"
     }
   ];
 
-  // Initialize with a superAdmin user
+  // Initialize with a superAdmin user and cafe-specific users
   const initialUsers = [
-    ...users.map(user => ({ ...user, cafeId: "cafe-001" })),
+    // Super Admin - has access to all cafes
     {
       id: uuidv4(),
       name: "System Administrator",
-      email: "admin@cafenexus.com",
+      email: "admin@cafeplatform.com",
       role: "superAdmin" as User['role'],
       avatar: "/assets/admin-avatar.png",
       phone: "+1 (555) 987-6543",
       hireDate: "2023-01-01",
       status: "active" as User['status'],
       // SuperAdmin doesn't belong to any specific cafe
+    },
+    // Cafe Nexus Downtown users
+    ...users.map(user => ({ ...user, cafeId: "cafe-001" })),
+    // Additional cafe admins
+    {
+      id: uuidv4(),
+      name: "Emma Rodriguez",
+      email: "emma@brewandbean.com",
+      role: "admin" as User['role'],
+      avatar: "/assets/admin-avatar.png",
+      phone: "+1 (555) 789-0123",
+      hireDate: "2023-03-20",
+      status: "active" as User['status'],
+      cafeId: "cafe-003"
+    },
+    {
+      id: uuidv4(),
+      name: "Alex Chen",
+      email: "alex@urbangrind.com",
+      role: "admin" as User['role'],
+      avatar: "/assets/admin-avatar.png",
+      phone: "+1 (555) 321-0987",
+      hireDate: "2023-04-10",
+      status: "active" as User['status'],
+      cafeId: "cafe-004"
     }
   ];
 
@@ -177,18 +222,20 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // Store passwords in memory (in a real app this would be handled by backend)
   const [userPasswords, setUserPasswords] = useState<Record<string, string>>({
     'john@cafenexus.com': 'any',
-    'admin@cafenexus.com': 'admin123',
+    'admin@cafeplatform.com': 'admin123',
     'downtown@cafenexus.com': 'cafe123',
-    'uptown@cafenexus.com': 'cafe456'
+    'uptown@cafenexus.com': 'cafe456',
+    'emma@brewandbean.com': 'cafe789',
+    'alex@urbangrind.com': 'cafe012'
   });
 
-  // Settings state
+  // Settings state - now represents platform-wide default settings
   const [businessInfo, setBusinessInfo] = useState({
-    name: 'Café Nexus',
+    name: 'Cafe Management Platform',
     logo: '/assets/logo.png',
-    address: '123 Coffee Street, Brewville',
-    phone: '+1 (555) 123-4567',
-    email: 'info@cafenexus.com',
+    address: 'Platform Headquarters',
+    phone: '+1 (555) 100-2000',
+    email: 'info@cafeplatform.com',
   });
   
   const [taxSettings, setTaxSettings] = useState({
@@ -222,7 +269,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         }
         
         // For the admin account
-        if (email === 'admin@cafenexus.com' && password === 'admin123') {
+        if (email === 'admin@cafeplatform.com' && password === 'admin123') {
           const adminUser = appUsers.find(u => u.email === email);
           if (adminUser) {
             setCurrentUser(adminUser);
