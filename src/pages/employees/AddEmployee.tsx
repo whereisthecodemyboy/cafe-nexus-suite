@@ -53,7 +53,7 @@ type FormValues = z.infer<typeof formSchema>;
 const AddEmployee = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { users, addUser } = useAppContext();
+  const { users, addUser, currentCafe } = useAppContext();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -82,6 +82,15 @@ const AddEmployee = () => {
         return;
       }
 
+      if (!currentCafe) {
+        toast({
+          title: "No cafe selected",
+          description: "Please select a cafe before adding employees",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const newUser = {
         id: uuidv4(),
         name: data.name,
@@ -92,6 +101,7 @@ const AddEmployee = () => {
         status: 'active' as const,
         shiftStart: data.shiftStart,
         shiftEnd: data.shiftEnd,
+        cafeId: currentCafe.id, // Assign to current cafe
       };
 
       // Add the user to the context
@@ -99,7 +109,7 @@ const AddEmployee = () => {
       
       toast({
         title: "Employee added successfully",
-        description: `${data.name} has been added as a ${data.role}`,
+        description: `${data.name} has been added as a ${data.role} for ${currentCafe.name}`,
       });
       
       // Navigate back to employees list
@@ -114,6 +124,27 @@ const AddEmployee = () => {
     }
   };
 
+  if (!currentCafe) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-3xl font-bold tracking-tight">Add New Employee</h2>
+          <Button variant="outline" onClick={() => navigate('/employees')}>
+            Back to Employees
+          </Button>
+        </div>
+        
+        <Card className="max-w-2xl mx-auto">
+          <CardContent className="p-6">
+            <p className="text-center text-muted-foreground">
+              Please select a cafe before adding employees.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -127,7 +158,7 @@ const AddEmployee = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User size={20} />
-            Employee Information
+            Employee Information for {currentCafe.name}
           </CardTitle>
           <CardDescription>Enter the details of the new employee</CardDescription>
         </CardHeader>
@@ -230,9 +261,9 @@ const AddEmployee = () => {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>Initial Password</FormLabel>
                       <FormControl>
-                        <Input type="password" {...field} />
+                        <Input type="password" placeholder="Set initial password" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -245,7 +276,7 @@ const AddEmployee = () => {
                     <FormItem>
                       <FormLabel>Confirm Password</FormLabel>
                       <FormControl>
-                        <Input type="password" {...field} />
+                        <Input type="password" placeholder="Confirm password" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

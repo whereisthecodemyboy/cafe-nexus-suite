@@ -44,12 +44,27 @@ import SystemDatabase from "@/pages/admin/SystemDatabase";
 import GlobalSettings from "@/pages/admin/GlobalSettings";
 import SystemMaintenance from "@/pages/admin/SystemMaintenance";
 import GlobalAnalytics from "@/pages/admin/GlobalAnalytics";
+import ProtectedFeature from "@/components/auth/ProtectedFeature";
 
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { currentUser } = useAppContext();
   return currentUser ? <>{children}</> : <Navigate to="/login" replace />;
+};
+
+const FeatureProtectedRoute = ({ feature, children }: { feature: string; children: React.ReactNode }) => {
+  const { currentUser, canAccess } = useAppContext();
+  
+  if (!currentUser) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  if (!canAccess(feature)) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+  
+  return <>{children}</>;
 };
 
 const AdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -105,30 +120,30 @@ const AppRoutes = () => {
       {/* Staff login route */}
       <Route path="/login" element={currentUser ? <Navigate to="/dashboard" replace /> : <Login />} />
       
-      {/* Staff routes */}
+      {/* Staff routes with feature-based protection */}
       <Route path="/dashboard" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
-      <Route path="/pos" element={<ProtectedRoute><AppLayout><POS /></AppLayout></ProtectedRoute>} />
-      <Route path="/table-management" element={<ProtectedRoute><AppLayout><TableManagement /></AppLayout></ProtectedRoute>} />
-      <Route path="/menu" element={<ProtectedRoute><AppLayout><Menu /></AppLayout></ProtectedRoute>} />
-      <Route path="/kitchen" element={<ProtectedRoute><AppLayout><Kitchen /></AppLayout></ProtectedRoute>} />
-      <Route path="/employees" element={<ProtectedRoute><AppLayout><Employees /></AppLayout></ProtectedRoute>} />
-      <Route path="/employees/add" element={<ProtectedRoute><AppLayout><AddEmployee /></AppLayout></ProtectedRoute>} />
-      <Route path="/reservations" element={<ProtectedRoute><AppLayout><Reservations /></AppLayout></ProtectedRoute>} />
-      <Route path="/reservations/add" element={<ProtectedRoute><AppLayout><AddReservation /></AppLayout></ProtectedRoute>} />
-      <Route path="/cashflow" element={<ProtectedRoute><AppLayout><CashFlow /></AppLayout></ProtectedRoute>} />
-      <Route path="/customer" element={<ProtectedRoute><AppLayout><Customer /></AppLayout></ProtectedRoute>} />
-      <Route path="/analytics" element={<ProtectedRoute><AppLayout><Analytics /></AppLayout></ProtectedRoute>} />
-      <Route path="/settings" element={<ProtectedRoute><AppLayout><Settings /></AppLayout></ProtectedRoute>} />
+      <Route path="/pos" element={<FeatureProtectedRoute feature="pos"><AppLayout><POS /></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/table-management" element={<FeatureProtectedRoute feature="tables"><AppLayout><TableManagement /></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/menu" element={<FeatureProtectedRoute feature="menu"><AppLayout><Menu /></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/kitchen" element={<FeatureProtectedRoute feature="kitchen"><AppLayout><Kitchen /></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/employees" element={<FeatureProtectedRoute feature="employees"><AppLayout><Employees /></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/employees/add" element={<FeatureProtectedRoute feature="employees"><AppLayout><AddEmployee /></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/reservations" element={<FeatureProtectedRoute feature="reservations"><AppLayout><Reservations /></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/reservations/add" element={<FeatureProtectedRoute feature="reservations"><AppLayout><AddReservation /></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/cashflow" element={<FeatureProtectedRoute feature="cashflow"><AppLayout><CashFlow /></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/customer" element={<FeatureProtectedRoute feature="customers"><AppLayout><Customer /></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/analytics" element={<FeatureProtectedRoute feature="analytics"><AppLayout><Analytics /></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/settings" element={<FeatureProtectedRoute feature="settings"><AppLayout><Settings /></AppLayout></FeatureProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>} />
-      <Route path="/products/add" element={<ProtectedRoute><AppLayout><AddProduct /></AppLayout></ProtectedRoute>} />
-      <Route path="/delivery" element={<ProtectedRoute><AppLayout><Delivery /></AppLayout></ProtectedRoute>} />
+      <Route path="/products/add" element={<FeatureProtectedRoute feature="menu"><AppLayout><AddProduct /></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/delivery" element={<FeatureProtectedRoute feature="delivery"><AppLayout><Delivery /></AppLayout></FeatureProtectedRoute>} />
       
       {/* Inventory Routes */}
       <Route path="/inventory" element={<Navigate to="/inventory/stock-in" replace />} />
-      <Route path="/inventory/stock-in" element={<ProtectedRoute><AppLayout><StockIn /></AppLayout></ProtectedRoute>} />
-      <Route path="/inventory/stock-out" element={<ProtectedRoute><AppLayout><StockOut /></AppLayout></ProtectedRoute>} />
-      <Route path="/inventory/wastage" element={<ProtectedRoute><AppLayout><Wastage /></AppLayout></ProtectedRoute>} />
-      <Route path="/inventory/purchase-orders" element={<ProtectedRoute><AppLayout><PurchaseOrders /></AppLayout></ProtectedRoute>} />
+      <Route path="/inventory/stock-in" element={<FeatureProtectedRoute feature="inventory"><AppLayout><StockIn /></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/inventory/stock-out" element={<FeatureProtectedRoute feature="inventory"><AppLayout><StockOut /></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/inventory/wastage" element={<FeatureProtectedRoute feature="inventory"><AppLayout><Wastage /></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/inventory/purchase-orders" element={<FeatureProtectedRoute feature="inventory"><AppLayout><PurchaseOrders /></AppLayout></FeatureProtectedRoute>} />
       
       {/* Admin Login */}
       <Route path="/admin/login" element={currentUser ? <Navigate to={currentUser.role === 'superAdmin' ? '/admin/super/dashboard' : '/admin/dashboard'} replace /> : <AdminLogin />} />
@@ -167,6 +182,7 @@ const AppRoutes = () => {
         <div className="min-h-screen flex flex-col items-center justify-center">
           <h1 className="text-2xl font-bold text-red-500">Unauthorized Access</h1>
           <p className="mt-4">You don't have permission to access this page.</p>
+          <p className="text-sm text-muted-foreground mt-2">Contact your administrator if you need access to this feature.</p>
           <Button 
             variant="outline" 
             className="mt-6"

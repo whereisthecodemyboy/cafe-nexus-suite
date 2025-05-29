@@ -17,7 +17,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useAppContext } from '@/contexts/AppContext';
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState('john@cafenexus.com');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -81,7 +81,7 @@ const Login: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle>Staff Login</CardTitle>
-            <CardDescription>Enter your credentials to access your cafe dashboard</CardDescription>
+            <CardDescription>Enter your credentials to access your dashboard</CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
@@ -90,7 +90,7 @@ const Login: React.FC = () => {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="john@cafenexus.com"
+                  placeholder="your.email@company.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -101,6 +101,7 @@ const Login: React.FC = () => {
                 <Input
                   id="password"
                   type="password"
+                  placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -115,7 +116,7 @@ const Login: React.FC = () => {
                     e.preventDefault();
                     toast({
                       title: "Reset Password",
-                      description: "Password reset functionality is not implemented in this demo.",
+                      description: "Please contact your cafe administrator to reset your password.",
                     });
                   }}
                 >
@@ -131,7 +132,7 @@ const Login: React.FC = () => {
                     Logging in...
                   </>
                 ) : (
-                  'Login to Cafe System'
+                  'Login to System'
                 )}
               </Button>
             </CardFooter>
@@ -139,8 +140,7 @@ const Login: React.FC = () => {
         </Card>
         
         <div className="text-center mt-6 text-sm text-muted-foreground">
-          <p>Demo Credentials:</p>
-          <p>Email: john@cafenexus.com | Password: any</p>
+          <p>Your login credentials are provided by your cafe administrator.</p>
           <div className="mt-4">
             <a 
               href="/admin/login"

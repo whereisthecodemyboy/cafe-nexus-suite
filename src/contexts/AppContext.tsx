@@ -35,6 +35,9 @@ interface AppContextType {
   updateUser: (user: User) => void;
   deleteUser?: (id: string) => void;
   
+  // Permission checks
+  canAccess: (feature: string) => boolean;
+  
   // Cafe related
   cafes: Cafe[];
   currentCafe: Cafe | null;
@@ -221,13 +224,32 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   // Store passwords in memory (in a real app this would be handled by backend)
   const [userPasswords, setUserPasswords] = useState<Record<string, string>>({
-    'john@cafenexus.com': 'any',
+    'john@cafenexus.com': 'password123',
     'admin@cafeplatform.com': 'admin123',
     'downtown@cafenexus.com': 'cafe123',
     'uptown@cafenexus.com': 'cafe456',
     'emma@brewandbean.com': 'cafe789',
     'alex@urbangrind.com': 'cafe012'
   });
+
+  // Permission system based on roles
+  const rolePermissions = {
+    superAdmin: ['all'],
+    admin: ['dashboard', 'employees', 'menu', 'orders', 'tables', 'inventory', 'customers', 'reservations', 'analytics', 'settings', 'pos', 'kitchen', 'delivery', 'cashflow'],
+    manager: ['dashboard', 'employees', 'menu', 'orders', 'tables', 'inventory', 'customers', 'reservations', 'analytics', 'pos', 'kitchen', 'delivery', 'cashflow'],
+    cashier: ['dashboard', 'pos', 'orders', 'customers', 'cashflow'],
+    waiter: ['dashboard', 'pos', 'orders', 'tables', 'customers', 'reservations'],
+    chef: ['dashboard', 'kitchen', 'orders', 'inventory'],
+    barista: ['dashboard', 'pos', 'orders', 'menu']
+  };
+
+  const canAccess = (feature: string): boolean => {
+    if (!currentUser) return false;
+    if (currentUser.role === 'superAdmin') return true;
+    
+    const permissions = rolePermissions[currentUser.role] || [];
+    return permissions.includes(feature) || permissions.includes('all');
+  };
 
   // Settings state - now represents platform-wide default settings
   const [businessInfo, setBusinessInfo] = useState({
@@ -254,21 +276,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         
         const foundUser = appUsers.find(user => user.email === email && user.status === 'active');
         
-        // Accept any password for demo credentials as mentioned on login page
-        if (email === 'john@cafenexus.com') {
-          setCurrentUser(foundUser || appUsers.find(u => u.cafeId === "cafe-001"));
-          
-          // Set current cafe for this user
-          if (foundUser?.cafeId) {
-            const userCafe = appCafes.find(cafe => cafe.id === foundUser.cafeId);
-            if (userCafe) setCurrentCafe(userCafe);
-          }
-          
-          resolve(true);
-          return;
-        }
-        
-        // For admin accounts and other staff
+        // Check if password matches
         if (foundUser && userPasswords[email] === password) {
           setCurrentUser(foundUser);
           
@@ -464,6 +472,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     addUser,
     updateUser,
     deleteUser,
+    
+    // Permissions
+    canAccess,
     
     // Cafe
     cafes: appCafes,
