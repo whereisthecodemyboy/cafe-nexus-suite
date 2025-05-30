@@ -180,6 +180,18 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       status: "active" as User['status'],
       // SuperAdmin doesn't belong to any specific cafe
     },
+    // Cafe Admin for Downtown location
+    {
+      id: uuidv4(),
+      name: "Downtown Admin",
+      email: "admin@cafenexus.com",
+      role: "admin" as User['role'],
+      avatar: "/assets/admin-avatar.png",
+      phone: "+1 (555) 123-4567",
+      hireDate: "2023-01-01",
+      status: "active" as User['status'],
+      cafeId: "cafe-001"
+    },
     // Cafe Nexus Downtown users
     ...users.map(user => ({ ...user, cafeId: "cafe-001" })),
     // Additional cafe admins
@@ -224,8 +236,18 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   // Store passwords in memory (in a real app this would be handled by backend)
   const [userPasswords, setUserPasswords] = useState<Record<string, string>>({
-    'john@cafenexus.com': 'password123',
+    // Super Admin
     'admin@cafeplatform.com': 'admin123',
+    // Cafe Admin for Downtown
+    'admin@cafenexus.com': 'admin123',
+    // Staff users from mock data
+    'john@cafenexus.com': 'password123',
+    'jane@cafenexus.com': 'password123',
+    'michael@cafenexus.com': 'password123',
+    'sara@cafenexus.com': 'password123',
+    'david@cafenexus.com': 'password123',
+    'lisa@cafenexus.com': 'password123',
+    // Other cafe admins
     'downtown@cafenexus.com': 'cafe123',
     'uptown@cafenexus.com': 'cafe456',
     'emma@brewandbean.com': 'cafe789',
