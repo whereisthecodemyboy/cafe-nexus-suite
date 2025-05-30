@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { 
   BarChart2, 
@@ -82,10 +81,10 @@ const GlobalAnalytics: React.FC = () => {
     
     orders.forEach(order => {
       order.items.forEach(item => {
-        const existing = productSales.get(item.productId) || { sales: 0, revenue: 0, name: item.name };
+        const existing = productSales.get(item.productId) || { sales: 0, revenue: 0, name: item.productName };
         existing.sales += item.quantity;
-        existing.revenue += item.quantity * item.price;
-        existing.name = item.name;
+        existing.revenue += item.quantity * item.unitPrice;
+        existing.name = item.productName;
         productSales.set(item.productId, existing);
       });
     });
@@ -101,7 +100,7 @@ const GlobalAnalytics: React.FC = () => {
       .sort((a, b) => b.sales - a.sales)
       .slice(0, 5);
   }, [orders]);
-  
+
   // Revenue by location data
   const revenueByLocationData = useMemo(() => {
     const locationRevenue = cafePerformanceData.map(cafe => ({
