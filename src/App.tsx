@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -45,6 +44,7 @@ import GlobalSettings from "@/pages/admin/GlobalSettings";
 import SystemMaintenance from "@/pages/admin/SystemMaintenance";
 import GlobalAnalytics from "@/pages/admin/GlobalAnalytics";
 import ProtectedFeature from "@/components/auth/ProtectedFeature";
+import SubscriptionManagement from '@/pages/admin/SubscriptionManagement';
 
 const queryClient = new QueryClient();
 
@@ -195,6 +195,15 @@ const AppRoutes = () => {
       
       {/* 404 page */}
       <Route path="*" element={<NotFound />} />
+      
+      {/* Add this route in the admin routes section: */}
+      <Route path="/admin/super/subscriptions" element={
+        <ProtectedFeature feature="all">
+          <SuperAdminLayout>
+            <SubscriptionManagement />
+          </SuperAdminLayout>
+        </ProtectedFeature>
+      } />
     </Routes>
   );
 };

@@ -1,4 +1,3 @@
-
 // Types for our data models
 
 export type User = {
@@ -22,6 +21,13 @@ export type Cafe = {
   status: "active" | "inactive";
   createdAt: string;
   logo?: string;
+  subscription?: {
+    isActive: boolean;
+    expiryDate: string;
+    plan: "basic" | "premium" | "enterprise";
+    lastPaymentDate?: string;
+    amount?: number;
+  };
 };
 
 export type Product = {

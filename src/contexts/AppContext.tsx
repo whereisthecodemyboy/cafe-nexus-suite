@@ -105,6 +105,9 @@ interface AppContextType {
   };
   updateBusinessInfo: (info: any) => void;
   updateTaxSettings: (settings: any) => void;
+
+  // Subscription related
+  isCafeSubscriptionActive: () => boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -484,7 +487,20 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setTaxSettings({...taxSettings, ...settings});
   };
 
-  // Update the filtering logic in the context value
+  // Check if current cafe has active subscription
+  const isCafeSubscriptionActive = (): boolean => {
+    if (!currentCafe || currentUser?.role === 'superAdmin') return true;
+    
+    const subscription = currentCafe.subscription;
+    if (!subscription || !subscription.isActive) return false;
+    
+    const expiryDate = new Date(subscription.expiryDate);
+    const now = new Date();
+    
+    return expiryDate > now;
+  };
+
+  // Update the context value
   const value = {
     // User
     currentUser,

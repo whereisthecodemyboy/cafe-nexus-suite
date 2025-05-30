@@ -81,6 +81,7 @@ const SuperAdminLayout = ({ children }: SuperAdminLayoutProps) => {
   const navItems = [
     { icon: <Shield size={20} />, label: "Platform Dashboard", to: "/admin/super/dashboard" },
     { icon: <Building2 size={20} />, label: "Cafe Management", to: "/admin/cafes" },
+    { icon: <CreditCard size={20} />, label: "Subscription Management", to: "/admin/super/subscriptions" },
     { icon: <Users size={20} />, label: "User Management", to: "/admin/super/users" },
     { icon: <Database size={20} />, label: "System Database", to: "/admin/super/database" },
     { icon: <Globe size={20} />, label: "Global Settings", to: "/admin/super/settings" },
