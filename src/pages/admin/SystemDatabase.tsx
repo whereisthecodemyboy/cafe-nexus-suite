@@ -2,149 +2,155 @@
 import React, { useState } from 'react';
 import { 
   Database, 
-  TableProperties, 
-  BarChart, 
-  ArrowRight, 
-  AlertCircle, 
   RefreshCw, 
-  HardDrive, 
-  Server, 
-  Shield, 
-  Table,
-  FileText,
-  Download,
-  Trash2,
-  Eye,
+  Download, 
+  Upload, 
+  Trash2, 
+  AlertTriangle,
   CheckCircle,
-  AlertTriangle
+  Settings,
+  Search,
+  Filter,
+  MoreHorizontal,
+  Play,
+  Square,
+  Copy
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { useToast } from '@/components/ui/use-toast';
 import { useAppContext } from '@/contexts/AppContext';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useToast } from '@/components/ui/use-toast';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 
 const SystemDatabase: React.FC = () => {
+  const { users, cafes, orders, products, customers } = useAppContext();
   const { toast } = useToast();
-  const { orders, users, cafes, customers, products } = useAppContext();
-  const [activeTab, setActiveTab] = useState('overview');
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isOptimizing, setIsOptimizing] = useState(false);
-  const [isBackingUp, setIsBackingUp] = useState(false);
-  
-  // Calculate real database statistics
-  const totalRecords = orders.length + users.length + cafes.length + customers.length + products.length;
-  const estimatedSize = Math.round(totalRecords * 0.8); // Rough estimate in MB
-  const usagePercentage = Math.min(Math.round((estimatedSize / 1024) * 100), 95);
-  
-  const databaseStats = {
-    totalSize: '1024 MB',
-    usedSpace: `${estimatedSize} MB`,
-    availableSpace: `${1024 - estimatedSize} MB`,
-    usagePercentage: usagePercentage,
-    tableCount: 7, // users, orders, products, cafes, customers, reservations, transactions
-    backupStatus: 'Healthy',
-    lastBackup: new Date().toLocaleString(),
-    performance: 'Optimal',
-    avgQueryTime: '23ms',
-  };
+  const [selectedTable, setSelectedTable] = useState('users');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isQueryDialogOpen, setIsQueryDialogOpen] = useState(false);
+  const [sqlQuery, setSqlQuery] = useState('');
+  const [queryResult, setQueryResult] = useState<any[]>([]);
 
-  // Real tables information based on actual data
-  const tables = [
-    { name: 'users', rows: users.length, size: Math.max(1, Math.round(users.length * 0.034)) + ' MB', status: 'healthy' },
-    { name: 'orders', rows: orders.length, size: Math.max(1, Math.round(orders.length * 0.128)) + ' MB', status: 'healthy' },
-    { name: 'products', rows: products.length, size: Math.max(1, Math.round(products.length * 0.042)) + ' MB', status: 'healthy' },
-    { name: 'customers', rows: customers.length, size: Math.max(1, Math.round(customers.length * 0.036)) + ' MB', status: customers.length > 1000 ? 'warning' : 'healthy' },
-    { name: 'cafes', rows: cafes.length, size: Math.max(1, Math.round(cafes.length * 0.25)) + ' MB', status: 'healthy' },
-    { name: 'reservations', rows: 84, size: '3 MB', status: 'healthy' },
-    { name: 'transactions', rows: orders.length * 1.2, size: Math.max(1, Math.round(orders.length * 0.087)) + ' MB', status: 'healthy' },
+  const databaseTables = [
+    { name: 'users', count: users.length, status: 'healthy' },
+    { name: 'cafes', count: cafes.length, status: 'healthy' },
+    { name: 'orders', count: orders.length, status: 'healthy' },
+    { name: 'products', count: products.length, status: 'healthy' },
+    { name: 'customers', count: customers.length, status: 'healthy' },
   ];
 
-  // Mock recent backups with realistic data
-  const backups = [
-    { id: '1', date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toLocaleString(), size: `${estimatedSize - 5} MB`, status: 'completed' },
-    { id: '2', date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toLocaleString(), size: `${estimatedSize - 8} MB`, status: 'completed' },
-    { id: '3', date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toLocaleString(), size: `${estimatedSize - 10} MB`, status: 'completed' },
-    { id: '4', date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toLocaleString(), size: `${estimatedSize - 12} MB`, status: 'completed' },
-    { id: '5', date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toLocaleString(), size: `${estimatedSize - 15} MB`, status: 'completed' },
-  ];
-
-  // Recent queries with realistic data
-  const recentQueries = [
-    { id: '1', query: 'SELECT * FROM orders WHERE created_at > ?', duration: '45ms', timestamp: new Date(Date.now() - 5 * 60 * 1000).toLocaleString(), user: 'system' },
-    { id: '2', query: 'INSERT INTO orders (customer_id, total, status) VALUES (?, ?, ?)', duration: '18ms', timestamp: new Date(Date.now() - 8 * 60 * 1000).toLocaleString(), user: 'admin@cafeplatform.com' },
-    { id: '3', query: 'UPDATE products SET stock_quantity = ? WHERE id = ?', duration: '22ms', timestamp: new Date(Date.now() - 12 * 60 * 1000).toLocaleString(), user: 'system' },
-    { id: '4', query: 'SELECT AVG(total) FROM orders GROUP BY cafe_id', duration: '120ms', timestamp: new Date(Date.now() - 15 * 60 * 1000).toLocaleString(), user: 'admin@cafeplatform.com' },
-    { id: '5', query: 'SELECT COUNT(*) FROM users WHERE role = ?', duration: '14ms', timestamp: new Date(Date.now() - 20 * 60 * 1000).toLocaleString(), user: 'system' },
-  ];
-
-  const handleRefreshStats = () => {
-    setIsRefreshing(true);
-    setTimeout(() => {
-      setIsRefreshing(false);
-      toast({
-        title: "Database Statistics Refreshed",
-        description: "All database statistics have been updated successfully.",
-      });
-    }, 2000);
-  };
-
-  const handleBackupNow = () => {
-    setIsBackingUp(true);
+  const handleBackup = () => {
     toast({
-      title: "Backup Started",
-      description: "Database backup initiated. This process will take approximately 3-5 minutes.",
+      title: "Database Backup Started",
+      description: "Full database backup has been initiated. You'll receive a notification when complete.",
     });
-    
-    setTimeout(() => {
-      setIsBackingUp(false);
-      toast({
-        title: "Backup Completed",
-        description: `Database backup completed successfully. Size: ${estimatedSize} MB`,
-      });
-    }, 5000);
+  };
+
+  const handleRestore = () => {
+    toast({
+      title: "Database Restore",
+      description: "Please select a backup file to restore from.",
+    });
   };
 
   const handleOptimize = () => {
-    setIsOptimizing(true);
     toast({
       title: "Database Optimization Started",
-      description: "Optimizing database tables and indexes. This may take several minutes.",
+      description: "Database optimization process is running. This may take a few minutes.",
     });
-    
-    setTimeout(() => {
-      setIsOptimizing(false);
+  };
+
+  const handleRunQuery = () => {
+    if (!sqlQuery.trim()) {
       toast({
-        title: "Optimization Complete",
-        description: "Database has been optimized successfully. Performance improved by 12%.",
+        title: "Query Required",
+        description: "Please enter a SQL query to execute.",
+        variant: "destructive"
       });
-    }, 8000);
-  };
+      return;
+    }
 
-  const handleViewTable = (tableName: string) => {
+    // Simulate query execution
+    setQueryResult([
+      { id: 1, result: 'Query executed successfully' },
+      { id: 2, result: `Affected rows: ${Math.floor(Math.random() * 100)}` }
+    ]);
+    
     toast({
-      title: `Viewing Table: ${tableName}`,
-      description: `Opening detailed view for table ${tableName} with schema and data preview.`,
+      title: "Query Executed",
+      description: "SQL query has been executed successfully.",
     });
   };
 
-  const handleDownloadBackup = (backupId: string, size: string) => {
+  const handleExportTable = (tableName: string) => {
     toast({
-      title: "Download Started",
-      description: `Downloading backup (${size}). The file will be saved to your downloads folder.`,
+      title: "Export Started",
+      description: `Exporting ${tableName} table data to CSV format.`,
     });
   };
 
-  const handleDeleteBackup = (backupId: string) => {
-    toast({
-      title: "Backup Deleted",
-      description: "The selected backup file has been permanently deleted from storage.",
-      variant: "destructive"
-    });
+  const getTableData = () => {
+    switch (selectedTable) {
+      case 'users': return users;
+      case 'cafes': return cafes;
+      case 'orders': return orders;
+      case 'products': return products;
+      case 'customers': return customers;
+      default: return [];
+    }
   };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'healthy':
+        return <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">Healthy</Badge>;
+      case 'warning':
+        return <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">Warning</Badge>;
+      case 'error':
+        return <Badge variant="destructive">Error</Badge>;
+      default:
+        return <Badge variant="secondary">{status}</Badge>;
+    }
+  };
+
+  const filteredData = getTableData().filter((item: any) => {
+    const searchableFields = Object.values(item).join(' ').toLowerCase();
+    return searchQuery === '' || searchableFields.includes(searchQuery.toLowerCase());
+  });
 
   return (
     <div className="space-y-6">
@@ -155,375 +161,256 @@ const SystemDatabase: React.FC = () => {
         </h1>
       </div>
 
-      <div className="bg-destructive/10 p-4 rounded-md border border-destructive/30">
-        <p className="font-semibold text-destructive">Database Control Center</p>
-        <p className="text-sm text-muted-foreground">
-          This interface provides administrative control over the central database system for all cafes.
-          Exercise caution when making changes as they affect the entire platform.
-        </p>
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle>Total Tables</CardTitle>
+            <CardDescription>Database tables</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{databaseTables.length}</div>
+            <p className="text-xs text-muted-foreground mt-1">All operational</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle>Total Records</CardTitle>
+            <CardDescription>Across all tables</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {databaseTables.reduce((sum, table) => sum + table.count, 0)}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Active records</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle>Database Size</CardTitle>
+            <CardDescription>Estimated size</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">24.7 MB</div>
+            <p className="text-xs text-muted-foreground mt-1">Within limits</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle>Health Status</CardTitle>
+            <CardDescription>Overall system health</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center space-x-2">
+              <CheckCircle className="h-6 w-6 text-green-500" />
+              <span className="text-lg font-semibold text-green-600">Healthy</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">All systems operational</p>
+          </CardContent>
+        </Card>
       </div>
 
-      <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="tables">Tables</TabsTrigger>
-          <TabsTrigger value="backups">Backups</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center">
-                  <HardDrive className="h-5 w-5 mr-2 text-destructive" />
-                  Storage
-                </CardTitle>
-                <CardDescription>Database storage usage</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span>Used Space: {databaseStats.usedSpace}</span>
-                    <span className="text-muted-foreground">{databaseStats.usagePercentage}%</span>
-                  </div>
-                  <Progress value={databaseStats.usagePercentage} className="h-2" />
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>0 MB</span>
-                    <span>{databaseStats.totalSize}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center">
-                  <TableProperties className="h-5 w-5 mr-2 text-destructive" />
-                  Tables
-                </CardTitle>
-                <CardDescription>Database structure</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{databaseStats.tableCount}</div>
-                <p className="text-sm text-muted-foreground">Total tables</p>
-                <div className="mt-2 flex items-center justify-between text-sm">
-                  <span>Status:</span>
-                  <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    Healthy
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center">
-                  <Server className="h-5 w-5 mr-2 text-destructive" />
-                  Backup
-                </CardTitle>
-                <CardDescription>Database backup status</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Last backup:</span>
-                  <Badge className="bg-green-100 text-green-800 border-green-300">
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    {databaseStats.backupStatus}
-                  </Badge>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">{databaseStats.lastBackup}</p>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="w-full mt-4"
-                  onClick={handleBackupNow}
-                  disabled={isBackingUp}
-                >
-                  {isBackingUp ? (
-                    <>
-                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                      Backing up...
-                    </>
-                  ) : (
-                    <>
-                      <Shield className="h-4 w-4 mr-2" />
-                      Backup Now
-                    </>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Database Operations</CardTitle>
+            <CardDescription>Manage database backup, restore, and optimization</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 gap-2">
+              <Button onClick={handleBackup} className="w-full justify-start">
+                <Download className="mr-2 h-4 w-4" />
+                Create Backup
+              </Button>
+              <Button onClick={handleRestore} variant="outline" className="w-full justify-start">
+                <Upload className="mr-2 h-4 w-4" />
+                Restore from Backup
+              </Button>
+              <Button onClick={handleOptimize} variant="outline" className="w-full justify-start">
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Optimize Database
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between">
-                <div>
-                  <CardTitle>Database Overview</CardTitle>
-                  <CardDescription>Current statistics and health status</CardDescription>
+        <Card>
+          <CardHeader>
+            <CardTitle>Database Tables</CardTitle>
+            <CardDescription>Overview of all database tables and their status</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {databaseTables.map((table) => (
+                <div key={table.name} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <Database className="h-4 w-4 text-muted-foreground" />
+                    <div>
+                      <p className="font-medium">{table.name}</p>
+                      <p className="text-sm text-muted-foreground">{table.count} records</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {getStatusBadge(table.status)}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleExportTable(table.name)}
+                    >
+                      <Download className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleRefreshStats} 
-                  disabled={isRefreshing}
-                >
-                  {isRefreshing ? (
-                    <>
-                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                      Refreshing...
-                    </>
-                  ) : (
-                    <>
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      Refresh Stats
-                    </>
-                  )}
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Database Performance</AlertTitle>
-                <AlertDescription>
-                  Current database performance is {databaseStats.performance}. The average query time is {databaseStats.avgQueryTime}.
-                  Total records: {totalRecords.toLocaleString()}
-                </AlertDescription>
-              </Alert>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Database Size</h4>
-                  <p className="text-xl font-bold">{databaseStats.totalSize}</p>
-                  <p className="text-xs text-muted-foreground">Total allocated storage</p>
+      <Card>
+        <CardHeader>
+          <CardTitle>Database Browser</CardTitle>
+          <CardDescription>Browse and search database records</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <Select value={selectedTable} onValueChange={setSelectedTable}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Select table" />
+              </SelectTrigger>
+              <SelectContent>
+                {databaseTables.map((table) => (
+                  <SelectItem key={table.name} value={table.name}>
+                    {table.name} ({table.count})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="flex relative flex-1">
+              <Input
+                placeholder="Search records..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            </div>
+            <Dialog open={isQueryDialogOpen} onOpenChange={setIsQueryDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <Play className="mr-2 h-4 w-4" />
+                  Run Query
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Execute SQL Query</DialogTitle>
+                  <DialogDescription>
+                    Run custom SQL queries against the database. Use with caution.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <Textarea
+                    placeholder="SELECT * FROM users WHERE status = 'active';"
+                    value={sqlQuery}
+                    onChange={(e) => setSqlQuery(e.target.value)}
+                    className="min-h-[100px]"
+                  />
+                  {queryResult.length > 0 && (
+                    <div className="border rounded-md p-3 bg-muted">
+                      <h4 className="font-medium mb-2">Query Result:</h4>
+                      <pre className="text-sm">{JSON.stringify(queryResult, null, 2)}</pre>
+                    </div>
+                  )}
                 </div>
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Records</h4>
-                  <p className="text-xl font-bold">{totalRecords.toLocaleString()}</p>
-                  <p className="text-xs text-muted-foreground">Total database records</p>
-                </div>
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Last Optimized</h4>
-                  <p className="text-xl font-bold">7 days ago</p>
-                  <Button 
-                    variant="link" 
-                    className="p-0 h-auto text-xs"
-                    onClick={handleOptimize}
-                    disabled={isOptimizing}
-                  >
-                    {isOptimizing ? 'Optimizing...' : 'Optimize Now'}
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsQueryDialogOpen(false)}>
+                    Cancel
                   </Button>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <div className="w-full flex justify-end">
-                <Button onClick={() => setActiveTab("tables")} variant="ghost" className="text-xs gap-1">
-                  View Table Details <ArrowRight className="h-3 w-3" />
-                </Button>
-              </div>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="tables" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Database Tables</CardTitle>
-              <CardDescription>All tables in the system database with real-time statistics</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="rounded-md border">
-                <table className="min-w-full divide-y divide-border">
-                  <thead>
-                    <tr className="bg-muted/50">
-                      <th className="px-4 py-2 text-left text-sm font-medium">Table Name</th>
-                      <th className="px-4 py-2 text-left text-sm font-medium">Rows</th>
-                      <th className="px-4 py-2 text-left text-sm font-medium">Size</th>
-                      <th className="px-4 py-2 text-left text-sm font-medium">Status</th>
-                      <th className="px-4 py-2 text-left text-sm font-medium">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {tables.map((table) => (
-                      <tr key={table.name} className="hover:bg-muted/50">
-                        <td className="px-4 py-2 whitespace-nowrap font-medium">{table.name}</td>
-                        <td className="px-4 py-2 whitespace-nowrap text-sm">{table.rows.toLocaleString()}</td>
-                        <td className="px-4 py-2 whitespace-nowrap text-sm">{table.size}</td>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                          {table.status === 'healthy' ? (
-                            <Badge className="bg-green-100 text-green-800 border-green-300">
-                              <CheckCircle className="h-3 w-3 mr-1" />
-                              Healthy
-                            </Badge>
-                          ) : (
-                            <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">
-                              <AlertTriangle className="h-3 w-3 mr-1" />
-                              Warning
-                            </Badge>
-                          )}
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => handleViewTable(table.name)}
-                          >
-                            <Eye className="h-4 w-4 mr-1" />
-                            View
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="backups" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between">
-                <div>
-                  <CardTitle>Database Backups</CardTitle>
-                  <CardDescription>Automatic and manual backup history</CardDescription>
-                </div>
-                <Button 
-                  onClick={handleBackupNow}
-                  disabled={isBackingUp}
-                >
-                  {isBackingUp ? (
-                    <>
-                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                      Creating Backup...
-                    </>
-                  ) : (
-                    <>
-                      <Shield className="h-4 w-4 mr-2" />
-                      Create Backup
-                    </>
-                  )}
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="rounded-md border">
-                <table className="min-w-full divide-y divide-border">
-                  <thead>
-                    <tr className="bg-muted/50">
-                      <th className="px-4 py-2 text-left text-sm font-medium">Date & Time</th>
-                      <th className="px-4 py-2 text-left text-sm font-medium">Size</th>
-                      <th className="px-4 py-2 text-left text-sm font-medium">Status</th>
-                      <th className="px-4 py-2 text-left text-sm font-medium">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {backups.map((backup) => (
-                      <tr key={backup.id} className="hover:bg-muted/50">
-                        <td className="px-4 py-2 whitespace-nowrap">{backup.date}</td>
-                        <td className="px-4 py-2 whitespace-nowrap text-sm">{backup.size}</td>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                          <Badge className="bg-green-100 text-green-800 border-green-300">
-                            <CheckCircle className="h-3 w-3 mr-1" />
-                            {backup.status}
-                          </Badge>
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                          <div className="flex space-x-2">
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => handleDownloadBackup(backup.id, backup.size)}
-                            >
-                              <Download className="h-4 w-4 mr-1" />
-                              Download
+                  <Button onClick={handleRunQuery}>
+                    Execute Query
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+          
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Name/Title</TableHead>
+                  <TableHead>Type/Status</TableHead>
+                  <TableHead>Created/Updated</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredData.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-10 text-muted-foreground">
+                      No records found in {selectedTable} table
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredData.slice(0, 10).map((record: any) => (
+                    <TableRow key={record.id}>
+                      <TableCell className="font-mono text-sm">{record.id}</TableCell>
+                      <TableCell className="font-medium">
+                        {record.name || record.title || record.orderNumber || record.email || 'N/A'}
+                      </TableCell>
+                      <TableCell>
+                        {record.status || record.role || record.type || 'N/A'}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {record.createdAt || record.hireDate || record.joinDate || 'N/A'}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
                             </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="text-destructive hover:text-destructive/80"
-                              onClick={() => handleDeleteBackup(backup.id)}
-                            >
-                              <Trash2 className="h-4 w-4 mr-1" />
-                              Delete
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="performance" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Database Performance Metrics</CardTitle>
-              <CardDescription>Query performance and system load analysis</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-60 w-full bg-muted/30 rounded-md flex items-center justify-center">
-                <div className="text-center">
-                  <BarChart className="h-8 w-8 mx-auto text-muted-foreground" />
-                  <p className="mt-2 text-sm text-muted-foreground">Performance chart visualization</p>
-                  <p className="text-xs text-muted-foreground">Real-time metrics: {totalRecords} records processed</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                <div className="text-center">
-                  <h4 className="text-lg font-semibold">Average Query Time</h4>
-                  <p className="text-2xl font-bold text-green-600">23ms</p>
-                </div>
-                <div className="text-center">
-                  <h4 className="text-lg font-semibold">Active Connections</h4>
-                  <p className="text-2xl font-bold text-blue-600">{users.filter(u => u.status === 'active').length}</p>
-                </div>
-                <div className="text-center">
-                  <h4 className="text-lg font-semibold">Cache Hit Ratio</h4>
-                  <p className="text-2xl font-bold text-purple-600">94.2%</p>
-                </div>
-              </div>
-
-              <h3 className="text-lg font-medium mt-6 mb-4">Recent Database Queries</h3>
-              <div className="rounded-md border overflow-x-auto">
-                <table className="min-w-full divide-y divide-border">
-                  <thead>
-                    <tr className="bg-muted/50">
-                      <th className="px-4 py-2 text-left text-sm font-medium">Query</th>
-                      <th className="px-4 py-2 text-left text-sm font-medium">Duration</th>
-                      <th className="px-4 py-2 text-left text-sm font-medium">Timestamp</th>
-                      <th className="px-4 py-2 text-left text-sm font-medium">User</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {recentQueries.map((query) => (
-                      <tr key={query.id} className="hover:bg-muted/50">
-                        <td className="px-4 py-2 font-mono text-xs max-w-xs truncate">{query.query}</td>
-                        <td className="px-4 py-2 whitespace-nowrap text-sm">
-                          <Badge variant={parseInt(query.duration) > 100 ? "destructive" : "outline"}>
-                            {query.duration}
-                          </Badge>
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap text-sm">{query.timestamp}</td>
-                        <td className="px-4 py-2 whitespace-nowrap text-sm">{query.user}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>
+                              <Copy className="mr-2 h-4 w-4" />
+                              Copy ID
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-destructive">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete Record
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          
+          {filteredData.length > 0 && (
+            <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
+              <span>
+                Showing {Math.min(10, filteredData.length)} of {filteredData.length} records
+              </span>
+              <span>
+                Table: {selectedTable}
+                {searchQuery && ` • Filtered by: "${searchQuery}"`}
+              </span>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

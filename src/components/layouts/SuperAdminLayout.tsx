@@ -70,7 +70,7 @@ const SuperAdminLayout = ({ children }: SuperAdminLayoutProps) => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
-  const { currentUser, cafes } = useAppContext();
+  const { currentUser, cafes, logout } = useAppContext();
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -93,6 +93,7 @@ const SuperAdminLayout = ({ children }: SuperAdminLayoutProps) => {
   };
 
   const handleLogout = () => {
+    logout(); // Use the logout function from context
     toast({
       title: "Logged out successfully",
       description: "You have been logged out of the Platform Admin panel.",
@@ -160,7 +161,7 @@ const SuperAdminLayout = ({ children }: SuperAdminLayoutProps) => {
                     <Avatar className="cursor-pointer">
                       <AvatarImage src="/assets/avatar.png" />
                       <AvatarFallback className="bg-destructive text-destructive-foreground">
-                        PA
+                        SA
                       </AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
@@ -172,7 +173,16 @@ const SuperAdminLayout = ({ children }: SuperAdminLayoutProps) => {
                       {currentUser?.email}
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                    <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer">
+                      <Users className="w-4 h-4 mr-2" />
+                      <span>Profile Settings</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/admin/super/settings')} className="cursor-pointer">
+                      <Settings className="w-4 h-4 mr-2" />
+                      <span>System Settings</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout} className="text-destructive cursor-pointer">
                       <LogOut className="w-4 h-4 mr-2" />
                       <span>Log out</span>
                     </DropdownMenuItem>
@@ -180,7 +190,7 @@ const SuperAdminLayout = ({ children }: SuperAdminLayoutProps) => {
                 </DropdownMenu>
                 <div className="flex flex-col">
                   <span className="text-sm font-medium">
-                    Platform Admin
+                    {currentUser?.name || "Platform Admin"}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     System Controller
