@@ -1,3 +1,4 @@
+
 // Types for our data models
 
 export type User = {
@@ -8,7 +9,7 @@ export type User = {
   avatar?: string;
   phone?: string;
   hireDate: string;
-  status: "active" | "inactive";
+  status: "active" | "inactive" | "suspended";
   cafeId?: string; // To identify which cafe this user belongs to
 };
 
