@@ -1,71 +1,212 @@
+
 import React, { useState } from 'react';
 import { 
   ServerCog, 
-  RefreshCw, 
-  AlertTriangle, 
   Database, 
+  RefreshCw, 
+  Download, 
+  Upload, 
+  Trash2, 
+  AlertCircle, 
+  CheckCircle, 
+  Clock, 
+  HardDrive,
+  Activity,
   Shield,
-  FileCode,
-  Terminal,
-  Trash2,
-  DownloadCloud,
-  Upload,
-  Clock,
-  CheckCircle,
-  XCircle,
-  Play,
-  Download,
-  Save
+  FileText,
+  Settings,
+  Zap,
+  BarChart3
 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/components/ui/use-toast';
+import { useAppContext } from '@/contexts/AppContext';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 const SystemMaintenance: React.FC = () => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('tasks');
-  const [taskRunning, setTaskRunning] = useState(false);
-  const [progress, setProgress] = useState(0);
-  
-  // Simulated task execution
-  const runMaintenanceTask = (taskName: string) => {
-    if (taskRunning) return;
+  const { orders, users, cafes, customers } = useAppContext();
+  const [activeTab, setActiveTab] = useState('overview');
+  const [isMaintenanceRunning, setIsMaintenanceRunning] = useState(false);
+  const [maintenanceProgress, setMaintenanceProgress] = useState(0);
+  const [lastMaintenance, setLastMaintenance] = useState('2025-05-23 03:00 AM');
+
+  // System health metrics
+  const systemHealth = {
+    cpu: 23,
+    memory: 67,
+    disk: 45,
+    network: 89,
+    database: 91,
+    cache: 95
+  };
+
+  // Maintenance tasks
+  const maintenanceTasks = [
+    {
+      id: 'db-optimization',
+      name: 'Database Optimization',
+      description: 'Optimize database queries and rebuild indexes',
+      lastRun: '2025-05-23',
+      status: 'completed',
+      duration: '15 minutes',
+      automated: true
+    },
+    {
+      id: 'cache-cleanup',
+      name: 'Cache Cleanup',
+      description: 'Clear expired cache entries and optimize memory',
+      lastRun: '2025-05-29',
+      status: 'completed',
+      duration: '5 minutes',
+      automated: true
+    },
+    {
+      id: 'log-rotation',
+      name: 'Log File Rotation',
+      description: 'Archive old log files and clean up disk space',
+      lastRun: '2025-05-29',
+      status: 'completed',
+      duration: '3 minutes',
+      automated: true
+    },
+    {
+      id: 'backup-verification',
+      name: 'Backup Verification',
+      description: 'Verify integrity of recent database backups',
+      lastRun: '2025-05-28',
+      status: 'warning',
+      duration: '8 minutes',
+      automated: false
+    },
+    {
+      id: 'security-scan',
+      name: 'Security Scan',
+      description: 'Scan for security vulnerabilities and threats',
+      lastRun: '2025-05-25',
+      status: 'pending',
+      duration: '20 minutes',
+      automated: false
+    }
+  ];
+
+  // System statistics
+  const systemStats = {
+    uptime: '15 days, 8 hours',
+    totalRequests: orders.length * 15 + users.length * 8,
+    errorRate: 0.02,
+    avgResponseTime: '245ms',
+    activeConnections: users.filter(u => u.status === 'active').length,
+    totalStorage: '2.4 TB',
+    usedStorage: '1.6 TB'
+  };
+
+  const handleRunMaintenance = (taskId: string, taskName: string) => {
+    setIsMaintenanceRunning(true);
+    setMaintenanceProgress(0);
     
-    setTaskRunning(true);
-    setProgress(0);
+    const duration = taskId === 'security-scan' ? 20000 : taskId === 'db-optimization' ? 15000 : 8000;
+    const interval = duration / 100;
     
     toast({
-      title: "Task started",
-      description: `${taskName} is now running...`,
+      title: "Maintenance Started",
+      description: `${taskName} has been initiated. This may take several minutes.`,
     });
-    
-    const interval = setInterval(() => {
-      setProgress(prev => {
+
+    const progressInterval = setInterval(() => {
+      setMaintenanceProgress(prev => {
         if (prev >= 100) {
-          clearInterval(interval);
-          setTaskRunning(false);
+          clearInterval(progressInterval);
+          setIsMaintenanceRunning(false);
+          setLastMaintenance(new Date().toLocaleString());
           toast({
-            title: "Task completed",
-            description: `${taskName} has been completed successfully.`,
+            title: "Maintenance Completed",
+            description: `${taskName} completed successfully.`,
           });
           return 100;
         }
-        return prev + 10;
+        return prev + 1;
       });
-    }, 500);
+    }, interval);
   };
-  
+
+  const handleSystemRestart = () => {
+    toast({
+      title: "System Restart Initiated",
+      description: "The system will restart in 2 minutes. All users will be notified.",
+      variant: "destructive"
+    });
+  };
+
+  const handleEmergencyShutdown = () => {
+    toast({
+      title: "Emergency Shutdown Initiated",
+      description: "System is shutting down immediately. All active sessions will be terminated.",
+      variant: "destructive"
+    });
+  };
+
+  const handleExportLogs = () => {
+    toast({
+      title: "Log Export Started",
+      description: "System logs are being exported. The file will be available for download shortly.",
+    });
+  };
+
+  const handleClearCache = () => {
+    toast({
+      title: "Cache Cleared",
+      description: "All cache entries have been cleared. System performance may be temporarily affected.",
+    });
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return (
+          <Badge className="bg-green-100 text-green-800 border-green-300">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            Completed
+          </Badge>
+        );
+      case 'warning':
+        return (
+          <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">
+            <AlertCircle className="h-3 w-3 mr-1" />
+            Warning
+          </Badge>
+        );
+      case 'pending':
+        return (
+          <Badge className="bg-red-100 text-red-800 border-red-300">
+            <Clock className="h-3 w-3 mr-1" />
+            Pending
+          </Badge>
+        );
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const getHealthColor = (percentage: number) => {
+    if (percentage < 50) return 'text-green-600';
+    if (percentage < 80) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center space-x-2">
@@ -76,872 +217,426 @@ const SystemMaintenance: React.FC = () => {
       </div>
 
       <div className="bg-destructive/10 p-4 rounded-md border border-destructive/30">
-        <p className="font-semibold text-destructive">System Administration</p>
+        <p className="font-semibold text-destructive">System Maintenance Control</p>
         <p className="text-sm text-muted-foreground">
-          Perform maintenance tasks and monitor system health. 
-          Take caution when performing these operations as they can affect system performance.
+          Monitor system health and perform maintenance tasks. Exercise caution when performing system-wide operations.
         </p>
       </div>
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="tasks">Maintenance Tasks</TabsTrigger>
-          <TabsTrigger value="logs">System Logs</TabsTrigger>
-          <TabsTrigger value="backups">Backups</TabsTrigger>
-          <TabsTrigger value="diagnostics">Diagnostics</TabsTrigger>
+
+      {isMaintenanceRunning && (
+        <Alert>
+          <RefreshCw className="h-4 w-4 animate-spin" />
+          <AlertTitle>Maintenance in Progress</AlertTitle>
+          <AlertDescription>
+            <div className="mt-2">
+              <Progress value={maintenanceProgress} className="h-2" />
+              <p className="text-xs mt-1">Progress: {maintenanceProgress}%</p>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="grid grid-cols-4">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
+          <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
+          <TabsTrigger value="emergency">Emergency</TabsTrigger>
         </TabsList>
-        
-        <TabsContent value="tasks" className="space-y-4">
-          {taskRunning && (
-            <Alert className="mb-6">
-              <RefreshCw className="h-4 w-4 animate-spin" />
-              <AlertTitle>Maintenance in Progress</AlertTitle>
-              <AlertDescription>
-                <div className="mt-2">
-                  <Progress value={progress} className="h-2" />
-                  <p className="text-xs text-right mt-1">{progress}% Complete</p>
+
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center">
+                  <Activity className="h-5 w-5 mr-2 text-destructive" />
+                  System Health
+                </CardTitle>
+                <CardDescription>Overall system performance</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between text-sm">
+                    <span>CPU</span>
+                    <span className={getHealthColor(systemHealth.cpu)}>{systemHealth.cpu}%</span>
+                  </div>
+                  <Progress value={systemHealth.cpu} className="h-2" />
+                  
+                  <div className="flex justify-between text-sm">
+                    <span>Memory</span>
+                    <span className={getHealthColor(systemHealth.memory)}>{systemHealth.memory}%</span>
+                  </div>
+                  <Progress value={systemHealth.memory} className="h-2" />
+                  
+                  <div className="flex justify-between text-sm">
+                    <span>Disk</span>
+                    <span className={getHealthColor(systemHealth.disk)}>{systemHealth.disk}%</span>
+                  </div>
+                  <Progress value={systemHealth.disk} className="h-2" />
                 </div>
-              </AlertDescription>
-            </Alert>
-          )}
-          
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center">
+                  <Database className="h-5 w-5 mr-2 text-destructive" />
+                  Database Status
+                </CardTitle>
+                <CardDescription>Database performance metrics</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between text-sm">
+                    <span>Performance</span>
+                    <span className="text-green-600">{systemHealth.database}%</span>
+                  </div>
+                  <Progress value={systemHealth.database} className="h-2" />
+                  
+                  <div className="text-xs text-muted-foreground">
+                    <p>Total Records: {(orders.length + users.length + customers.length + cafes.length).toLocaleString()}</p>
+                    <p>Avg Query Time: 23ms</p>
+                    <p>Active Connections: {systemStats.activeConnections}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center">
+                  <HardDrive className="h-5 w-5 mr-2 text-destructive" />
+                  Storage
+                </CardTitle>
+                <CardDescription>Disk usage and capacity</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between text-sm">
+                    <span>Used: {systemStats.usedStorage}</span>
+                    <span className="text-muted-foreground">67%</span>
+                  </div>
+                  <Progress value={67} className="h-2" />
+                  
+                  <div className="text-xs text-muted-foreground">
+                    <p>Total Capacity: {systemStats.totalStorage}</p>
+                    <p>Available: 800 GB</p>
+                    <p>Backup Size: 320 GB</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>System Statistics</CardTitle>
+              <CardDescription>Current system performance and usage metrics</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="text-center">
+                  <h4 className="text-lg font-semibold">Uptime</h4>
+                  <p className="text-2xl font-bold text-green-600">{systemStats.uptime}</p>
+                </div>
+                <div className="text-center">
+                  <h4 className="text-lg font-semibold">Total Requests</h4>
+                  <p className="text-2xl font-bold text-blue-600">{systemStats.totalRequests.toLocaleString()}</p>
+                </div>
+                <div className="text-center">
+                  <h4 className="text-lg font-semibold">Error Rate</h4>
+                  <p className="text-2xl font-bold text-green-600">{(systemStats.errorRate * 100).toFixed(2)}%</p>
+                </div>
+                <div className="text-center">
+                  <h4 className="text-lg font-semibold">Response Time</h4>
+                  <p className="text-2xl font-bold text-purple-600">{systemStats.avgResponseTime}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="maintenance" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Scheduled Maintenance Tasks</CardTitle>
+              <CardDescription>Automated and manual maintenance operations</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {maintenanceTasks.map((task) => (
+                  <div key={task.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2">
+                        <h4 className="font-medium">{task.name}</h4>
+                        {getStatusBadge(task.status)}
+                        {task.automated && (
+                          <Badge variant="outline" className="text-xs">
+                            <Zap className="h-3 w-3 mr-1" />
+                            Auto
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
+                      <div className="flex items-center space-x-4 mt-2 text-xs text-muted-foreground">
+                        <span>Last run: {task.lastRun}</span>
+                        <span>Duration: {task.duration}</span>
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleRunMaintenance(task.id, task.name)}
+                        disabled={isMaintenanceRunning}
+                      >
+                        {isMaintenanceRunning ? (
+                          <>
+                            <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
+                            Running...
+                          </>
+                        ) : (
+                          'Run Now'
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
-                <CardTitle>Database Maintenance</CardTitle>
-                <CardDescription>Optimize and maintain database performance</CardDescription>
+                <CardTitle>Quick Actions</CardTitle>
+                <CardDescription>Common maintenance operations</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-medium">Optimize Tables</h4>
-                      <p className="text-xs text-muted-foreground">Reorganize database tables for improved performance</p>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => runMaintenanceTask("Database Optimization")}
-                      disabled={taskRunning}
-                    >
-                      <Play className="h-4 w-4 mr-1" />
-                      Run
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-medium">Repair Tables</h4>
-                      <p className="text-xs text-muted-foreground">Check and repair corrupted tables</p>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => runMaintenanceTask("Database Repair")}
-                      disabled={taskRunning}
-                    >
-                      <Play className="h-4 w-4 mr-1" />
-                      Run
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-medium">Clear Cache Tables</h4>
-                      <p className="text-xs text-muted-foreground">Clear temporary cache data</p>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => runMaintenanceTask("Clear Cache")}
-                      disabled={taskRunning}
-                    >
-                      <Play className="h-4 w-4 mr-1" />
-                      Run
-                    </Button>
-                  </div>
-                </div>
-                <Alert variant="destructive" className="mt-4">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertTitle className="text-sm">Attention</AlertTitle>
-                  <AlertDescription className="text-xs">
-                    Database optimization may temporarily impact system performance.
-                  </AlertDescription>
-                </Alert>
+              <CardContent className="space-y-3">
+                <Button variant="outline" className="w-full" onClick={handleClearCache}>
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Clear System Cache
+                </Button>
+                <Button variant="outline" className="w-full" onClick={handleExportLogs}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export System Logs
+                </Button>
+                <Button variant="outline" className="w-full">
+                  <Upload className="h-4 w-4 mr-2" />
+                  Import Configuration
+                </Button>
+                <Button variant="outline" className="w-full">
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Generate Report
+                </Button>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader>
-                <CardTitle>System Cleanup</CardTitle>
-                <CardDescription>Remove unnecessary files and data</CardDescription>
+                <CardTitle>Last Maintenance</CardTitle>
+                <CardDescription>Most recent maintenance activity</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-medium">Clear Temporary Files</h4>
-                      <p className="text-xs text-muted-foreground">Remove temporary files and uploads</p>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => runMaintenanceTask("Clear Temporary Files")}
-                      disabled={taskRunning}
-                    >
-                      <Play className="h-4 w-4 mr-1" />
-                      Run
-                    </Button>
+                  <div className="flex justify-between">
+                    <span className="text-sm">Date:</span>
+                    <span className="text-sm font-medium">{lastMaintenance}</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-medium">Purge Old Logs</h4>
-                      <p className="text-xs text-muted-foreground">Delete logs older than retention policy</p>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => runMaintenanceTask("Log Purge")}
-                      disabled={taskRunning}
-                    >
-                      <Play className="h-4 w-4 mr-1" />
-                      Run
-                    </Button>
+                  <div className="flex justify-between">
+                    <span className="text-sm">Duration:</span>
+                    <span className="text-sm font-medium">23 minutes</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-medium">Clear Session Data</h4>
-                      <p className="text-xs text-muted-foreground">Remove expired user sessions</p>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => runMaintenanceTask("Clear Sessions")}
-                      disabled={taskRunning}
-                    >
-                      <Play className="h-4 w-4 mr-1" />
-                      Run
-                    </Button>
+                  <div className="flex justify-between">
+                    <span className="text-sm">Status:</span>
+                    <Badge className="bg-green-100 text-green-800 border-green-300">
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                      Successful
+                    </Badge>
                   </div>
-                </div>
-                <div className="mt-4 flex items-center bg-muted p-2 rounded-md">
-                  <div className="text-xs">
-                    <span className="font-medium">Last Cleanup:</span> 3 days ago
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Security Maintenance</CardTitle>
-                <CardDescription>Security-related maintenance tasks</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-medium">Security Scan</h4>
-                      <p className="text-xs text-muted-foreground">Scan for potential vulnerabilities</p>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => runMaintenanceTask("Security Scan")}
-                      disabled={taskRunning}
-                    >
-                      <Shield className="h-4 w-4 mr-1" />
-                      Run
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-medium">Reset Failed Login Attempts</h4>
-                      <p className="text-xs text-muted-foreground">Clear account lockouts</p>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => runMaintenanceTask("Reset Login Attempts")}
-                      disabled={taskRunning}
-                    >
-                      <Play className="h-4 w-4 mr-1" />
-                      Run
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-medium">Audit Permission Changes</h4>
-                      <p className="text-xs text-muted-foreground">Review recent permission changes</p>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => runMaintenanceTask("Permission Audit")}
-                      disabled={taskRunning}
-                    >
-                      <Play className="h-4 w-4 mr-1" />
-                      Run
-                    </Button>
-                  </div>
-                </div>
-                <div className="mt-4 bg-green-100 text-green-800 p-2 rounded-md text-xs">
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 mr-1" />
-                    <span>Last security scan: No issues detected</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>System Updates</CardTitle>
-                <CardDescription>Manage system update packages</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-medium">Check for Updates</h4>
-                      <p className="text-xs text-muted-foreground">Look for new system updates</p>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => runMaintenanceTask("Update Check")}
-                      disabled={taskRunning}
-                    >
-                      <RefreshCw className="h-4 w-4 mr-1" />
-                      Check
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-medium">Install Pending Updates</h4>
-                      <p className="text-xs text-muted-foreground">Apply downloaded updates</p>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      disabled={true}
-                    >
-                      <Play className="h-4 w-4 mr-1" />
-                      Install
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-medium">Update Dependencies</h4>
-                      <p className="text-xs text-muted-foreground">Update third-party packages</p>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => runMaintenanceTask("Update Dependencies")}
-                      disabled={taskRunning}
-                    >
-                      <Play className="h-4 w-4 mr-1" />
-                      Run
-                    </Button>
-                  </div>
-                </div>
-                <div className="mt-4 bg-blue-100 text-blue-800 p-2 rounded-md text-xs">
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 mr-1" />
-                    <span>System is up to date (v2.5.1)</span>
+                  <div className="flex justify-between">
+                    <span className="text-sm">Tasks:</span>
+                    <span className="text-sm font-medium">5 completed</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
         </TabsContent>
-        
-        <TabsContent value="logs" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>System Logs</CardTitle>
-              <CardDescription>View and manage system log files</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex justify-between mb-4">
-                <div className="flex space-x-2">
-                  <Select defaultValue="error">
-                    <SelectTrigger className="w-[140px]">
-                      <SelectValue placeholder="Log Level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="debug">Debug</SelectItem>
-                      <SelectItem value="info">Info</SelectItem>
-                      <SelectItem value="warn">Warning</SelectItem>
-                      <SelectItem value="error">Error</SelectItem>
-                      <SelectItem value="all">All Levels</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  
-                  <Select defaultValue="system">
-                    <SelectTrigger className="w-[140px]">
-                      <SelectValue placeholder="Log Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="system">System</SelectItem>
-                      <SelectItem value="security">Security</SelectItem>
-                      <SelectItem value="access">Access</SelectItem>
-                      <SelectItem value="application">Application</SelectItem>
-                      <SelectItem value="database">Database</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <Download className="h-4 w-4" />
-                    Download
-                  </Button>
-                  <Button variant="outline" size="sm" className="text-destructive gap-2">
-                    <Trash2 className="h-4 w-4" />
-                    Clear
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="border rounded-md">
-                <div className="bg-muted px-4 py-2 text-sm font-medium border-b">
-                  <div className="flex justify-between">
-                    <span>Recent Log Entries</span>
-                    <span className="text-muted-foreground text-xs">Today, 15:42:30</span>
+
+        <TabsContent value="monitoring" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle>Network Performance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Network Load</span>
+                    <span className="text-green-600">{systemHealth.network}%</span>
                   </div>
-                </div>
-                <div className="h-72 overflow-auto bg-black text-green-400 font-mono text-xs p-4">
-                  <div className="space-y-1">
-                    <p>[15:42:30] [ERROR] Failed login attempt for user admin@example.com from IP 192.168.1.105</p>
-                    <p>[15:40:12] [INFO] Database backup completed successfully</p>
-                    <p>[15:38:45] [WARNING] High CPU usage detected: 87%</p>
-                    <p>[15:37:22] [INFO] User john.smith@example.com logged in from IP 192.168.1.110</p>
-                    <p>[15:35:01] [ERROR] Database query timeout: SELECT * FROM orders WHERE date {'>'}  &apos;2023-01-01&apos;</p>
-                    <p>[15:30:59] [INFO] Scheduled maintenance task started: Clear temporary files</p>
-                    <p>[15:29:30] [WARNING] Low disk space on /var/log: 85% used</p>
-                    <p>[15:25:47] [INFO] New user registered: sarah.johnson@example.com</p>
-                    <p>[15:20:15] [ERROR] API rate limit exceeded for endpoint /api/orders</p>
-                    <p>[15:18:03] [INFO] System update check completed: System is up to date</p>
-                    <p>[15:15:22] [WARNING] Slow database query detected: execution time 3.5s</p>
-                    <p>[15:10:45] [INFO] Cache cleared successfully</p>
-                    <p>[15:05:33] [ERROR] Failed to connect to payment gateway: Connection timeout</p>
-                    <p>[15:01:19] [INFO] User admin@example.com initiated system maintenance</p>
-                    <p>[15:00:00] [INFO] Daily log rotation completed</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex justify-between items-center text-sm pt-2">
-                <div className="text-muted-foreground">
-                  Showing last 15 entries
-                </div>
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm">Previous</Button>
-                  <Button variant="outline" size="sm">Next</Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Log Settings</CardTitle>
-              <CardDescription>Configure system logging behavior</CardDescription>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium">Log Level</h4>
-                    <p className="text-xs text-muted-foreground">Minimum level of messages to log</p>
-                  </div>
-                  <Select defaultValue="info">
-                    <SelectTrigger className="w-[140px]">
-                      <SelectValue placeholder="Log Level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="debug">Debug</SelectItem>
-                      <SelectItem value="info">Info</SelectItem>
-                      <SelectItem value="warn">Warning</SelectItem>
-                      <SelectItem value="error">Error Only</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium">Log Rotation</h4>
-                    <p className="text-xs text-muted-foreground">When to create new log files</p>
-                  </div>
-                  <Select defaultValue="daily">
-                    <SelectTrigger className="w-[140px]">
-                      <SelectValue placeholder="Rotation" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="hourly">Hourly</SelectItem>
-                      <SelectItem value="daily">Daily</SelectItem>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                      <SelectItem value="monthly">Monthly</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium">Retention Policy</h4>
-                    <p className="text-xs text-muted-foreground">How long to keep log files</p>
-                  </div>
-                  <Select defaultValue="30">
-                    <SelectTrigger className="w-[140px]">
-                      <SelectValue placeholder="Retention" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="7">7 days</SelectItem>
-                      <SelectItem value="30">30 days</SelectItem>
-                      <SelectItem value="90">90 days</SelectItem>
-                      <SelectItem value="365">1 year</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="rounded-md border p-4 space-y-2">
-                  <h4 className="text-sm font-medium">Log File Location</h4>
-                  <div className="bg-muted p-2 rounded text-xs font-mono overflow-x-auto">
-                    /var/log/cafesystem/
-                  </div>
-                </div>
-                
-                <div className="rounded-md border p-4 space-y-2">
-                  <h4 className="text-sm font-medium">Log Storage</h4>
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-xs">
-                      <span>Used Space:</span>
-                      <span>1.2 GB / 5 GB</span>
-                    </div>
-                    <Progress value={24} className="h-2" />
-                  </div>
-                </div>
-                
-                <Button variant="outline" size="sm" className="w-full gap-2">
-                  <Save className="h-4 w-4" />
-                  Save Log Settings
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="backups" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Database Backups</CardTitle>
-              <CardDescription>Manage system database backups</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex justify-between mb-4">
-                <Button variant="outline" className="gap-2" onClick={() => runMaintenanceTask("Database Backup")}>
-                  <Database className="h-4 w-4" />
-                  Create Backup Now
-                </Button>
-                
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <DownloadCloud className="h-4 w-4" />
-                    Download Latest
-                  </Button>
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <Upload className="h-4 w-4" />
-                    Upload Backup
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="rounded-md border">
-                <table className="min-w-full divide-y divide-border">
-                  <thead>
-                    <tr className="bg-muted/50">
-                      <th className="px-4 py-2 text-left text-xs font-medium">Backup Date</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium">Size</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium">Type</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium">Status</th>
-                      <th className="px-4 py-2 text-right text-xs font-medium">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    <tr>
-                      <td className="px-4 py-2 text-xs">
-                        <div className="font-medium">Today, 03:00 AM</div>
-                        <div className="text-muted-foreground text-[10px]">Automatic</div>
-                      </td>
-                      <td className="px-4 py-2 text-xs">458.2 MB</td>
-                      <td className="px-4 py-2 text-xs">Full</td>
-                      <td className="px-4 py-2 text-xs">
-                        <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
-                          Complete
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-2 text-right">
-                        <div className="flex justify-end space-x-1">
-                          <Button variant="ghost" size="icon" className="h-7 w-7">
-                            <DownloadCloud className="h-3 w-3" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive">
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="px-4 py-2 text-xs">
-                        <div className="font-medium">Yesterday, 03:00 AM</div>
-                        <div className="text-muted-foreground text-[10px]">Automatic</div>
-                      </td>
-                      <td className="px-4 py-2 text-xs">452.8 MB</td>
-                      <td className="px-4 py-2 text-xs">Full</td>
-                      <td className="px-4 py-2 text-xs">
-                        <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
-                          Complete
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-2 text-right">
-                        <div className="flex justify-end space-x-1">
-                          <Button variant="ghost" size="icon" className="h-7 w-7">
-                            <DownloadCloud className="h-3 w-3" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive">
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="px-4 py-2 text-xs">
-                        <div className="font-medium">2 days ago, 15:42 PM</div>
-                        <div className="text-muted-foreground text-[10px]">Manual</div>
-                      </td>
-                      <td className="px-4 py-2 text-xs">451.5 MB</td>
-                      <td className="px-4 py-2 text-xs">Full</td>
-                      <td className="px-4 py-2 text-xs">
-                        <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
-                          Complete
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-2 text-right">
-                        <div className="flex justify-end space-x-1">
-                          <Button variant="ghost" size="icon" className="h-7 w-7">
-                            <DownloadCloud className="h-3 w-3" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive">
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="px-4 py-2 text-xs">
-                        <div className="font-medium">3 days ago, 03:00 AM</div>
-                        <div className="text-muted-foreground text-[10px]">Automatic</div>
-                      </td>
-                      <td className="px-4 py-2 text-xs">448.9 MB</td>
-                      <td className="px-4 py-2 text-xs">Full</td>
-                      <td className="px-4 py-2 text-xs">
-                        <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
-                          Complete
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-2 text-right">
-                        <div className="flex justify-end space-x-1">
-                          <Button variant="ghost" size="icon" className="h-7 w-7">
-                            <DownloadCloud className="h-3 w-3" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive">
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Backup Settings</CardTitle>
-              <CardDescription>Configure automated backup settings</CardDescription>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium">Backup Schedule</h4>
-                    <p className="text-xs text-muted-foreground">How often to create backups</p>
-                  </div>
-                  <Select defaultValue="daily">
-                    <SelectTrigger className="w-[140px]">
-                      <SelectValue placeholder="Schedule" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="hourly">Hourly</SelectItem>
-                      <SelectItem value="daily">Daily</SelectItem>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium">Backup Time</h4>
-                    <p className="text-xs text-muted-foreground">When to run daily backups</p>
-                  </div>
-                  <Select defaultValue="3">
-                    <SelectTrigger className="w-[140px]">
-                      <SelectValue placeholder="Time" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="0">12:00 AM</SelectItem>
-                      <SelectItem value="3">3:00 AM</SelectItem>
-                      <SelectItem value="6">6:00 AM</SelectItem>
-                      <SelectItem value="12">12:00 PM</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium">Retention Period</h4>
-                    <p className="text-xs text-muted-foreground">How long to keep backups</p>
-                  </div>
-                  <Select defaultValue="30">
-                    <SelectTrigger className="w-[140px]">
-                      <SelectValue placeholder="Retention" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="7">7 days</SelectItem>
-                      <SelectItem value="30">30 days</SelectItem>
-                      <SelectItem value="90">90 days</SelectItem>
-                      <SelectItem value="365">1 year</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="rounded-md border p-4 space-y-2">
-                  <h4 className="text-sm font-medium">Backup Storage</h4>
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-xs">
-                      <span>Used Space:</span>
-                      <span>4.3 GB / 20 GB</span>
-                    </div>
-                    <Progress value={21.5} className="h-2" />
-                  </div>
-                </div>
-                
-                <div className="rounded-md border p-4 space-y-2">
-                  <h4 className="text-sm font-medium">Remote Storage</h4>
-                  <div className="flex items-center">
-                    <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-                    <span className="text-xs">Connected to AWS S3</span>
-                  </div>
+                  <Progress value={systemHealth.network} className="h-2" />
                   <div className="text-xs text-muted-foreground">
-                    Backups are automatically synced to cloud storage
+                    Bandwidth: 850 Mbps / 1 Gbps
                   </div>
                 </div>
-                
-                <Button variant="outline" size="sm" className="w-full gap-2">
-                  <Save className="h-4 w-4" />
-                  Save Backup Settings
-                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle>Cache Performance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Hit Rate</span>
+                    <span className="text-green-600">{systemHealth.cache}%</span>
+                  </div>
+                  <Progress value={systemHealth.cache} className="h-2" />
+                  <div className="text-xs text-muted-foreground">
+                    Cache Size: 2.4 GB / 4 GB
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle>Active Sessions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{systemStats.activeConnections}</div>
+                <p className="text-sm text-muted-foreground">Current active users</p>
+                <div className="text-xs text-muted-foreground mt-2">
+                  Peak today: {systemStats.activeConnections + 15}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Real-time Monitoring</CardTitle>
+              <CardDescription>Live system performance metrics</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64 w-full bg-muted/30 rounded-md flex items-center justify-center">
+                <div className="text-center">
+                  <Activity className="h-8 w-8 mx-auto text-muted-foreground" />
+                  <p className="mt-2 text-sm text-muted-foreground">Real-time monitoring dashboard</p>
+                  <p className="text-xs text-muted-foreground">CPU: {systemHealth.cpu}% | Memory: {systemHealth.memory}% | Disk: {systemHealth.disk}%</p>
+                </div>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
-        
-        <TabsContent value="diagnostics" className="space-y-4">
+
+        <TabsContent value="emergency" className="space-y-4">
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Emergency Controls</AlertTitle>
+            <AlertDescription>
+              These controls should only be used in emergency situations. They will affect all users and operations.
+            </AlertDescription>
+          </Alert>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-destructive">System Restart</CardTitle>
+                <CardDescription>
+                  Gracefully restart the entire system with a 2-minute warning
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="destructive" className="w-full">
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Restart System
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Confirm System Restart</DialogTitle>
+                      <DialogDescription>
+                        This will restart the entire platform. All users will be logged out and operations will be temporarily suspended.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <Button variant="outline">Cancel</Button>
+                      <Button variant="destructive" onClick={handleSystemRestart}>
+                        Confirm Restart
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-destructive">Emergency Shutdown</CardTitle>
+                <CardDescription>
+                  Immediately shutdown the system without warning
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="destructive" className="w-full">
+                      <Shield className="h-4 w-4 mr-2" />
+                      Emergency Shutdown
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Confirm Emergency Shutdown</DialogTitle>
+                      <DialogDescription>
+                        This will immediately shutdown the system without warning. This should only be used in critical situations.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <Button variant="outline">Cancel</Button>
+                      <Button variant="destructive" onClick={handleEmergencyShutdown}>
+                        Emergency Shutdown
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </CardContent>
+            </Card>
+          </div>
+
           <Card>
             <CardHeader>
-              <CardTitle>System Health</CardTitle>
-              <CardDescription>Current system performance metrics</CardDescription>
+              <CardTitle>Maintenance Mode</CardTitle>
+              <CardDescription>
+                Enable maintenance mode to temporarily disable all cafe operations
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="font-medium">CPU Usage</span>
-                    <span>32%</span>
-                  </div>
-                  <Progress value={32} className="h-2" />
-                  <p className="text-xs text-muted-foreground">4 cores, 3.5 GHz</p>
-                </div>
+              <div className="space-y-4">
+                <Alert>
+                  <Settings className="h-4 w-4" />
+                  <AlertTitle>Maintenance Mode Status</AlertTitle>
+                  <AlertDescription>
+                    Maintenance mode is currently disabled. All cafe operations are running normally.
+                  </AlertDescription>
+                </Alert>
                 
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="font-medium">Memory Usage</span>
-                    <span>47%</span>
-                  </div>
-                  <Progress value={47} className="h-2" />
-                  <p className="text-xs text-muted-foreground">7.5 GB / 16 GB</p>
+                <div className="flex space-x-2">
+                  <Button variant="outline" className="flex-1">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Enable Maintenance Mode
+                  </Button>
+                  <Button variant="outline" className="flex-1">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Schedule Maintenance
+                  </Button>
                 </div>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="font-medium">Disk Usage</span>
-                    <span>68%</span>
-                  </div>
-                  <Progress value={68} className="h-2" />
-                  <p className="text-xs text-muted-foreground">325 GB / 500 GB</p>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="border rounded-md overflow-hidden">
-                  <div className="bg-muted px-4 py-2 font-medium text-sm">System Information</div>
-                  <div className="p-4">
-                    <table className="w-full text-sm">
-                      <tbody className="divide-y divide-border">
-                        <tr>
-                          <td className="py-2 font-medium">Operating System</td>
-                          <td className="py-2 text-right">Ubuntu 22.04.2 LTS</td>
-                        </tr>
-                        <tr>
-                          <td className="py-2 font-medium">Web Server</td>
-                          <td className="py-2 text-right">Nginx 1.18.0</td>
-                        </tr>
-                        <tr>
-                          <td className="py-2 font-medium">Database</td>
-                          <td className="py-2 text-right">MySQL 8.0.32</td>
-                        </tr>
-                        <tr>
-                          <td className="py-2 font-medium">PHP Version</td>
-                          <td className="py-2 text-right">PHP 8.2.7</td>
-                        </tr>
-                        <tr>
-                          <td className="py-2 font-medium">Load Average</td>
-                          <td className="py-2 text-right">0.74, 0.62, 0.59</td>
-                        </tr>
-                        <tr>
-                          <td className="py-2 font-medium">Uptime</td>
-                          <td className="py-2 text-right">43 days, 7 hours</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                
-                <div className="flex flex-col">
-                  <div className="border rounded-md overflow-hidden mb-4">
-                    <div className="bg-muted px-4 py-2 font-medium text-sm">Active Connections</div>
-                    <div className="p-4">
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-sm">
-                          <span>Database Connections</span>
-                          <span>28 / 100</span>
-                        </div>
-                        <Progress value={28} className="h-1.5" />
-                      </div>
-                      
-                      <div className="space-y-1 mt-3">
-                        <div className="flex justify-between text-sm">
-                          <span>Active Users</span>
-                          <span>47</span>
-                        </div>
-                        <Progress value={47} className="h-1.5" />
-                      </div>
-                      
-                      <div className="space-y-1 mt-3">
-                        <div className="flex justify-between text-sm">
-                          <span>API Requests (per min)</span>
-                          <span>123 / 1000</span>
-                        </div>
-                        <Progress value={12.3} className="h-1.5" />
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="border rounded-md overflow-hidden flex-1">
-                    <div className="bg-muted px-4 py-2 font-medium text-sm">System Status</div>
-                    <div className="p-4 space-y-2">
-                      <div className="flex items-center">
-                        <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-                        <span className="text-sm">Database: Operational</span>
-                      </div>
-                      <div className="flex items-center">
-                        <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-                        <span className="text-sm">Web Server: Operational</span>
-                      </div>
-                      <div className="flex items-center">
-                        <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-                        <span className="text-sm">Cache Server: Operational</span>
-                      </div>
-                      <div className="flex items-center">
-                        <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-                        <span className="text-sm">Queue Service: Operational</span>
-                      </div>
-                      <div className="flex items-center">
-                        <div className="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
-                        <span className="text-sm">Storage Service: Operational</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-6 flex justify-between">
-                <Button variant="outline" className="gap-2" onClick={() => runMaintenanceTask("System Diagnostics")}>
-                  <FileCode className="h-4 w-4" />
-                  Run Diagnostics
-                </Button>
-                
-                <Button variant="outline" className="gap-2">
-                  <Clock className="h-4 w-4" /> 
-                  <span>Auto-refresh: </span> 
-                  <span className="text-muted-foreground">Off</span>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>System Console</CardTitle>
-              <CardDescription>Execute system commands</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Alert variant="destructive" className="mb-4">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertTitle className="text-sm">Access Restricted</AlertTitle>
-                <AlertDescription className="text-xs">
-                  System console commands are restricted to super admin users. All commands are logged.
-                </AlertDescription>
-              </Alert>
-              
-              <div className="bg-black text-green-400 font-mono p-4 rounded-md text-sm h-40 overflow-y-auto mb-4">
-                <div className="space-y-1">
-                  <p>$ system status</p>
-                  <p className="text-white">All services operational. System load: 0.74</p>
-                  <p>$ check updates</p>
-                  <p className="text-white">System is up to date (v2.5.1)</p>
-                  <p>$ memory usage</p>
-                  <p className="text-white">Memory: 7.5GB/16GB (47%) | Swap: 0.2GB/8GB (2.5%)</p>
-                  <p>$ disk space</p>
-                  <p className="text-white">Disk: 325GB/500GB (68%) | Available: 175GB</p>
-                  <p>$</p>
-                </div>
-              </div>
-              
-              <div className="flex">
-                <div className="bg-black text-white font-mono p-2 rounded-l-md">
-                  $
-                </div>
-                <input 
-                  type="text" 
-                  placeholder="Type command..." 
-                  className="flex-1 bg-black text-green-400 font-mono p-2 rounded-r-md border-0 focus:outline-none focus:ring-0" 
-                />
               </div>
             </CardContent>
           </Card>
