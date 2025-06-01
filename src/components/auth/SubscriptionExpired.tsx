@@ -19,17 +19,17 @@ const SubscriptionExpired: React.FC = () => {
           <div className="mx-auto w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center mb-4">
             <AlertTriangle className="h-6 w-6 text-destructive" />
           </div>
-          <CardTitle className="text-2xl text-destructive">Subscription Expired</CardTitle>
+          <CardTitle className="text-2xl text-destructive">Subscription Required</CardTitle>
           <CardDescription>
-            Your cafe's subscription has expired and needs renewal
+            Your cafe's subscription has expired and needs renewal to continue using the system
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="text-center">
             <h3 className="font-semibold text-lg mb-2">{currentCafe?.name}</h3>
             <p className="text-muted-foreground">
-              Your subscription has expired and all features are currently disabled. 
-              Please contact your cafe administrator or renew your subscription to continue using the system.
+              Your subscription time is complete. Please pay to continue using all features of the cafe management system.
+              All functionality is currently disabled until payment is processed.
             </p>
           </div>
 
@@ -39,9 +39,10 @@ const SubscriptionExpired: React.FC = () => {
               To restore access:
             </h4>
             <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• Contact your cafe manager for payment renewal</li>
-              <li>• Ensure all outstanding payments are completed</li>
-              <li>• Wait for system reactivation after payment</li>
+              <li>• Contact your cafe administrator for payment renewal</li>
+              <li>• Ensure all outstanding subscription fees are paid</li>
+              <li>• Wait for system reactivation after payment confirmation</li>
+              <li>• Contact support if you believe this is an error</li>
             </ul>
           </div>
 

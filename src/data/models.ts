@@ -27,6 +27,8 @@ export type Cafe = {
     plan: "basic" | "premium" | "enterprise";
     lastPaymentDate?: string;
     amount?: number;
+    isVip?: boolean; // VIP access - bypasses payment requirements
+    vipReason?: string; // Reason for VIP access
   };
 };
 

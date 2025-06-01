@@ -108,6 +108,8 @@ interface AppContextType {
 
   // Subscription related
   isCafeSubscriptionActive: () => boolean;
+  grantVipAccess: (cafeId: string, reason: string) => void;
+  revokeVipAccess: (cafeId: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -135,7 +137,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       email: "downtown@cafenexus.com",
       status: "active",
       createdAt: "2023-01-01",
-      logo: "/assets/logo-1.png"
+      logo: "/assets/logo-1.png",
+      subscription: {
+        isActive: true,
+        expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        plan: "premium",
+        lastPaymentDate: new Date().toISOString(),
+        amount: 199,
+        isVip: false
+      }
     },
     {
       id: "cafe-002",
@@ -145,7 +155,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       email: "uptown@cafenexus.com",
       status: "active",
       createdAt: "2023-02-15",
-      logo: "/assets/logo-2.png"
+      logo: "/assets/logo-2.png",
+      subscription: {
+        isActive: false,
+        expiryDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+        plan: "basic",
+        lastPaymentDate: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString(),
+        amount: 99,
+        isVip: false
+      }
     },
     {
       id: "cafe-003",
@@ -155,7 +173,16 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       email: "contact@brewandbean.com",
       status: "active",
       createdAt: "2023-03-20",
-      logo: "/assets/logo-3.png"
+      logo: "/assets/logo-3.png",
+      subscription: {
+        isActive: false,
+        expiryDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+        plan: "basic",
+        lastPaymentDate: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString(),
+        amount: 99,
+        isVip: true,
+        vipReason: "Partner cafe - complimentary access"
+      }
     },
     {
       id: "cafe-004",
@@ -165,7 +192,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       email: "info@urbangrind.com",
       status: "active",
       createdAt: "2023-04-10",
-      logo: "/assets/logo-4.png"
+      logo: "/assets/logo-4.png",
+      subscription: {
+        isActive: true,
+        expiryDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+        plan: "enterprise",
+        lastPaymentDate: new Date().toISOString(),
+        amount: 299,
+        isVip: false
+      }
     }
   ];
 
@@ -487,17 +522,60 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setTaxSettings({...taxSettings, ...settings});
   };
 
-  // Check if current cafe has active subscription
+  // Check if current cafe has active subscription - IMPROVED VERSION
   const isCafeSubscriptionActive = (): boolean => {
-    if (!currentCafe || currentUser?.role === 'superAdmin') return true;
+    // Super admin always has access
+    if (currentUser?.role === 'superAdmin') return true;
+    
+    // If no current cafe, default to false
+    if (!currentCafe) return false;
     
     const subscription = currentCafe.subscription;
-    if (!subscription || !subscription.isActive) return false;
+    
+    // No subscription means no access
+    if (!subscription) return false;
+    
+    // VIP access bypasses all other checks
+    if (subscription.isVip) return true;
+    
+    // Check if subscription is active and not expired
+    if (!subscription.isActive) return false;
     
     const expiryDate = new Date(subscription.expiryDate);
     const now = new Date();
     
     return expiryDate > now;
+  };
+
+  // VIP access management functions
+  const grantVipAccess = (cafeId: string, reason: string) => {
+    const cafe = appCafes.find(c => c.id === cafeId);
+    if (cafe) {
+      const updatedCafe = {
+        ...cafe,
+        subscription: {
+          ...cafe.subscription!,
+          isVip: true,
+          vipReason: reason
+        }
+      };
+      updateCafe(updatedCafe);
+    }
+  };
+
+  const revokeVipAccess = (cafeId: string) => {
+    const cafe = appCafes.find(c => c.id === cafeId);
+    if (cafe) {
+      const updatedCafe = {
+        ...cafe,
+        subscription: {
+          ...cafe.subscription!,
+          isVip: false,
+          vipReason: undefined
+        }
+      };
+      updateCafe(updatedCafe);
+    }
   };
 
   // Update the context value
@@ -575,6 +653,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
     // Subscription
     isCafeSubscriptionActive,
+    grantVipAccess,
+    revokeVipAccess,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
