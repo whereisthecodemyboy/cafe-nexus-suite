@@ -150,7 +150,7 @@ const AppRoutes = () => {
       {/* Admin Login */}
       <Route path="/admin/login" element={currentUser ? <Navigate to={currentUser.role === 'superAdmin' ? '/admin/super/dashboard' : '/admin/dashboard'} replace /> : <AdminLogin />} />
       
-      {/* Cafe Admin Routes */}
+      {/* Cafe Admin Routes - These should show AdminDashboard, not SuperAdminDashboard */}
       <Route path="/admin/dashboard" element={<CafeAdminProtectedRoute><AdminLayout><AdminDashboard /></AdminLayout></CafeAdminProtectedRoute>} />
       <Route path="/admin/staff" element={<CafeAdminProtectedRoute><AdminLayout><StaffManagement /></AdminLayout></CafeAdminProtectedRoute>} />
       <Route path="/admin/tables" element={<CafeAdminProtectedRoute><AdminLayout><div className="p-6"><h1 className="text-2xl font-bold">Table Management (Admin)</h1><p className="mt-4">Configure restaurant layout for your cafe.</p></div></AdminLayout></CafeAdminProtectedRoute>} />
@@ -160,7 +160,7 @@ const AppRoutes = () => {
       <Route path="/admin/access" element={<CafeAdminProtectedRoute><AdminLayout><div className="p-6"><h1 className="text-2xl font-bold">Access Control (Admin)</h1><p className="mt-4">Manage user permissions for your cafe.</p></div></AdminLayout></CafeAdminProtectedRoute>} />
       <Route path="/admin/settings" element={<CafeAdminProtectedRoute><AdminLayout><div className="p-6"><h1 className="text-2xl font-bold">System Settings (Admin)</h1><p className="mt-4">Configure settings for your cafe.</p></div></AdminLayout></CafeAdminProtectedRoute>} />
       
-      {/* Super Admin Routes */}
+      {/* Super Admin Routes - Only these should show SuperAdminDashboard */}
       <Route path="/admin/super/dashboard" element={<SuperAdminProtectedRoute><SuperAdminLayout><SuperAdminDashboard /></SuperAdminLayout></SuperAdminProtectedRoute>} />
       <Route path="/admin/cafes" element={<SuperAdminProtectedRoute><SuperAdminLayout><CafeManagement /></SuperAdminLayout></SuperAdminProtectedRoute>} />
       <Route path="/admin/super/users" element={<SuperAdminProtectedRoute><SuperAdminLayout><SuperUserManagement /></SuperAdminLayout></SuperAdminProtectedRoute>} />
