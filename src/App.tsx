@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +9,7 @@ import { AppProvider, useAppContext } from "@/contexts/AppContext";
 import { Button } from "@/components/ui/button";
 
 import AppLayout from "@/components/layouts/AppLayout";
+import StaffLayout from "@/components/layouts/StaffLayout";
 import AdminLayout from "@/components/layouts/AdminLayout";
 import SuperAdminLayout from "@/components/layouts/SuperAdminLayout";
 import Dashboard from "@/pages/Dashboard";
@@ -120,30 +122,30 @@ const AppRoutes = () => {
       {/* Staff login route */}
       <Route path="/login" element={currentUser ? <Navigate to="/dashboard" replace /> : <Login />} />
       
-      {/* Staff routes with feature-based protection */}
-      <Route path="/dashboard" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
-      <Route path="/pos" element={<FeatureProtectedRoute feature="pos"><AppLayout><POS /></AppLayout></FeatureProtectedRoute>} />
-      <Route path="/table-management" element={<FeatureProtectedRoute feature="tables"><AppLayout><TableManagement /></AppLayout></FeatureProtectedRoute>} />
-      <Route path="/menu" element={<FeatureProtectedRoute feature="menu"><AppLayout><Menu /></AppLayout></FeatureProtectedRoute>} />
-      <Route path="/kitchen" element={<FeatureProtectedRoute feature="kitchen"><AppLayout><Kitchen /></AppLayout></FeatureProtectedRoute>} />
-      <Route path="/employees" element={<FeatureProtectedRoute feature="employees"><AppLayout><Employees /></AppLayout></FeatureProtectedRoute>} />
-      <Route path="/employees/add" element={<FeatureProtectedRoute feature="employees"><AppLayout><AddEmployee /></AppLayout></FeatureProtectedRoute>} />
-      <Route path="/reservations" element={<FeatureProtectedRoute feature="reservations"><AppLayout><Reservations /></AppLayout></FeatureProtectedRoute>} />
-      <Route path="/reservations/add" element={<FeatureProtectedRoute feature="reservations"><AppLayout><AddReservation /></AppLayout></FeatureProtectedRoute>} />
-      <Route path="/cashflow" element={<FeatureProtectedRoute feature="cashflow"><AppLayout><CashFlow /></AppLayout></FeatureProtectedRoute>} />
-      <Route path="/customer" element={<FeatureProtectedRoute feature="customers"><AppLayout><Customer /></AppLayout></FeatureProtectedRoute>} />
-      <Route path="/analytics" element={<FeatureProtectedRoute feature="analytics"><AppLayout><Analytics /></AppLayout></FeatureProtectedRoute>} />
-      <Route path="/settings" element={<FeatureProtectedRoute feature="settings"><AppLayout><Settings /></AppLayout></FeatureProtectedRoute>} />
-      <Route path="/profile" element={<ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>} />
-      <Route path="/products/add" element={<FeatureProtectedRoute feature="menu"><AppLayout><AddProduct /></AppLayout></FeatureProtectedRoute>} />
-      <Route path="/delivery" element={<FeatureProtectedRoute feature="delivery"><AppLayout><Delivery /></AppLayout></FeatureProtectedRoute>} />
+      {/* Staff routes with feature-based protection and StaffLayout */}
+      <Route path="/dashboard" element={<ProtectedRoute><AppLayout><StaffLayout><Dashboard /></StaffLayout></AppLayout></ProtectedRoute>} />
+      <Route path="/pos" element={<FeatureProtectedRoute feature="pos"><AppLayout><StaffLayout><POS /></StaffLayout></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/table-management" element={<FeatureProtectedRoute feature="tables"><AppLayout><StaffLayout><TableManagement /></StaffLayout></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/menu" element={<FeatureProtectedRoute feature="menu"><AppLayout><StaffLayout><Menu /></StaffLayout></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/kitchen" element={<FeatureProtectedRoute feature="kitchen"><AppLayout><StaffLayout><Kitchen /></StaffLayout></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/employees" element={<FeatureProtectedRoute feature="employees"><AppLayout><StaffLayout><Employees /></StaffLayout></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/employees/add" element={<FeatureProtectedRoute feature="employees"><AppLayout><StaffLayout><AddEmployee /></StaffLayout></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/reservations" element={<FeatureProtectedRoute feature="reservations"><AppLayout><StaffLayout><Reservations /></StaffLayout></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/reservations/add" element={<FeatureProtectedRoute feature="reservations"><AppLayout><StaffLayout><AddReservation /></StaffLayout></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/cashflow" element={<FeatureProtectedRoute feature="cashflow"><AppLayout><StaffLayout><CashFlow /></StaffLayout></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/customer" element={<FeatureProtectedRoute feature="customers"><AppLayout><StaffLayout><Customer /></StaffLayout></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/analytics" element={<FeatureProtectedRoute feature="analytics"><AppLayout><StaffLayout><Analytics /></StaffLayout></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/settings" element={<FeatureProtectedRoute feature="settings"><AppLayout><StaffLayout><Settings /></StaffLayout></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute><AppLayout><StaffLayout><Profile /></StaffLayout></AppLayout></ProtectedRoute>} />
+      <Route path="/products/add" element={<FeatureProtectedRoute feature="menu"><AppLayout><StaffLayout><AddProduct /></StaffLayout></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/delivery" element={<FeatureProtectedRoute feature="delivery"><AppLayout><StaffLayout><Delivery /></StaffLayout></AppLayout></FeatureProtectedRoute>} />
       
       {/* Inventory Routes */}
       <Route path="/inventory" element={<Navigate to="/inventory/stock-in" replace />} />
-      <Route path="/inventory/stock-in" element={<FeatureProtectedRoute feature="inventory"><AppLayout><StockIn /></AppLayout></FeatureProtectedRoute>} />
-      <Route path="/inventory/stock-out" element={<FeatureProtectedRoute feature="inventory"><AppLayout><StockOut /></AppLayout></FeatureProtectedRoute>} />
-      <Route path="/inventory/wastage" element={<FeatureProtectedRoute feature="inventory"><AppLayout><Wastage /></AppLayout></FeatureProtectedRoute>} />
-      <Route path="/inventory/purchase-orders" element={<FeatureProtectedRoute feature="inventory"><AppLayout><PurchaseOrders /></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/inventory/stock-in" element={<FeatureProtectedRoute feature="inventory"><AppLayout><StaffLayout><StockIn /></StaffLayout></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/inventory/stock-out" element={<FeatureProtectedRoute feature="inventory"><AppLayout><StaffLayout><StockOut /></StaffLayout></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/inventory/wastage" element={<FeatureProtectedRoute feature="inventory"><AppLayout><StaffLayout><Wastage /></StaffLayout></AppLayout></FeatureProtectedRoute>} />
+      <Route path="/inventory/purchase-orders" element={<FeatureProtectedRoute feature="inventory"><AppLayout><StaffLayout><PurchaseOrders /></StaffLayout></AppLayout></FeatureProtectedRoute>} />
       
       {/* Admin Login */}
       <Route path="/admin/login" element={currentUser ? <Navigate to={currentUser.role === 'superAdmin' ? '/admin/super/dashboard' : '/admin/dashboard'} replace /> : <AdminLogin />} />
@@ -166,6 +168,7 @@ const AppRoutes = () => {
       <Route path="/admin/super/settings" element={<SuperAdminProtectedRoute><SuperAdminLayout><GlobalSettings /></SuperAdminLayout></SuperAdminProtectedRoute>} />
       <Route path="/admin/super/maintenance" element={<SuperAdminProtectedRoute><SuperAdminLayout><SystemMaintenance /></SuperAdminLayout></SuperAdminProtectedRoute>} />
       <Route path="/admin/super/analytics" element={<SuperAdminProtectedRoute><SuperAdminLayout><GlobalAnalytics /></SuperAdminLayout></SuperAdminProtectedRoute>} />
+      <Route path="/admin/super/subscriptions" element={<SuperAdminProtectedRoute><SuperAdminLayout><SubscriptionManagement /></SuperAdminLayout></SuperAdminProtectedRoute>} />
       
       {/* Admin redirect based on role */}
       <Route path="/admin" element={
@@ -195,15 +198,6 @@ const AppRoutes = () => {
       
       {/* 404 page */}
       <Route path="*" element={<NotFound />} />
-      
-      {/* Add this route in the admin routes section: */}
-      <Route path="/admin/super/subscriptions" element={
-        <ProtectedFeature feature="all">
-          <SuperAdminLayout>
-            <SubscriptionManagement />
-          </SuperAdminLayout>
-        </ProtectedFeature>
-      } />
     </Routes>
   );
 };
