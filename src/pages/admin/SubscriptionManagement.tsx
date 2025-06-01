@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   CreditCard, 
@@ -206,6 +205,8 @@ const SubscriptionManagement: React.FC = () => {
       description: `${selectedCafe.name} VIP access has been revoked.`,
       variant: "destructive"
     });
+    
+    setSelectedCafe(null);
   };
 
   const openDetailsDialog = (cafe: Cafe) => {
@@ -378,7 +379,10 @@ const SubscriptionManagement: React.FC = () => {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handleRevokeVipAccess()}
+                                onClick={() => {
+                                  setSelectedCafe(cafe);
+                                  handleRevokeVipAccess();
+                                }}
                                 className="text-purple-600 border-purple-300 hover:bg-purple-50"
                               >
                                 <Crown className="h-4 w-4" />
