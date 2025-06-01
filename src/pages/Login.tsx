@@ -75,7 +75,7 @@ const Login: React.FC = () => {
           <h1 className="mt-4 text-3xl font-serif font-bold tracking-tight text-foreground">
             Cafe Management Platform
           </h1>
-          <p className="text-muted-foreground">Multi-Cafe Management System</p>
+          <span className="text-muted-foreground">Multi-Cafe Management System</span>
         </div>
         
         <Card>
@@ -140,7 +140,7 @@ const Login: React.FC = () => {
         </Card>
         
         <div className="text-center mt-6 text-sm text-muted-foreground">
-          <p>Your login credentials are provided by your cafe administrator.</p>
+          <span>Your login credentials are provided by your cafe administrator.</span>
           <div className="mt-4">
             <a 
               href="/admin/login"

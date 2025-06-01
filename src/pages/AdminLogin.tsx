@@ -89,18 +89,18 @@ const AdminLogin: React.FC = () => {
           <h1 className="mt-4 text-3xl font-serif font-bold tracking-tight text-foreground">
             {loginType === 'super' ? 'Platform Admin Access' : 'Café Admin Access'}
           </h1>
-          <p className="text-muted-foreground">Multi-Cafe Management Platform</p>
+          <span className="text-muted-foreground">Multi-Cafe Management Platform</span>
         </div>
         
         <Card>
-          <CardHeader>
+          <CardHeader className="space-y-4">
             <Tabs defaultValue="cafe" value={loginType} onValueChange={setLoginType} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="cafe">Café Admin</TabsTrigger>
                 <TabsTrigger value="super">Platform Admin</TabsTrigger>
               </TabsList>
             </Tabs>
-            <CardDescription className="mt-2">
+            <CardDescription>
               {loginType === 'super' 
                 ? "Access the central management system for all cafés" 
                 : "Access your café's management dashboard"}
@@ -161,8 +161,8 @@ const AdminLogin: React.FC = () => {
         {loginType === 'super' && (
           <div className="mt-4 p-4 border border-destructive/20 bg-destructive/5 rounded-lg">
             <h3 className="font-semibold text-destructive">Platform Admin Demo Credentials</h3>
-            <p className="text-sm text-muted-foreground">Email: admin@cafeplatform.com</p>
-            <p className="text-sm text-muted-foreground">Password: admin123</p>
+            <div className="text-sm text-muted-foreground">Email: admin@cafeplatform.com</div>
+            <div className="text-sm text-muted-foreground">Password: admin123</div>
           </div>
         )}
       </div>
