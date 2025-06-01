@@ -572,6 +572,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     taxSettings,
     updateBusinessInfo,
     updateTaxSettings,
+
+    // Subscription
+    isCafeSubscriptionActive,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

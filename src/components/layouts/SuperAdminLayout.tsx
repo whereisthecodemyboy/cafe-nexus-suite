@@ -15,7 +15,8 @@ import {
   Key,
   Globe,
   Database,
-  ServerCog
+  ServerCog,
+  CreditCard
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
