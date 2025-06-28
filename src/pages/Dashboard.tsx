@@ -7,7 +7,7 @@ import PopularItems from '@/components/dashboard/PopularItems';
 import HourlyTrafficChart from '@/components/dashboard/HourlyTrafficChart';
 import OrdersOverview from '@/components/dashboard/OrdersOverview';
 import InventoryAlerts from '@/components/dashboard/InventoryAlerts';
-import { useAppContext } from '@/contexts/AppContext';
+import { useAppContext } from '@/contexts/SupabaseAppContext';
 
 const Dashboard: React.FC = () => {
   const { 

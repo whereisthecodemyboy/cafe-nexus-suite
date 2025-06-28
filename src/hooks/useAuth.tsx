@@ -1,6 +1,6 @@
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/integrations/supabase/client'
 import { User as SupabaseUser } from '@supabase/supabase-js'
 import { User } from '@/data/models'
 

@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/components/ui/use-toast';
-import { useAppContext } from '@/contexts/AppContext';
+import { useAppContext } from '@/contexts/SupabaseAppContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const AdminLogin: React.FC = () => {

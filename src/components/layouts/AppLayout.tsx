@@ -1,6 +1,6 @@
 
 import React, { ReactNode } from 'react';
-import { useAppContext } from '@/contexts/AppContext';
+import { useAppContext } from '@/contexts/SupabaseAppContext';
 import SubscriptionExpired from '@/components/auth/SubscriptionExpired';
 
 interface AppLayoutProps {

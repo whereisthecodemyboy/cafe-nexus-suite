@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/integrations/supabase/client'
 import { useAuth } from './useAuth'
 import type { 
   User, 
@@ -8,9 +7,7 @@ import type {
   Order, 
   Customer, 
   InventoryItem, 
-  Cafe,
-  Table,
-  Reservation 
+  Cafe
 } from '@/data/models'
 
 export const useSupabaseData = () => {
@@ -26,6 +23,8 @@ export const useSupabaseData = () => {
   useEffect(() => {
     if (userProfile) {
       fetchAllData()
+    } else {
+      setLoading(false)
     }
   }, [userProfile])
 
@@ -77,6 +76,7 @@ export const useSupabaseData = () => {
       setCafes(transformedCafes)
     } catch (error) {
       console.error('Error fetching cafes:', error)
+      setCafes([])
     }
   }
 
@@ -84,7 +84,6 @@ export const useSupabaseData = () => {
     try {
       let query = supabase.from('users').select('*')
       
-      // If not super admin, only fetch users from the same cafe
       if (userProfile?.role !== 'superAdmin' && userProfile?.cafeId) {
         query = query.eq('cafe_id', userProfile.cafeId)
       }
@@ -108,6 +107,7 @@ export const useSupabaseData = () => {
       setUsers(transformedUsers)
     } catch (error) {
       console.error('Error fetching users:', error)
+      setUsers([])
     }
   }
 
@@ -115,7 +115,6 @@ export const useSupabaseData = () => {
     try {
       let query = supabase.from('products').select('*')
       
-      // If not super admin, only fetch products from the same cafe
       if (userProfile?.role !== 'superAdmin' && userProfile?.cafeId) {
         query = query.eq('cafe_id', userProfile.cafeId)
       }
@@ -137,13 +136,14 @@ export const useSupabaseData = () => {
         allergens: product.allergens,
         isSpecial: product.is_special,
         cafeId: product.cafe_id,
-        variants: [], // TODO: Implement variants table
-        customizations: [], // TODO: Implement customizations table
+        variants: [],
+        customizations: [],
       })) || []
 
       setProducts(transformedProducts)
     } catch (error) {
       console.error('Error fetching products:', error)
+      setProducts([])
     }
   }
 
@@ -151,7 +151,6 @@ export const useSupabaseData = () => {
     try {
       let query = supabase.from('orders').select('*')
       
-      // If not super admin, only fetch orders from the same cafe
       if (userProfile?.role !== 'superAdmin' && userProfile?.cafeId) {
         query = query.eq('cafe_id', userProfile.cafeId)
       }
@@ -168,7 +167,7 @@ export const useSupabaseData = () => {
         tableId: order.table_id,
         customerId: order.customer_id,
         employeeId: order.employee_id,
-        items: [], // TODO: Implement order_items table
+        items: [],
         createdAt: order.created_at,
         updatedAt: order.updated_at,
         servedTime: order.served_time,
@@ -187,6 +186,7 @@ export const useSupabaseData = () => {
       setOrders(transformedOrders)
     } catch (error) {
       console.error('Error fetching orders:', error)
+      setOrders([])
     }
   }
 
@@ -194,7 +194,6 @@ export const useSupabaseData = () => {
     try {
       let query = supabase.from('customers').select('*')
       
-      // If not super admin, only fetch customers from the same cafe
       if (userProfile?.role !== 'superAdmin' && userProfile?.cafeId) {
         query = query.eq('cafe_id', userProfile.cafeId)
       }
@@ -224,6 +223,7 @@ export const useSupabaseData = () => {
       setCustomers(transformedCustomers)
     } catch (error) {
       console.error('Error fetching customers:', error)
+      setCustomers([])
     }
   }
 
@@ -231,7 +231,6 @@ export const useSupabaseData = () => {
     try {
       let query = supabase.from('inventory_items').select('*')
       
-      // If not super admin, only fetch inventory from the same cafe
       if (userProfile?.role !== 'superAdmin' && userProfile?.cafeId) {
         query = query.eq('cafe_id', userProfile.cafeId)
       }
@@ -258,6 +257,7 @@ export const useSupabaseData = () => {
       setInventoryItems(transformedInventory)
     } catch (error) {
       console.error('Error fetching inventory items:', error)
+      setInventoryItems([])
     }
   }
 

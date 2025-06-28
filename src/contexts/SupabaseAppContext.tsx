@@ -15,7 +15,7 @@ import type {
 } from '@/data/models'
 
 // Mock data for tables, reservations, and payments (will be migrated later)
-import { tables, reservations } from '@/data/mockData'
+import { tables, reservations, salesData, hourlyTraffic, popularItems } from '@/data/mockData'
 
 interface AppContextType {
   // Auth
@@ -35,6 +35,12 @@ interface AppContextType {
   tables: Table[]
   reservations: Reservation[]
   paymentDetails: PaymentDetails[]
+  salesData: any[]
+  hourlyTraffic: any[]
+  popularItems: any[]
+  
+  // Current cafe info
+  currentCafe: Cafe | null
   
   // Utility functions
   canAccess: (feature: string) => boolean
@@ -63,6 +69,11 @@ const AppContextProvider = ({ children }: { children: ReactNode }) => {
   // Mock payment details (will be moved to Supabase later)
   const paymentDetails: PaymentDetails[] = []
 
+  // Get current cafe based on user's cafeId
+  const currentCafe = currentUser?.cafeId 
+    ? cafes.find(cafe => cafe.id === currentUser.cafeId) || null
+    : null
+
   const canAccess = (feature: string): boolean => {
     if (!currentUser) return false
     
@@ -85,10 +96,9 @@ const AppContextProvider = ({ children }: { children: ReactNode }) => {
   const isCafeSubscriptionActive = (): boolean => {
     if (!currentUser || currentUser.role === 'superAdmin') return true
     
-    if (currentUser.cafeId) {
-      const cafe = cafes.find(c => c.id === currentUser.cafeId)
-      if (cafe?.subscription?.isVip) return true
-      return cafe?.subscription?.isActive || false
+    if (currentCafe) {
+      if (currentCafe.subscription?.isVip) return true
+      return currentCafe.subscription?.isActive || false
     }
     
     return false
@@ -108,6 +118,10 @@ const AppContextProvider = ({ children }: { children: ReactNode }) => {
       tables,
       reservations,
       paymentDetails,
+      salesData,
+      hourlyTraffic,
+      popularItems,
+      currentCafe,
       canAccess,
       isCafeSubscriptionActive,
       loading,

@@ -3,7 +3,7 @@ import React from 'react';
 import { AlertTriangle, CreditCard, Mail, Phone } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useAppContext } from '@/contexts/AppContext';
+import { useAppContext } from '@/contexts/SupabaseAppContext';
 
 const SubscriptionExpired: React.FC = () => {
   const { currentCafe, logout } = useAppContext();
@@ -26,7 +26,7 @@ const SubscriptionExpired: React.FC = () => {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="text-center">
-            <h3 className="font-semibold text-lg mb-2">{currentCafe?.name}</h3>
+            <h3 className="font-semibold text-lg mb-2">{currentCafe?.name || 'Your Cafe'}</h3>
             <p className="text-muted-foreground">
               Your subscription time is complete. Please pay to continue using all features of the cafe management system.
               All functionality is currently disabled until payment is processed.

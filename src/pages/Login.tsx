@@ -14,7 +14,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import { useAppContext } from '@/contexts/AppContext';
+import { useAppContext } from '@/contexts/SupabaseAppContext';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
