@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react'
 import { supabase } from '@/integrations/supabase/client'
 import { useAuth } from './useAuth'
@@ -55,7 +56,7 @@ export const useSupabaseData = () => {
 
       if (error) throw error
 
-      const transformedCafes: Cafe[] = data?.map(cafe => ({
+      const transformedCafes: Cafe[] = data?.map((cafe: any) => ({
         id: cafe.id,
         name: cafe.name,
         address: cafe.address,
@@ -92,7 +93,7 @@ export const useSupabaseData = () => {
 
       if (error) throw error
 
-      const transformedUsers: User[] = data?.map(user => ({
+      const transformedUsers: User[] = data?.map((user: any) => ({
         id: user.id,
         name: user.name,
         email: user.email,
@@ -123,7 +124,7 @@ export const useSupabaseData = () => {
 
       if (error) throw error
 
-      const transformedProducts: Product[] = data?.map(product => ({
+      const transformedProducts: Product[] = data?.map((product: any) => ({
         id: product.id,
         name: product.name,
         description: product.description,
@@ -159,7 +160,7 @@ export const useSupabaseData = () => {
 
       if (error) throw error
 
-      const transformedOrders: Order[] = data?.map(order => ({
+      const transformedOrders: Order[] = data?.map((order: any) => ({
         id: order.id,
         orderNumber: order.order_number,
         type: order.type,
@@ -202,7 +203,7 @@ export const useSupabaseData = () => {
 
       if (error) throw error
 
-      const transformedCustomers: Customer[] = data?.map(customer => ({
+      const transformedCustomers: Customer[] = data?.map((customer: any) => ({
         id: customer.id,
         name: customer.name,
         email: customer.email,
@@ -239,7 +240,7 @@ export const useSupabaseData = () => {
 
       if (error) throw error
 
-      const transformedInventory: InventoryItem[] = data?.map(item => ({
+      const transformedInventory: InventoryItem[] = data?.map((item: any) => ({
         id: item.id,
         name: item.name,
         category: item.category,
