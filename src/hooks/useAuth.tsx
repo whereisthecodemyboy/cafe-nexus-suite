@@ -63,11 +63,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           id: data.id,
           name: data.name,
           email: data.email,
-          role: data.role,
+          role: data.role as "superAdmin" | "admin" | "manager" | "cashier" | "waiter" | "chef" | "barista",
           avatar: data.avatar,
           phone: data.phone,
           hireDate: data.hire_date,
-          status: data.status,
+          status: data.status as "active" | "inactive" | "suspended",
           cafeId: data.cafe_id,
         }
         setUserProfile(userProfile)
