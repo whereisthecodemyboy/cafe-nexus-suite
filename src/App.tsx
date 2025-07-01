@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
@@ -7,17 +8,10 @@ import AdminLogin from '@/pages/AdminLogin';
 import Dashboard from '@/pages/Dashboard';
 import StaffManagement from '@/pages/admin/StaffManagement';
 import SuperUserManagement from '@/pages/admin/SuperUserManagement';
-import MenuManagement from '@/pages/MenuManagement';
-import InventoryManagement from '@/pages/InventoryManagement';
-import OrderManagement from '@/pages/OrderManagement';
-import CustomerManagement from '@/pages/CustomerManagement';
-import AnalyticsDashboard from '@/pages/AnalyticsDashboard';
-import SettingsPage from '@/pages/SettingsPage';
-import ReservationsPage from '@/pages/ReservationsPage';
-import TablesPage from '@/pages/TablesPage';
-import CashflowPage from '@/pages/CashflowPage';
-import KitchenDisplay from '@/pages/KitchenDisplay';
-import DeliveryManagement from '@/pages/DeliveryManagement';
+import Menu from '@/pages/Menu';
+import Reservations from '@/pages/Reservations';
+import Customer from '@/pages/Customer';
+import POS from '@/pages/POS';
 import Index from '@/pages/Index';
 import TestUserRegistration from '@/pages/TestUserRegistration';
 
@@ -90,50 +84,10 @@ const AppContent: React.FC = () => {
         }
       />
       <Route
-        path="/menu-management"
+        path="/menu"
         element={
           <ProtectedRoute>
-            <MenuManagement />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/inventory-management"
-        element={
-          <ProtectedRoute>
-            <InventoryManagement />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/order-management"
-        element={
-          <ProtectedRoute>
-            <OrderManagement />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/customer-management"
-        element={
-          <ProtectedRoute>
-            <CustomerManagement />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/analytics"
-        element={
-          <ProtectedRoute>
-            <AnalyticsDashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/settings"
-        element={
-          <ProtectedRoute>
-            <SettingsPage />
+            <Menu />
           </ProtectedRoute>
         }
       />
@@ -141,39 +95,23 @@ const AppContent: React.FC = () => {
         path="/reservations"
         element={
           <ProtectedRoute>
-            <ReservationsPage />
+            <Reservations />
           </ProtectedRoute>
         }
       />
       <Route
-        path="/tables"
+        path="/customers"
         element={
           <ProtectedRoute>
-            <TablesPage />
+            <Customer />
           </ProtectedRoute>
         }
       />
       <Route
-        path="/cashflow"
+        path="/pos"
         element={
           <ProtectedRoute>
-            <CashflowPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/kitchen"
-        element={
-          <ProtectedRoute>
-            <KitchenDisplay />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/delivery"
-        element={
-          <ProtectedRoute>
-            <DeliveryManagement />
+            <POS />
           </ProtectedRoute>
         }
       />
