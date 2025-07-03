@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Shield, Coffee } from 'lucide-react';
+import { Users, Coffee, LogIn } from 'lucide-react';
 
 const Index = () => {
   return (
@@ -21,17 +21,17 @@ const Index = () => {
           <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-blue-600" />
-                Admin Access
+                <LogIn className="h-5 w-5 text-blue-600" />
+                Login
               </CardTitle>
               <CardDescription>
-                Super admin and cafe management access
+                Access your dashboard - all roles welcome
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Link to="/admin-login">
+              <Link to="/login">
                 <Button className="w-full" variant="default">
-                  Admin Login
+                  Login to System
                 </Button>
               </Link>
             </CardContent>
@@ -41,18 +41,18 @@ const Index = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Coffee className="h-5 w-5 text-amber-600" />
-                Staff Access
+                Demo Users
               </CardTitle>
               <CardDescription>
-                Staff and employee portal access
+                Try the platform with demo credentials
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Link to="/login">
-                <Button className="w-full" variant="outline">
-                  Staff Login
-                </Button>
-              </Link>
+              <div className="space-y-2 text-sm text-gray-600">
+                <p><strong>Super Admin:</strong><br />superadmin@cafeplatform.com</p>
+                <p><strong>Manager:</strong><br />manager@downtowncafe.com</p>
+                <p><strong>Password:</strong> password123</p>
+              </div>
             </CardContent>
           </Card>
 
@@ -73,12 +73,12 @@ const Index = () => {
                 </Button>
               </Link>
             </CardContent>
-          </Card>
+          </CardContent>
         </div>
 
         <div className="text-center">
           <p className="text-sm text-gray-500">
-            Access the test user registration to create demo accounts for testing the platform
+            One login page for all users - Super Admins, Admins, Managers, and Staff
           </p>
         </div>
       </div>

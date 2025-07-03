@@ -86,7 +86,7 @@ const TestUserRegistration = () => {
           role: userData.role as any,
           hire_date: new Date().toISOString().split('T')[0],
           status: 'active',
-          cafe_id: userData.cafeId || null
+          cafe_id: userData.cafeId === 'none' ? null : userData.cafeId || null
         });
 
       if (profileError) {

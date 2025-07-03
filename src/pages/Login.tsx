@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Coffee, Loader2 } from 'lucide-react';
+import { Coffee, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,26 +13,25 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/components/ui/use-toast';
-import { useAppContext } from '@/contexts/SupabaseAppContext';
+import { useAuth } from '@/hooks/useAuth';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useAppContext();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     
     if (!email || !password) {
-      toast({
-        title: "Error",
-        description: "Please enter both email and password.",
-        variant: "destructive",
-      });
+      setError('Please enter both email and password.');
       return;
     }
     
@@ -47,21 +46,14 @@ const Login: React.FC = () => {
           title: "Login Successful",
           description: "Welcome to the Cafe Management Platform!",
         });
+        // Navigate to dashboard - the auth system will handle role-based routing
         navigate('/dashboard');
       } else {
-        toast({
-          title: "Login Failed",
-          description: "Invalid email or password. Please try again.",
-          variant: "destructive",
-        });
+        setError('Invalid email or password. Please try again.');
       }
     } catch (error) {
       console.error('Login error:', error);
-      toast({
-        title: "Error",
-        description: "An error occurred during login.",
-        variant: "destructive",
-      });
+      setError('An error occurred during login. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -80,11 +72,18 @@ const Login: React.FC = () => {
         
         <Card>
           <CardHeader>
-            <CardTitle>Staff Login</CardTitle>
+            <CardTitle>Login</CardTitle>
             <CardDescription>Enter your credentials to access your dashboard</CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -140,13 +139,13 @@ const Login: React.FC = () => {
         </Card>
         
         <div className="text-center mt-6 text-sm text-muted-foreground">
-          <span>Your login credentials are provided by your cafe administrator.</span>
+          <span>Your login credentials are provided by your administrator.</span>
           <div className="mt-4">
             <a 
-              href="/admin/login"
+              href="/test-users"
               className="text-primary hover:text-primary/90 underline"
             >
-              Admin Login Portal
+              Create Test Users
             </a>
           </div>
         </div>

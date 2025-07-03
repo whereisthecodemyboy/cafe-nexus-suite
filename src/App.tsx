@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 import { SupabaseAppProvider } from '@/contexts/SupabaseAppContext';
 import Login from '@/pages/Login';
-import AdminLogin from '@/pages/AdminLogin';
 import Dashboard from '@/pages/Dashboard';
 import StaffManagement from '@/pages/admin/StaffManagement';
 import SuperUserManagement from '@/pages/admin/SuperUserManagement';
@@ -39,7 +38,7 @@ const AppContent: React.FC = () => {
   const AdminRoute = ({ children }: { children: React.ReactNode }) => {
     const { user } = useAuth();
     if (!user) {
-      return <Navigate to="/admin-login" replace />;
+      return <Navigate to="/login" replace />;
     }
     return <>{children}</>;
   };
@@ -56,7 +55,8 @@ const AppContent: React.FC = () => {
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/admin-login" element={<AdminLogin />} />
+      {/* Redirect admin-login to main login */}
+      <Route path="/admin-login" element={<Navigate to="/login" replace />} />
       <Route path="/test-users" element={<TestUserRegistration />} />
 
       <Route
