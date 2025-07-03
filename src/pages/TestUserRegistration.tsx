@@ -261,7 +261,7 @@ const TestUserRegistration = () => {
                 <SelectValue placeholder="Select Cafe (Optional)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No Cafe (Super Admin)</SelectItem>
+                <SelectItem value="none">No Cafe (Super Admin)</SelectItem>
                 {cafes.map(cafe => (
                   <SelectItem key={cafe.id} value={cafe.id}>
                     {cafe.name}
