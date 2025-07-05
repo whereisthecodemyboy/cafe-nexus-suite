@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
-import { Users, UserPlus, CheckCircle } from 'lucide-react';
+import { Users, UserPlus, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const TestUserRegistration = () => {
   const { toast } = useToast();
@@ -42,8 +43,60 @@ const TestUserRegistration = () => {
   const createUser = async (userData: typeof formData) => {
     try {
       setLoading(true);
+      console.log('Creating user:', userData);
 
-      // Step 1: Create auth user
+      // Check if user already exists in auth.users
+      const { data: existingAuthUsers } = await supabase.auth.admin.listUsers();
+      const userExists = existingAuthUsers.users?.find(user => user.email === userData.email);
+      
+      if (userExists) {
+        // Check if profile exists
+        const { data: existingProfile } = await supabase
+          .from('users')
+          .select('*')
+          .eq('email', userData.email)
+          .single();
+
+        if (existingProfile) {
+          toast({
+            title: "User Already Exists", 
+            description: `User ${userData.name} (${userData.email}) already exists in the system`,
+            variant: "destructive"
+          });
+          return false;
+        } else {
+          // Auth user exists but no profile, create profile
+          const { error: profileError } = await supabase
+            .from('users')
+            .insert({
+              id: userExists.id,
+              name: userData.name,
+              email: userData.email,
+              role: userData.role as any,
+              hire_date: new Date().toISOString().split('T')[0],
+              status: 'active',
+              cafe_id: userData.cafeId === 'none' || !userData.cafeId ? null : userData.cafeId
+            });
+
+          if (profileError) {
+            console.error('Profile creation error:', profileError);
+            toast({
+              title: "Profile Error", 
+              description: profileError.message,
+              variant: "destructive"
+            });
+            return false;
+          }
+
+          toast({
+            title: "Profile Created!", 
+            description: `Profile for ${userData.name} created. User can now log in.`,
+          });
+          return true;
+        }
+      }
+
+      // Create new auth user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: userData.email,
         password: userData.password,
@@ -52,18 +105,26 @@ const TestUserRegistration = () => {
           data: {
             name: userData.name,
             role: userData.role,
-            cafe_id: userData.cafeId
+            cafe_id: userData.cafeId === 'none' || !userData.cafeId ? null : userData.cafeId
           }
         }
       });
 
       if (authError) {
         console.error('Auth signup error:', authError);
-        toast({
-          title: "Signup Error", 
-          description: authError.message,
-          variant: "destructive"
-        });
+        if (authError.message.includes('rate_limit')) {
+          toast({
+            title: "Rate Limited", 
+            description: "Please wait before creating more users. Try again in a minute.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Signup Error", 
+            description: authError.message,
+            variant: "destructive"
+          });
+        }
         return false;
       }
 
@@ -76,7 +137,7 @@ const TestUserRegistration = () => {
         return false;
       }
 
-      // Step 2: Insert user profile data
+      // Create user profile
       const { error: profileError } = await supabase
         .from('users')
         .insert({
@@ -86,7 +147,7 @@ const TestUserRegistration = () => {
           role: userData.role as any,
           hire_date: new Date().toISOString().split('T')[0],
           status: 'active',
-          cafe_id: userData.cafeId === 'none' ? null : userData.cafeId || null
+          cafe_id: userData.cafeId === 'none' || !userData.cafeId ? null : userData.cafeId
         });
 
       if (profileError) {
@@ -101,7 +162,7 @@ const TestUserRegistration = () => {
 
       toast({
         title: "Success!", 
-        description: `User ${userData.name} created successfully`,
+        description: `User ${userData.name} created successfully. Check email for confirmation.`,
       });
       return true;
 
@@ -116,6 +177,58 @@ const TestUserRegistration = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const createUsersWithoutEmailConfirmation = async () => {
+    setLoading(true);
+    let successCount = 0;
+    
+    for (const user of predefinedUsers) {
+      try {
+        // Check if user already exists
+        const { data: existingUser } = await supabase
+          .from('users')
+          .select('*')
+          .eq('email', user.email)
+          .single();
+
+        if (existingUser) {
+          console.log(`User ${user.email} already exists, skipping...`);
+          continue;
+        }
+
+        // Create user directly in database without Supabase Auth
+        const userId = crypto.randomUUID();
+        const { error } = await supabase
+          .from('users')
+          .insert({
+            id: userId,
+            name: user.name,
+            email: user.email,
+            role: user.role as any,
+            hire_date: new Date().toISOString().split('T')[0],
+            status: 'active',
+            cafe_id: user.cafeId
+          });
+
+        if (!error) {
+          successCount++;
+        }
+        
+        // Small delay to avoid rate limits
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+      } catch (error) {
+        console.error(`Error creating user ${user.email}:`, error);
+      }
+    }
+    
+    toast({
+      title: "Quick Setup Complete", 
+      description: `Created ${successCount} users directly in database. You can use these for testing without email confirmation.`,
+    });
+    
+    setLoading(false);
   };
 
   const handleCreateUser = async () => {
@@ -175,16 +288,60 @@ const TestUserRegistration = () => {
         <h1 className="text-3xl font-serif font-bold">Test User Registration</h1>
       </div>
 
+      <Alert>
+        <AlertTriangle className="h-4 w-4" />
+        <AlertDescription>
+          <strong>Email Confirmation Required:</strong> Users created through Supabase Auth need to confirm their email before logging in. 
+          Use the "Quick Setup (No Email)" option for immediate testing.
+        </AlertDescription>
+      </Alert>
+
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Quick Setup */}
+        {/* Quick Setup without Email Confirmation */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-green-600" />
+              Quick Setup (No Email)
+            </CardTitle>
+            <CardDescription>
+              Create test users directly in database - no email confirmation needed
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button 
+              onClick={createUsersWithoutEmailConfirmation} 
+              disabled={loading}
+              className="w-full"
+              size="lg"
+              variant="default"
+            >
+              {loading ? 'Creating Users...' : 'Create Test Users (Instant Login)'}
+            </Button>
+            
+            <div className="text-sm text-muted-foreground">
+              <p className="font-medium mb-2">This creates users ready for immediate login:</p>
+              <ul className="space-y-1 text-xs">
+                {predefinedUsers.map((user, index) => (
+                  <li key={index}>
+                    • {user.name} ({user.email}) - {user.role}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2 font-medium">Password: password123</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Regular Supabase Auth Setup */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5" />
-              Quick Setup
+              Full Auth Setup
             </CardTitle>
             <CardDescription>
-              Create all predefined test users with one click
+              Create users with full Supabase authentication (requires email confirmation)
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -193,12 +350,13 @@ const TestUserRegistration = () => {
               disabled={loading}
               className="w-full"
               size="lg"
+              variant="secondary"
             >
-              {loading ? 'Creating Users...' : 'Create All Test Users'}
+              {loading ? 'Creating Users...' : 'Create All Test Users (With Auth)'}
             </Button>
             
             <div className="text-sm text-muted-foreground">
-              <p className="font-medium mb-2">This will create:</p>
+              <p className="font-medium mb-2">This will create users with email confirmation:</p>
               <ul className="space-y-1 text-xs">
                 {predefinedUsers.map((user, index) => (
                   <li key={index}>
@@ -207,79 +365,80 @@ const TestUserRegistration = () => {
                 ))}
               </ul>
               <p className="mt-2 font-medium">Default password: password123</p>
+              <p className="mt-1 text-xs text-orange-600">⚠️ Email confirmation required before login</p>
             </div>
           </CardContent>
         </Card>
-
-        {/* Manual Creation */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <UserPlus className="h-5 w-5" />
-              Manual User Creation
-            </CardTitle>
-            <CardDescription>
-              Create individual users with custom details
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Input
-              placeholder="Full Name"
-              value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
-            />
-            
-            <Input
-              type="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={(e) => setFormData({...formData, email: e.target.value})}
-            />
-            
-            <Input
-              type="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={(e) => setFormData({...formData, password: e.target.value})}
-            />
-            
-            <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value})}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select Role" />
-              </SelectTrigger>
-              <SelectContent>
-                {roles.map(role => (
-                  <SelectItem key={role} value={role}>
-                    {role.charAt(0).toUpperCase() + role.slice(1)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            <Select value={formData.cafeId} onValueChange={(value) => setFormData({...formData, cafeId: value})}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select Cafe (Optional)" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No Cafe (Super Admin)</SelectItem>
-                {cafes.map(cafe => (
-                  <SelectItem key={cafe.id} value={cafe.id}>
-                    {cafe.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            <Button 
-              onClick={handleCreateUser}
-              disabled={loading}
-              className="w-full"
-            >
-              {loading ? 'Creating...' : 'Create User'}
-            </Button>
-          </CardContent>
-        </Card>
       </div>
+
+      {/* Manual Creation */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <UserPlus className="h-5 w-5" />
+            Manual User Creation
+          </CardTitle>
+          <CardDescription>
+            Create individual users with custom details
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Input
+            placeholder="Full Name"
+            value={formData.name}
+            onChange={(e) => setFormData({...formData, name: e.target.value})}
+          />
+          
+          <Input
+            type="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={(e) => setFormData({...formData, email: e.target.value})}
+          />
+          
+          <Input
+            type="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={(e) => setFormData({...formData, password: e.target.value})}
+          />
+          
+          <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value})}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select Role" />
+            </SelectTrigger>
+            <SelectContent>
+              {roles.map(role => (
+                <SelectItem key={role} value={role}>
+                  {role.charAt(0).toUpperCase() + role.slice(1)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          <Select value={formData.cafeId} onValueChange={(value) => setFormData({...formData, cafeId: value})}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select Cafe (Optional)" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">No Cafe (Super Admin)</SelectItem>
+              {cafes.map(cafe => (
+                <SelectItem key={cafe.id} value={cafe.id}>
+                  {cafe.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          <Button 
+            onClick={handleCreateUser}
+            disabled={loading}
+            className="w-full"
+          >
+            {loading ? 'Creating...' : 'Create User'}
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* Individual Predefined Users */}
       <Card>
