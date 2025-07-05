@@ -46,7 +46,7 @@ const TestUserRegistration = () => {
 
       // Check if user already exists in auth.users
       const { data: existingAuthUsers } = await supabase.auth.admin.listUsers();
-      const userExists = existingAuthUsers.users?.find(user => user.email === userData.email);
+      const userExists = existingAuthUsers.users?.find((user: any) => user.email === userData.email);
       
       if (userExists) {
         // Check if profile exists
@@ -63,107 +63,110 @@ const TestUserRegistration = () => {
             variant: "destructive"
           });
           return false;
-        } else {
-          // Auth user exists but no profile, create profile
-          const { error: profileError } = await supabase
-            .from('users')
-            .insert({
-              id: userExists.id,
-              name: userData.name,
-              email: userData.email,
-              role: userData.role as any,
-              hire_date: new Date().toISOString().split('T')[0],
-              status: 'active',
-              cafe_id: userData.cafeId === 'none' || !userData.cafeId ? null : userData.cafeId
-            });
+        }
+      }
 
-          if (profileError) {
-            console.error('Profile creation error:', profileError);
+      // Create new auth user or create profile for existing auth user
+      if (userExists) {
+        // Auth user exists but no profile, create profile
+        const { error: profileError } = await supabase
+          .from('users')
+          .insert({
+            id: userExists.id,
+            name: userData.name,
+            email: userData.email,
+            role: userData.role as any,
+            hire_date: new Date().toISOString().split('T')[0],
+            status: 'active',
+            cafe_id: userData.cafeId === 'none' || !userData.cafeId ? null : userData.cafeId
+          });
+
+        if (profileError) {
+          console.error('Profile creation error:', profileError);
+          toast({
+            title: "Profile Error", 
+            description: profileError.message,
+            variant: "destructive"
+          });
+          return false;
+        }
+
+        toast({
+          title: "Profile Created!", 
+          description: `Profile for ${userData.name} created. User can now log in.`,
+        });
+        return true;
+      } else {
+        // Create new auth user
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: userData.email,
+          password: userData.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: {
+              name: userData.name,
+              role: userData.role,
+              cafe_id: userData.cafeId === 'none' || !userData.cafeId ? null : userData.cafeId
+            }
+          }
+        });
+
+        if (authError) {
+          console.error('Auth signup error:', authError);
+          if (authError.message.includes('rate_limit')) {
             toast({
-              title: "Profile Error", 
-              description: profileError.message,
+              title: "Rate Limited", 
+              description: "Please wait before creating more users. Try again in a minute.",
               variant: "destructive"
             });
-            return false;
+          } else {
+            toast({
+              title: "Signup Error", 
+              description: authError.message,
+              variant: "destructive"
+            });
           }
-
-          toast({
-            title: "Profile Created!", 
-            description: `Profile for ${userData.name} created. User can now log in.`,
-          });
-          return true;
+          return false;
         }
-      }
 
-      // Create new auth user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: userData.email,
-        password: userData.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-          data: {
+        if (!authData.user) {
+          toast({
+            title: "Error", 
+            description: "Failed to create user",
+            variant: "destructive"
+          });
+          return false;
+        }
+
+        // Create user profile
+        const { error: profileError } = await supabase
+          .from('users')
+          .insert({
+            id: authData.user.id,
             name: userData.name,
-            role: userData.role,
+            email: userData.email,
+            role: userData.role as any,
+            hire_date: new Date().toISOString().split('T')[0],
+            status: 'active',
             cafe_id: userData.cafeId === 'none' || !userData.cafeId ? null : userData.cafeId
-          }
-        }
-      });
+          });
 
-      if (authError) {
-        console.error('Auth signup error:', authError);
-        if (authError.message.includes('rate_limit')) {
+        if (profileError) {
+          console.error('Profile creation error:', profileError);
           toast({
-            title: "Rate Limited", 
-            description: "Please wait before creating more users. Try again in a minute.",
+            title: "Profile Error", 
+            description: profileError.message,
             variant: "destructive"
           });
-        } else {
-          toast({
-            title: "Signup Error", 
-            description: authError.message,
-            variant: "destructive"
-          });
+          return false;
         }
-        return false;
-      }
 
-      if (!authData.user) {
         toast({
-          title: "Error", 
-          description: "Failed to create user",
-          variant: "destructive"
+          title: "Success!", 
+          description: `User ${userData.name} created successfully. Check email for confirmation.`,
         });
-        return false;
+        return true;
       }
-
-      // Create user profile
-      const { error: profileError } = await supabase
-        .from('users')
-        .insert({
-          id: authData.user.id,
-          name: userData.name,
-          email: userData.email,
-          role: userData.role as any,
-          hire_date: new Date().toISOString().split('T')[0],
-          status: 'active',
-          cafe_id: userData.cafeId === 'none' || !userData.cafeId ? null : userData.cafeId
-        });
-
-      if (profileError) {
-        console.error('Profile creation error:', profileError);
-        toast({
-          title: "Profile Error", 
-          description: profileError.message,
-          variant: "destructive"
-        });
-        return false;
-      }
-
-      toast({
-        title: "Success!", 
-        description: `User ${userData.name} created successfully. Check email for confirmation.`,
-      });
-      return true;
 
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -290,8 +293,8 @@ const TestUserRegistration = () => {
       <Alert>
         <AlertTriangle className="h-4 w-4" />
         <AlertDescription>
-          <strong>Email Confirmation Required:</strong> Users created through Supabase Auth need to confirm their email before logging in. 
-          Use the "Quick Setup (No Email)" option for immediate testing.
+          <strong>Quick Login Credentials:</strong> Use the "Quick Setup (No Email)" option to create users you can login with immediately.
+          Then try: <strong>superadmin@cafeplatform.com</strong> with password <strong>password123</strong>
         </AlertDescription>
       </Alert>
 
