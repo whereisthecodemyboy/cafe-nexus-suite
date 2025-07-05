@@ -73,7 +73,7 @@ const Index = () => {
                 </Button>
               </Link>
             </CardContent>
-          </CardContent>
+          </Card>
         </div>
 
         <div className="text-center">
