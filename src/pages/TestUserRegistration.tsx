@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -250,7 +249,7 @@ const TestUserRegistration = () => {
       email: user.email,
       password: 'password123',
       role: user.role,
-      cafeId: user.cafeId
+      cafeId: user.cafeId || ''
     });
   };
 
@@ -264,7 +263,7 @@ const TestUserRegistration = () => {
         email: user.email,
         password: 'password123',
         role: user.role,
-        cafeId: user.cafeId
+        cafeId: user.cafeId || ''
       });
       
       if (success) successCount++;
