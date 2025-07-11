@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Coffee, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -24,7 +24,15 @@ const Login: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useAuth();
+  const { login, user, userProfile } = useAuth();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && userProfile) {
+      console.log('User already logged in, redirecting to dashboard')
+      navigate('/dashboard');
+    }
+  }, [user, userProfile, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +46,7 @@ const Login: React.FC = () => {
     setLoading(true);
     
     try {
-      console.log('Attempting login with:', email, password);
+      console.log('Attempting login with:', email);
       const success = await login(email, password);
       
       if (success) {
@@ -46,8 +54,7 @@ const Login: React.FC = () => {
           title: "Login Successful",
           description: "Welcome to the Cafe Management Platform!",
         });
-        // Navigate to dashboard - the auth system will handle role-based routing
-        navigate('/dashboard');
+        // Navigation will be handled by the useEffect above
       } else {
         setError('Invalid email or password. Please try again.');
       }
@@ -57,6 +64,33 @@ const Login: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleQuickLogin = (email: string, password: string, label: string) => {
+    setEmail(email);
+    setPassword(password);
+    setError(null);
+    
+    // Auto-submit after setting credentials
+    setTimeout(async () => {
+      setLoading(true);
+      try {
+        const success = await login(email, password);
+        if (success) {
+          toast({
+            title: "Login Successful",
+            description: `Welcome ${label}!`,
+          });
+        } else {
+          setError('Login failed. Please try again.');
+        }
+      } catch (error) {
+        console.error('Quick login error:', error);
+        setError('An error occurred during login.');
+      } finally {
+        setLoading(false);
+      }
+    }, 100);
   };
 
   return (
@@ -139,14 +173,35 @@ const Login: React.FC = () => {
         </Card>
         
         <div className="text-center mt-6 text-sm text-muted-foreground">
-          <span>Your login credentials are provided by your administrator.</span>
-          <div className="mt-4">
-            <a 
-              href="/test-users"
-              className="text-primary hover:text-primary/90 underline"
+          <span className="block mb-4">Quick Login (Demo Accounts):</span>
+          <div className="space-y-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() => handleQuickLogin('superadmin@cafeplatform.com', 'password123', 'Super Administrator')}
+              disabled={loading}
             >
-              Create Test Users
-            </a>
+              Login as Super Admin
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() => handleQuickLogin('admin@downtowncafe.com', 'admin123', 'Downtown Cafe Admin')}
+              disabled={loading}
+            >
+              Login as Cafe Admin
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() => handleQuickLogin('manager@uptownbistro.com', 'manager123', 'Cafe Manager')}
+              disabled={loading}
+            >
+              Login as Cafe Manager
+            </Button>
           </div>
         </div>
       </div>
